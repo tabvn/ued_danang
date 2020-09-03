@@ -1,0 +1,17 @@
+type File implements Model{
+	id: ID! @tag(gorm: "primaryKey")
+	storeId: ID @tag(gorm:"index")
+	name: String! @tag(gorm:"index")
+	key: String! @tag(gorm:"uniqueIndex")
+	thumbnail: String
+	cloud: String!
+	size: Int64!
+	mime: String!
+	width: Int
+	height: Int
+	url: String
+	source: String
+	kind: String!
+	createdAt: Time!
+	updatedAt: Time!
+}

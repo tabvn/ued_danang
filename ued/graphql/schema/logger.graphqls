@@ -1,0 +1,24 @@
+type Logger implements Model{
+	id: ID! @tag(gorm: "primaryKey")
+	type: String!
+	message: Json
+	createdAt: Time!
+	updatedAt: Time!
+}
+
+type LoggerConnection{
+	nodes: [Logger!]
+	total: Int64!
+}
+
+input LoggerFilter{
+	search: String
+	limit: Int
+	offset: Int
+}
+extend type Query {
+	loggers(filter: LoggerFilter): LoggerConnection
+}
+extend type Mutation {
+	clearAllLogs: Boolean!
+}

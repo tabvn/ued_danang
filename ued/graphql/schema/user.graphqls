@@ -1,0 +1,34 @@
+type ExpireToken implements Model{
+	id: ID! @tag(gorm: "primaryKey")
+	token: String! @tag(gorm:"uniqueIndex")
+	createdAt: Time!
+	updatedAt: Time!
+}
+type User implements Model{
+	id: ID! @tag(gorm: "primaryKey")
+	email: String! @tag(gorm:"uniqueIndex")
+	password: String!
+	createdAt: Time!
+	updatedAt: Time!
+}
+type Token {
+	id: String!
+	expiredAt: Time!
+	user: User!
+}
+input NewUser{
+	email: String!
+	password: String!
+}
+type Viewer{
+	user: User
+}
+extend type Mutation {
+	createUser(input: NewUser!): User!
+	login(email: String!, password: String!): Token!
+	logout: Boolean!
+}
+extend type Query {
+	user(id: ID!): User!
+	viewer: Viewer
+}

@@ -1,0 +1,40 @@
+{{ reserveImport "context" }}
+{{ reserveImport "log" }}
+{{ reserveImport "net/http" }}
+{{ reserveImport "os" }}
+{{ reserveImport "github.com/99designs/gqlgen/graphql/playground" }}
+{{ reserveImport "github.com/99designs/gqlgen/graphql/handler" }}
+{{ reserveImport "gorm.io/driver/postgres" }}
+{{ reserveImport "gorm.io/gorm" }}
+
+const defaultPort = "8080"
+
+func connect() *gorm.DB {
+	dsn := os.Getenv("POSTGRESQL_URL")
+	if len(dsn) == 0 {
+		dsn = "user=postgres password=root dbname=goo port=5432 sslmode=disable"
+	}
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	model.AutoMigrate(db)
+	return db
+}
+
+func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = defaultPort
+	}
+	conf := generated.Config{Resolvers: &resolver.Resolver{DB: connect()}}
+	conf.Directives.Tag = func(ctx context.Context, obj interface{}, next graphql.Resolver, gorm *string) (res interface{}, err error) {
+		return next(ctx)
+	}
+	srv := handler.NewDefaultServer({{ lookupImport .ExecPackageName }}.NewExecutableSchema({{ lookupImport .ExecPackageName}}.Config{conf}))
+	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	http.Handle("/query", srv)
+
+	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
+	log.Fatal(http.ListenAndServe(":" + port, nil))
+}
