@@ -1,6 +1,7 @@
 ./idea
 ./idea/*
 ./web/node_modules
+./web/node_modules/*
 ./web/build
 ./web/build/*
 ./web/package-lock.json
