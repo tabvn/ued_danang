@@ -3,6 +3,9 @@
 package model
 
 import (
+	"fmt"
+	"io"
+	"strconv"
 	"time"
 
 	"gorm.io/datatypes"
@@ -16,15 +19,52 @@ func AutoMigrate(db *gorm.DB) {
 	DB = db
 	db.AutoMigrate(
 
+		&Class{},
 		&ExpireToken{},
+		&Faculty{},
 		&File{},
 		&Logger{},
+		&Student{},
+		&Teacher{},
 		&User{},
 	)
 }
 
 type Model interface {
 	IsModel()
+}
+
+type Class struct {
+	ID        int64          `json:"id" gorm:"primaryKey"`
+	Name      string         `json:"name" gorm:"uniqueIndex"`
+	FacultyID int64          `json:"facultyId" gorm:"index"`
+	Faculty   *Faculty       `json:"faculty" gorm:"foreignKey:FacultyID"`
+	Year      int            `json:"year"`
+	TeacherID int64          `json:"teacherId" gorm:"index"`
+	Teacher   *User          `json:"teacher" gorm:"foreignKey:TeacherID"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeleteAt  gorm.DeletedAt `gorm:"index"`
+}
+
+func (Class) IsModel() {}
+
+type ClassConnection struct {
+	Total int64    `json:"total"`
+	Nodes []*Class `json:"nodes"`
+}
+
+type ClassFilter struct {
+	Search *string `json:"search"`
+	Limit  *int    `json:"limit"`
+	Offset *int    `json:"offset"`
+}
+
+type ClassInput struct {
+	Name      string `json:"name"`
+	FacultyID int64  `json:"facultyId"`
+	TeacherID int64  `json:"teacherId"`
+	Year      int    `json:"year"`
 }
 
 type ExpireToken struct {
@@ -36,6 +76,20 @@ type ExpireToken struct {
 }
 
 func (ExpireToken) IsModel() {}
+
+type Faculty struct {
+	ID        int64          `json:"id" gorm:"primaryKey"`
+	Name      string         `json:"name" gorm:"uniqueIndex"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeleteAt  gorm.DeletedAt `gorm:"index"`
+}
+
+func (Faculty) IsModel() {}
+
+type FacultyInput struct {
+	Name string `json:"name"`
+}
 
 type File struct {
 	ID        int64          `json:"id" gorm:"primaryKey"`
@@ -90,6 +144,79 @@ type Sort struct {
 	Value string `json:"value"`
 }
 
+type Student struct {
+	ID        int64          `json:"id" gorm:"primaryKey"`
+	UserID    int64          `json:"userId" gorm:"index"`
+	User      *User          `json:"user" gorm:"foreignKey:UserID"`
+	Code      string         `json:"code" gorm:"uniqueIndex"`
+	FirstName string         `json:"firstName"`
+	LastName  string         `json:"lastName"`
+	Gender    int            `json:"gender"`
+	Birthday  time.Time      `json:"birthday"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeleteAt  gorm.DeletedAt `gorm:"index"`
+}
+
+func (Student) IsModel() {}
+
+type StudentConnection struct {
+	Total int64      `json:"total"`
+	Nodes []*Student `json:"nodes"`
+}
+
+type StudentFilter struct {
+	Search  *string `json:"search"`
+	ClassID *int64  `json:"classId"`
+	Limit   *int    `json:"limit"`
+	Offset  *int    `json:"offset"`
+}
+
+type StudentInput struct {
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	Code      string    `json:"code"`
+	FirstName string    `json:"firstName"`
+	LastName  string    `json:"lastName"`
+	Gender    int       `json:"gender"`
+	Birthday  time.Time `json:"birthday"`
+}
+
+type Teacher struct {
+	ID        int64          `json:"id" gorm:"primaryKey"`
+	UserID    int64          `json:"userId" gorm:"index"`
+	User      *User          `json:"user" gorm:"foreignKey:UserID"`
+	FirstName string         `json:"firstName"`
+	LastName  string         `json:"lastName"`
+	Phone     string         `json:"phone"`
+	WorkPlace *string        `json:"workPlace"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeleteAt  gorm.DeletedAt `gorm:"index"`
+}
+
+func (Teacher) IsModel() {}
+
+type TeacherConnection struct {
+	Total int64      `json:"total"`
+	Nodes []*Teacher `json:"nodes"`
+}
+
+type TeacherFilter struct {
+	Search *string `json:"search"`
+	Limit  *int    `json:"limit"`
+	Offset *int    `json:"offset"`
+}
+
+type TeacherInput struct {
+	Email     string  `json:"email"`
+	Password  string  `json:"password"`
+	FirstName string  `json:"firstName"`
+	LastName  string  `json:"lastName"`
+	Phone     string  `json:"phone"`
+	Workplace *string `json:"workplace"`
+}
+
 type Token struct {
 	ID        string    `json:"id"`
 	ExpiredAt time.Time `json:"expiredAt"`
@@ -100,6 +227,7 @@ type User struct {
 	ID        int64          `json:"id" gorm:"primaryKey"`
 	Email     string         `json:"email" gorm:"uniqueIndex"`
 	Password  string         `json:"password"`
+	Role      string         `json:"role"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
 	DeleteAt  gorm.DeletedAt `gorm:"index"`
@@ -108,5 +236,50 @@ type User struct {
 func (User) IsModel() {}
 
 type Viewer struct {
-	User *User `json:"user"`
+	User    *User    `json:"user"`
+	Teacher *Teacher `json:"teacher"`
+	Student *Student `json:"student"`
+}
+
+type Role string
+
+const (
+	RoleAdministrator Role = "Administrator"
+	RoleTeacher       Role = "Teacher"
+	RoleStudent       Role = "Student"
+)
+
+var AllRole = []Role{
+	RoleAdministrator,
+	RoleTeacher,
+	RoleStudent,
+}
+
+func (e Role) IsValid() bool {
+	switch e {
+	case RoleAdministrator, RoleTeacher, RoleStudent:
+		return true
+	}
+	return false
+}
+
+func (e Role) String() string {
+	return string(e)
+}
+
+func (e *Role) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Role(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Role", str)
+	}
+	return nil
+}
+
+func (e Role) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

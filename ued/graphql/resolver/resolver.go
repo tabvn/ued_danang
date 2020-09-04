@@ -2,8 +2,11 @@ package resolver
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"github.com/tabvn/ued/auth"
 	"github.com/tabvn/ued/model"
+	"github.com/tabvn/ued/validate"
 	"gorm.io/gorm"
 )
 
@@ -46,4 +49,24 @@ func (r *Resolver) GetCurrentUser(ctx context.Context) *model.User {
 		return nil
 	}
 	return &user
+}
+
+func (r *Resolver) CreateUser(tx *gorm.DB, email string, password string) (*model.User, error) {
+	if !validate.Email(email) {
+		return nil, errors.New("invalid email address")
+	}
+	if len(password) < 5 {
+		return nil, errors.New("invalid password")
+	}
+	obj := model.User{
+		Email:    email,
+		Password: model.EncodePassword(password),
+	}
+	if tx == nil {
+		tx = r.DB
+	}
+	if err := tx.Create(&obj).Error; err != nil {
+		return nil, fmt.Errorf("create user error %s", err.Error())
+	}
+	return &obj, nil
 }

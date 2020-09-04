@@ -64,5 +64,8 @@ models:
     model:
       - github.com/tabvn/ued/graphql/scalar.URL
   StringArray:
-      model:
-        - github.com/tabvn/ued/graphql/scalar.StringArray
+    model:
+      - github.com/tabvn/ued/graphql/scalar.StringArray
+  DOB:
+    model:
+      - github.com/tabvn/ued/graphql/scalar.DOB

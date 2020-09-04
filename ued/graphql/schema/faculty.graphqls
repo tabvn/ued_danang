@@ -1,0 +1,15 @@
+type Faculty implements Model{
+	id: ID! @tag(gorm: "primaryKey")
+	name: String! @tag(gorm:"uniqueIndex")
+	createdAt: Time!
+	updatedAt: Time!
+}
+input FacultyInput{
+	name: String!
+}
+extend type Query {
+	faculties: [Faculty!]
+}
+extend type Mutation {
+	createFaculty(input: FacultyInput!): Faculty!
+}

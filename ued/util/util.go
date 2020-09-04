@@ -5,6 +5,7 @@ import (
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"strings"
+	"time"
 )
 
 func Insert(db *gorm.DB, table string, data map[string]interface{}) *gorm.DB {
@@ -40,4 +41,8 @@ func GetString(v *string, defaultValue string) string {
 		return *v
 	}
 	return defaultValue
+}
+
+func ParseBirthday(s string) (time.Time, error) {
+	return time.Parse("02/01/2006", s)
 }

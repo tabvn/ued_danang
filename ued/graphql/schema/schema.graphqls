@@ -6,6 +6,7 @@ scalar Int64
 scalar Json
 scalar URL
 scalar StringArray
+scalar DOB
 
 interface Model {
 	id: ID! @tag(gorm: "primaryKey")

@@ -1,3 +1,8 @@
+enum Role{
+	Administrator
+	Teacher
+	Student
+}
 type ExpireToken implements Model{
 	id: ID! @tag(gorm: "primaryKey")
 	token: String! @tag(gorm:"uniqueIndex")
@@ -8,6 +13,7 @@ type User implements Model{
 	id: ID! @tag(gorm: "primaryKey")
 	email: String! @tag(gorm:"uniqueIndex")
 	password: String!
+	role: String!
 	createdAt: Time!
 	updatedAt: Time!
 }
@@ -22,9 +28,10 @@ input NewUser{
 }
 type Viewer{
 	user: User
+	teacher: Teacher
+	student: Student
 }
 extend type Mutation {
-	createUser(input: NewUser!): User!
 	login(email: String!, password: String!): Token!
 	logout: Boolean!
 }

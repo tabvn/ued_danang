@@ -1,0 +1,32 @@
+type Class implements Model{
+	id: ID! @tag(gorm: "primaryKey")
+	name: String! @tag(gorm:"uniqueIndex")
+	facultyId: ID! @tag(gorm:"index")
+	faculty: Faculty! @tag(gorm:"foreignKey:FacultyID")
+	year: Int!
+	teacherId: ID! @tag(gorm:"index")
+	teacher: User! @tag(gorm:"foreignKey:TeacherID")
+	createdAt: Time!
+	updatedAt: Time!
+}
+input ClassInput {
+	name: String!
+	facultyId: ID!
+	teacherId: ID!
+	year: Int!
+}
+type ClassConnection{
+	total: Int64!
+	nodes:[Class!]
+}
+input ClassFilter{
+	search: String
+	limit: Int
+	offset: Int
+}
+extend type Query {
+	classes(filter:ClassFilter): ClassConnection!
+}
+extend type Mutation {
+	createClass(input: ClassInput!): Class!
+}

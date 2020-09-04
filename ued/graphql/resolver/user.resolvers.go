@@ -12,26 +12,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/tabvn/ued/auth"
 	"github.com/tabvn/ued/model"
-	"github.com/tabvn/ued/validate"
 )
-
-func (r *mutationResolver) CreateUser(ctx context.Context, input model.NewUser) (*model.User, error) {
-	if !validate.Email(input.Email) {
-		return nil, errors.New("invalid email address")
-	}
-	if len(input.Password) < 5 {
-		return nil, errors.New("invalid password")
-	}
-	obj := model.User{
-		Email:    input.Email,
-		Password: model.EncodePassword(input.Password),
-	}
-	if err := r.DB.Create(&obj).Error; err != nil {
-		return nil, fmt.Errorf("create user error %s", err.Error())
-	}
-	obj.Password = ""
-	return &obj, nil
-}
 
 func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.Token, error) {
 	var (

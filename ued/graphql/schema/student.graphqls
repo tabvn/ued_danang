@@ -1,0 +1,38 @@
+type Student implements Model{
+	id: ID! @tag(gorm: "primaryKey")
+	userId: ID! @tag(gorm:"index")
+	user: User! @tag(gorm:"foreignKey:UserID")
+	code: String! @tag(gorm:"uniqueIndex")
+	firstName: String!
+	lastName: String!
+	gender: Int!
+	birthday: DOB!
+	createdAt: Time!
+	updatedAt: Time!
+}
+
+input StudentInput{
+	email: String!
+	password: String!
+	code: String!
+	firstName: String!
+	lastName: String!
+	gender: Int!
+	birthday: DOB!
+}
+type StudentConnection{
+	total: Int64!
+	nodes:[Student!]
+}
+input StudentFilter{
+	search: String
+	classId: ID
+	limit: Int
+	offset: Int
+}
+extend type Query {
+	students(filter: StudentFilter): StudentConnection
+}
+extend type Mutation{
+	createStudent(input: StudentInput!): Student!
+}

@@ -1,0 +1,34 @@
+type Teacher implements Model{
+	id: ID! @tag(gorm: "primaryKey")
+	userId: ID! @tag(gorm:"index")
+	user: User! @tag(gorm:"foreignKey:UserID")
+	firstName: String!
+	lastName: String!
+	phone: String!
+	workPlace: String
+	createdAt: Time!
+	updatedAt: Time!
+}
+input TeacherInput{
+	email: String!
+	password: String!
+	firstName: String!
+	lastName: String!
+	phone: String!
+	workplace: String
+}
+input TeacherFilter{
+	search: String
+	limit: Int
+	offset: Int
+}
+type TeacherConnection{
+	total: Int64!
+	nodes: [Teacher!]
+}
+extend type Query {
+	teachers(filter: TeacherFilter): TeacherConnection!
+}
+extend type Mutation {
+	createTeacher(input: TeacherInput!): Teacher!
+}
