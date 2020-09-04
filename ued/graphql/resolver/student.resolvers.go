@@ -12,13 +12,21 @@ import (
 )
 
 func (r *mutationResolver) CreateStudent(ctx context.Context, input model.StudentInput) (*model.Student, error) {
+	var (
+		c model.Class
+	)
+	if err := r.DB.Where("id = ?", input.ClassID).Take(&c).Error; err != nil {
+		return nil, fmt.Errorf("class not found")
+	}
 	tx := r.DB.Begin()
-	user, err := r.CreateUser(tx, input.Email, input.Password)
+	user, err := r.CreateUser(tx, input.FirstName, input.LastName,input.Email, input.Password)
 	if err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("could not create user due an error: %s", err.Error())
 	}
 	obj := model.Student{
+		ClassID:   c.ID,
+		Class:     &c,
 		UserID:    user.ID,
 		User:      user,
 		Code:      input.Code,

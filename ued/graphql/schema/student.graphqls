@@ -3,6 +3,8 @@ type Student implements Model{
 	userId: ID! @tag(gorm:"index")
 	user: User! @tag(gorm:"foreignKey:UserID")
 	code: String! @tag(gorm:"uniqueIndex")
+	classId: ID! @tag(gorm:"uniqueIndex")
+	class: Class! @tag(gorm:"foreignKey:ClassID")
 	firstName: String!
 	lastName: String!
 	gender: Int!
@@ -19,6 +21,7 @@ input StudentInput{
 	lastName: String!
 	gender: Int!
 	birthday: DOB!
+	classId: ID!
 }
 type StudentConnection{
 	total: Int64!

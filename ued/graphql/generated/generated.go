@@ -132,6 +132,8 @@ type ComplexityRoot struct {
 
 	Student struct {
 		Birthday  func(childComplexity int) int
+		Class     func(childComplexity int) int
+		ClassID   func(childComplexity int) int
 		Code      func(childComplexity int) int
 		CreatedAt func(childComplexity int) int
 		FirstName func(childComplexity int) int
@@ -174,7 +176,9 @@ type ComplexityRoot struct {
 	User struct {
 		CreatedAt func(childComplexity int) int
 		Email     func(childComplexity int) int
+		FirstName func(childComplexity int) int
 		ID        func(childComplexity int) int
+		LastName  func(childComplexity int) int
 		Password  func(childComplexity int) int
 		Role      func(childComplexity int) int
 		UpdatedAt func(childComplexity int) int
@@ -663,6 +667,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Student.Birthday(childComplexity), true
 
+	case "Student.class":
+		if e.complexity.Student.Class == nil {
+			break
+		}
+
+		return e.complexity.Student.Class(childComplexity), true
+
+	case "Student.classId":
+		if e.complexity.Student.ClassID == nil {
+			break
+		}
+
+		return e.complexity.Student.ClassID(childComplexity), true
+
 	case "Student.code":
 		if e.complexity.Student.Code == nil {
 			break
@@ -852,12 +870,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.User.Email(childComplexity), true
 
+	case "User.firstName":
+		if e.complexity.User.FirstName == nil {
+			break
+		}
+
+		return e.complexity.User.FirstName(childComplexity), true
+
 	case "User.id":
 		if e.complexity.User.ID == nil {
 			break
 		}
 
 		return e.complexity.User.ID(childComplexity), true
+
+	case "User.lastName":
+		if e.complexity.User.LastName == nil {
+			break
+		}
+
+		return e.complexity.User.LastName(childComplexity), true
 
 	case "User.password":
 		if e.complexity.User.Password == nil {
@@ -1079,6 +1111,8 @@ type Query`, BuiltIn: false},
 	userId: ID! @tag(gorm:"index")
 	user: User! @tag(gorm:"foreignKey:UserID")
 	code: String! @tag(gorm:"uniqueIndex")
+	classId: ID! @tag(gorm:"uniqueIndex")
+	class: Class! @tag(gorm:"foreignKey:ClassID")
 	firstName: String!
 	lastName: String!
 	gender: Int!
@@ -1095,6 +1129,7 @@ input StudentInput{
 	lastName: String!
 	gender: Int!
 	birthday: DOB!
+	classId: ID!
 }
 type StudentConnection{
 	total: Int64!
@@ -1160,6 +1195,8 @@ type ExpireToken implements Model{
 }
 type User implements Model{
 	id: ID! @tag(gorm: "primaryKey")
+	firstName: String!
+	lastName: String!
 	email: String! @tag(gorm:"uniqueIndex")
 	password: String!
 	role: String!
@@ -3984,6 +4021,122 @@ func (ec *executionContext) _Student_code(ctx context.Context, field graphql.Col
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Student_classId(ctx context.Context, field graphql.CollectedField, obj *model.Student) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Student",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.ClassID, nil
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			gorm, err := ec.unmarshalOString2ᚖstring(ctx, "uniqueIndex")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Tag == nil {
+				return nil, errors.New("directive tag is not implemented")
+			}
+			return ec.directives.Tag(ctx, obj, directive0, gorm)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(int64); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be int64`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Student_class(ctx context.Context, field graphql.CollectedField, obj *model.Student) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Student",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Class, nil
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			gorm, err := ec.unmarshalOString2ᚖstring(ctx, "foreignKey:ClassID")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Tag == nil {
+				return nil, errors.New("directive tag is not implemented")
+			}
+			return ec.directives.Tag(ctx, obj, directive0, gorm)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Class); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/tabvn/ued/model.Class`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Class)
+	fc.Result = res
+	return ec.marshalNClass2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐClass(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Student_firstName(ctx context.Context, field graphql.CollectedField, obj *model.Student) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -4851,6 +5004,74 @@ func (ec *executionContext) _User_id(ctx context.Context, field graphql.Collecte
 	res := resTmp.(int64)
 	fc.Result = res
 	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_firstName(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "User",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.FirstName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _User_lastName(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "User",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastName, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_email(ctx context.Context, field graphql.CollectedField, obj *model.User) (ret graphql.Marshaler) {
@@ -6493,6 +6714,14 @@ func (ec *executionContext) unmarshalInputStudentInput(ctx context.Context, obj 
 			if err != nil {
 				return it, err
 			}
+		case "classId":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("classId"))
+			it.ClassID, err = ec.unmarshalNID2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -7208,6 +7437,16 @@ func (ec *executionContext) _Student(ctx context.Context, sel ast.SelectionSet, 
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "classId":
+			out.Values[i] = ec._Student_classId(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "class":
+			out.Values[i] = ec._Student_class(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "firstName":
 			out.Values[i] = ec._Student_firstName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -7421,6 +7660,16 @@ func (ec *executionContext) _User(ctx context.Context, sel ast.SelectionSet, obj
 			out.Values[i] = graphql.MarshalString("User")
 		case "id":
 			out.Values[i] = ec._User_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "firstName":
+			out.Values[i] = ec._User_firstName(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "lastName":
+			out.Values[i] = ec._User_lastName(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

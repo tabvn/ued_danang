@@ -51,7 +51,7 @@ func (r *Resolver) GetCurrentUser(ctx context.Context) *model.User {
 	return &user
 }
 
-func (r *Resolver) CreateUser(tx *gorm.DB, email string, password string) (*model.User, error) {
+func (r *Resolver) CreateUser(tx *gorm.DB, first, last, email, password string) (*model.User, error) {
 	if !validate.Email(email) {
 		return nil, errors.New("invalid email address")
 	}
@@ -59,6 +59,8 @@ func (r *Resolver) CreateUser(tx *gorm.DB, email string, password string) (*mode
 		return nil, errors.New("invalid password")
 	}
 	obj := model.User{
+		FirstName: first,
+		LastName: last,
 		Email:    email,
 		Password: model.EncodePassword(password),
 	}

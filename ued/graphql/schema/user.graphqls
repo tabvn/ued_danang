@@ -11,6 +11,8 @@ type ExpireToken implements Model{
 }
 type User implements Model{
 	id: ID! @tag(gorm: "primaryKey")
+	firstName: String!
+	lastName: String!
 	email: String! @tag(gorm:"uniqueIndex")
 	password: String!
 	role: String!

@@ -149,6 +149,8 @@ type Student struct {
 	UserID    int64          `json:"userId" gorm:"index"`
 	User      *User          `json:"user" gorm:"foreignKey:UserID"`
 	Code      string         `json:"code" gorm:"uniqueIndex"`
+	ClassID   int64          `json:"classId" gorm:"uniqueIndex"`
+	Class     *Class         `json:"class" gorm:"foreignKey:ClassID"`
 	FirstName string         `json:"firstName"`
 	LastName  string         `json:"lastName"`
 	Gender    int            `json:"gender"`
@@ -180,6 +182,7 @@ type StudentInput struct {
 	LastName  string    `json:"lastName"`
 	Gender    int       `json:"gender"`
 	Birthday  time.Time `json:"birthday"`
+	ClassID   int64     `json:"classId"`
 }
 
 type Teacher struct {
@@ -225,6 +228,8 @@ type Token struct {
 
 type User struct {
 	ID        int64          `json:"id" gorm:"primaryKey"`
+	FirstName string         `json:"firstName"`
+	LastName  string         `json:"lastName"`
 	Email     string         `json:"email" gorm:"uniqueIndex"`
 	Password  string         `json:"password"`
 	Role      string         `json:"role"`
