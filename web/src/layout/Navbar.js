@@ -25,7 +25,6 @@ const Container = styled.div`
     margin-left: 5px;
   }
   .collapse-icon {
-    color: rgb(51, 202, 161);
     width: 40px;
     .anticon svg {
       height: 30px;
@@ -85,6 +84,7 @@ const Navbar = (props) => {
         >
           <div style={{ display: "flex", alignItems: "center" }}>
             <Button
+              size="small"
               type="link"
               className="collapse-icon"
               style={{
@@ -101,26 +101,24 @@ const Navbar = (props) => {
             </Link>
           </div>
         </Col>
-        <Col span={10} lg={6} style={{ display: "flex", alignItems: "center" }}>
-          <Col span={3} lg={3} style={{ textAlign: "center" }}>
-            {user && (
-              <div onClick={(e) => e.defaultPrevented} className="user-profile">
-                <Dropdown overlay={menu} placement="bottomCenter">
-                  <div style={{ cursor: "pointer" }}>
-                    {user.avatar?.key ? (
-                      <Avatar
-                      />
-                    ) : (
-                      <Avatar>
-                        {user &&
-                          _.first(user.firstName)}
-                      </Avatar>
-                    )}
-                  </div>
-                </Dropdown>
-              </div>
-            )}
-          </Col>
+        <Col span={10} lg={6} style={{ display: "flex", alignItems: "center", justifyContent: 'flex-end' }}>
+          {user && (
+            <div onClick={(e) => e.defaultPrevented} className="user-profile">
+              <Dropdown overlay={menu} placement="bottomCenter">
+                <div style={{ cursor: "pointer" }}>
+                  {user.avatar?.key ? (
+                    <Avatar
+                    />
+                  ) : (
+                    <Avatar>
+                      {user &&
+                      _.first(user.firstName)}
+                    </Avatar>
+                  )}
+                </div>
+              </Dropdown>
+            </div>
+          )}
         </Col>
       </Row>
     </Container>

@@ -5,3 +5,5 @@
 ./web/build
 ./web/build/*
 ./web/package-lock.json
+/web/node_modules
+/web/build
