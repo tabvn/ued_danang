@@ -25,3 +25,18 @@ func ComparePassword(password, hash string) bool {
 	}
 	return true
 }
+
+func (u *User) IsAdministrator() bool {
+	if u.Role == RoleAdministrator.String() {
+		return true
+	}
+	return false
+}
+
+func (u *User) IsStudent() bool {
+	return u.Role == RoleStudent.String()
+}
+
+func (u *User) IsTeacher() bool {
+	return u.Role == RoleTeacher.String()
+}

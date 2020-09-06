@@ -17,6 +17,7 @@ export const GET_STUDENTS = gql`
 				firstName
 				lastName
 				code
+				birthday
 			}
 		}
 	}

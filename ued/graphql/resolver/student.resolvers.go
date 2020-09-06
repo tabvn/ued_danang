@@ -19,7 +19,7 @@ func (r *mutationResolver) CreateStudent(ctx context.Context, input model.Studen
 		return nil, fmt.Errorf("class not found")
 	}
 	tx := r.DB.Begin()
-	user, err := r.CreateUser(tx, input.FirstName, input.LastName,input.Email, input.Password)
+	user, err := r.CreateUser(tx, input.FirstName, input.LastName, input.Email, input.Password)
 	if err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("could not create user due an error: %s", err.Error())
@@ -56,7 +56,7 @@ func (r *queryResolver) Students(ctx context.Context, filter *model.StudentFilte
 			tx = tx.Where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?", s, s)
 		}
 	}
-	if err := tx.Model(model.Student{}).Count(&res.Total).Limit(limit).Offset(offset).Find(&res.Nodes).Error; err != nil {
+	if err := tx.Model(model.Student{}).Count(&res.Total).Limit(limit).Offset(offset).Preload("Class").Preload("User").Find(&res.Nodes).Error; err != nil {
 		return nil, err
 	}
 	return &res, nil

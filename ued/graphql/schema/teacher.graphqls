@@ -15,7 +15,14 @@ input TeacherInput{
 	firstName: String!
 	lastName: String!
 	phone: String!
-	workplace: String
+	workPlace: String
+}
+input UpdateTeacherInput{
+	email: String!
+	firstName: String!
+	lastName: String!
+	phone: String!
+	workPlace: String
 }
 input TeacherFilter{
 	search: String
@@ -31,4 +38,5 @@ extend type Query {
 }
 extend type Mutation {
 	createTeacher(input: TeacherInput!): Teacher!
+	updateTeacher(id: ID!, input: UpdateTeacherInput!): Teacher!
 }

@@ -6,6 +6,8 @@ export const ME_QUERY = gql`
 			user{
 				id
 				email
+				firstName
+				lastName
 				role
 			}
 			student{

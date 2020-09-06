@@ -51,7 +51,7 @@ const ListFaculties = () => {
 						})
 					})
 				}}>
-					<Form.Item name={"name"} rules={[{required: true, message: "Tên khoa là bắt buộc"}]}>
+					<Form.Item  label={'Tên khoa'} name={"name"} rules={[{required: true, message: "Tên khoa là bắt buộc"}]}>
 						<Input />
 					</Form.Item>
 					<div className={"submit"}>

@@ -7,8 +7,15 @@ export const GET_ALL_TEACHERS = gql`
 			nodes{
 				id
 				firstName
-				userId
 				lastName
+				phone
+				workPlace
+				userId
+				user{
+					id
+					email
+				}
+				
 			}
 		}
 	}

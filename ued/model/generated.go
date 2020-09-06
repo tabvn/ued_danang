@@ -217,13 +217,21 @@ type TeacherInput struct {
 	FirstName string  `json:"firstName"`
 	LastName  string  `json:"lastName"`
 	Phone     string  `json:"phone"`
-	Workplace *string `json:"workplace"`
+	WorkPlace *string `json:"workPlace"`
 }
 
 type Token struct {
 	ID        string    `json:"id"`
 	ExpiredAt time.Time `json:"expiredAt"`
 	User      *User     `json:"user"`
+}
+
+type UpdateTeacherInput struct {
+	Email     string  `json:"email"`
+	FirstName string  `json:"firstName"`
+	LastName  string  `json:"lastName"`
+	Phone     string  `json:"phone"`
+	WorkPlace *string `json:"workPlace"`
 }
 
 type User struct {

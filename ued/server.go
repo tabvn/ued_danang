@@ -35,6 +35,8 @@ func connect() *gorm.DB {
 		panic(err)
 	}
 	model.AutoMigrate(db)
+
+	initAdminUser(db)
 	return db
 }
 
@@ -95,6 +97,23 @@ func addCors(r *gin.Engine) {
 		AllowWebSockets: true,
 		AllowFiles:      false,
 	}))
+}
+
+func initAdminUser(db *gorm.DB) {
+	var count int64
+	db.Model(model.User{}).Where("role = ?", model.RoleAdministrator.String()).Count(&count)
+	if count == 0 {
+		adminUser := model.User{
+			FirstName: "Toan",
+			LastName:  "Nguyen",
+			Email:     "admin@gmail.com",
+			Password:  model.EncodePassword("admin"),
+			Role:      model.RoleAdministrator.String(),
+		}
+		if err := db.Create(&adminUser).Error; err != nil {
+			panic(err)
+		}
+	}
 }
 func main() {
 	port := os.Getenv("PORT")

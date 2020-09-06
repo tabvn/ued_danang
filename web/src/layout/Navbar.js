@@ -36,28 +36,13 @@ const Container = styled.div`
 const Navbar = (props) => {
   const history = useHistory();
   const [{ user }, dispatch] = useAppValue();
+  console.log("user", user)
   const [visible, setVisible] = useState();
   const handleCancel = () => {
     setVisible(false);
   };
   const menu = (
     <Menu>
-      <Menu.Item onClick={() => history.push("/user-profile")}>
-        Edit Profile
-      </Menu.Item>
-      <Menu.Item>
-        <a
-          target="_blank"
-          href="/#"
-          rel="noopener noreferrer"
-          onClick={(e) => {
-            e.preventDefault();
-            setVisible(true);
-          }}
-        >
-          Change Password
-        </a>
-      </Menu.Item>
       <Menu.Item>
         <a
           href="/#"
@@ -106,15 +91,10 @@ const Navbar = (props) => {
             <div onClick={(e) => e.defaultPrevented} className="user-profile">
               <Dropdown overlay={menu} placement="bottomCenter">
                 <div style={{ cursor: "pointer" }}>
-                  {user.avatar?.key ? (
-                    <Avatar
-                    />
-                  ) : (
-                    <Avatar>
-                      {user &&
-                      _.first(user.firstName)}
-                    </Avatar>
-                  )}
+                  <Avatar>
+                    {user &&
+                    _.first(user.firstName)}
+                  </Avatar>
                 </div>
               </Dropdown>
             </div>

@@ -7,6 +7,8 @@ export const LOGIN_MUTATION = gql`
 			expiredAt
 			user {
 				id
+				firstName
+				lastName
 				email
 				password
 			}
