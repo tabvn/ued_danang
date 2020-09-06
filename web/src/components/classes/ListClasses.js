@@ -1,9 +1,21 @@
 import React, {useState} from 'react';
-import {useQuery} from "@apollo/react-hooks";
+import {useQuery, useMutation} from "@apollo/react-hooks";
 import {GET_CLASSES} from "../../graphqls/query/classes";
-import {Table} from "antd";
+import {Button, Drawer, Form, Input, notification, Table} from "antd";
+import {gql} from "apollo-boost";
+import FacultySelection from "../facultty/FacultySelection";
+import TeacherSelection from "../teacher/TeacherSelection";
 
+const createClassMutation = gql`
+	mutation createClass($input: ClassInput!){
+		createClass(input: $input){
+			id
+			name
+		}
+	}
+`
 const ListClasses = () => {
+	const [visible, setVisible] = useState(false)
 	const {page, setPage} = useState(1)
 	const {filter, setFilter} = useState({
 		limit: 50,
@@ -14,7 +26,7 @@ const ListClasses = () => {
 			filter: {...filter},
 		},
 	});
-
+	const [createClass] = useMutation(createClassMutation)
 	const columns = [
 		{
 			title: 'Tên',
@@ -33,6 +45,7 @@ const ListClasses = () => {
 
 	return (
 		<div>
+			<Button onClick={() => setVisible(true)}>Thêm lớp</Button>
 			<Table
 				pagination={{
 					current: page,
@@ -46,6 +59,42 @@ const ListClasses = () => {
 				}}
 				loading={loading}
 				dataSource={data ? data.classes.nodes : []} columns={columns}/>
+			<Drawer
+				onClose={() => setVisible(false)}
+				title={"Thêm lớp"}
+				placement="right"
+				width={620}
+				visible={visible}>
+				<Form
+					layout="vertical"
+					onFinish={(values) => {
+					createClass({
+						variables: {
+							input: values
+						}
+					}).then(() => {
+						refetch()
+						setVisible(false)
+					}).catch((e) => {
+						notification.error({
+							message: "Có lỗi xảy " + e.toLocaleString()
+						})
+					})
+				}}>
+					<Form.Item label={'Tên lớp'} name={"name"} rules={[{required: true, message: "Tên lớp là bắt buộc"}]}>
+						<Input/>
+					</Form.Item>
+					<Form.Item name={"facultyId"} label={"Khoa"}>
+						<FacultySelection />
+					</Form.Item>
+					<Form.Item name={"teacherId"} label={"Giáo viên chủ nhiệm"}>
+						<TeacherSelection />
+					</Form.Item>
+					<div className={"submit"}>
+						<Button htmlType={'submit'}>Thêm lớp</Button>
+					</div>
+				</Form>
+			</Drawer>
 		</div>
 	);
 };
