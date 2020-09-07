@@ -5,7 +5,7 @@ type Course implements Model{
 	limit: Int!
 	teacherId: ID!
 	teacher: Teacher!
-	faculties: [Faculty!] @tag(gorm:"many2many:cource_faculty")
+	faculties: [Faculty!] @tag(gorm:"many2many:course_faculty")
 	title: String!
 	lessonDay: Int!
 	lessonFrom: Int!

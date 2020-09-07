@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import {Button, Form, Input} from "antd";
+import {Button, Form, Input, notification} from "antd";
 import {LOGIN_MUTATION} from "../graphqls/mutation/login";
 import {useMutation} from "@apollo/react-hooks";
 import {useAppValue} from "../context";
@@ -27,6 +27,7 @@ const LoginForm = ({onDone, onError}) => {
                 onDone(data.login);
             },
         }).catch((e) => {
+            notification.error({message: `Lỗi xảy ra: ${e.toString()}`})
             if (onError) {
                 onError(e);
             }

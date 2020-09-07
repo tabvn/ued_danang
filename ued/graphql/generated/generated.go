@@ -1365,7 +1365,7 @@ extend type Mutation {
 	limit: Int!
 	teacherId: ID!
 	teacher: Teacher!
-	faculties: [Faculty!] @tag(gorm:"many2many:cource_faculty")
+	faculties: [Faculty!] @tag(gorm:"many2many:course_faculty")
 	title: String!
 	lessonDay: Int!
 	lessonFrom: Int!
@@ -2775,7 +2775,7 @@ func (ec *executionContext) _Course_faculties(ctx context.Context, field graphql
 			return obj.Faculties, nil
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			gorm, err := ec.unmarshalOString2ᚖstring(ctx, "many2many:cource_faculty")
+			gorm, err := ec.unmarshalOString2ᚖstring(ctx, "many2many:course_faculty")
 			if err != nil {
 				return nil, err
 			}

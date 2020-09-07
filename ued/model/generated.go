@@ -76,7 +76,7 @@ type Course struct {
 	Limit         int            `json:"limit"`
 	TeacherID     int64          `json:"teacherId"`
 	Teacher       *Teacher       `json:"teacher"`
-	Faculties     []*Faculty     `json:"faculties" gorm:"many2many:cource_faculty"`
+	Faculties     []*Faculty     `json:"faculties" gorm:"many2many:course_faculty"`
 	Title         string         `json:"title"`
 	LessonDay     int            `json:"lessonDay"`
 	LessonFrom    int            `json:"lessonFrom"`

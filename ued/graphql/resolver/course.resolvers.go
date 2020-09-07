@@ -130,7 +130,11 @@ func (r *queryResolver) StudentOpenCourses(ctx context.Context, filter *model.Co
 		limit  = 100
 		offset = 0
 	)
-	tx := r.DB.Model(model.Course{})
+	c := student.GetClass()
+	if c == nil {
+		return nil, fmt.Errorf("your class is not found")
+	}
+	tx := r.DB.Model(model.Course{}).Select("DISTINCT courses.*").Joins("INNER JOIN course_faculties ON course_faculties.course_id = courses.id AND course_faculties.faculty_id = ?", c.FacultyID)
 	if filter != nil {
 		if filter.Limit != nil {
 			limit = *filter.Limit
