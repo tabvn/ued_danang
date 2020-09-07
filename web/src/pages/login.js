@@ -6,6 +6,11 @@ import { useAppValue } from "../context";
 
 const Container = styled.div`
   padding: 20px 40px 20px 20px;
+  max-width: 500px;
+  margin: 0 auto;
+  .form{
+    margin-top: 30px;
+   }
 `;
 
 const Login = () => {
@@ -19,15 +24,16 @@ const Login = () => {
 
   return (
     <Container>
-      <div className="text">
-        <h1>Login</h1>
-        <em>Please login into your account!</em>
+      <div className={"form"}>
+          <div className="text">
+              <h1>Đăng nhập tài khoản</h1>
+          </div>
+          <LoginForm
+              onDone={(values) => {
+                  history.push("/");
+              }}
+          />
       </div>
-      <LoginForm
-        onDone={(values) => {
-          history.push("/");
-        }}
-      />
     </Container>
   );
 };

@@ -46,9 +46,9 @@ const LoginForm = ({onDone, onError}) => {
                     rules={[
                         {
                             type: "email",
-                            message: "The input is not valid E-mail!",
+                            message: "Địa chỉ email không đúng định dạng",
                         },
-                        {required: true, message: "Please input your E-mail!"},
+                        {required: true, message: "Vui lòng nhập địa chỉ email của bạn"},
                     ]}
                 >
                     <Input type="email"/>
@@ -57,7 +57,7 @@ const LoginForm = ({onDone, onError}) => {
                 <Form.Item
                     label="Password"
                     name="password"
-                    rules={[{required: true, message: "Please input your password!"}]}
+                    rules={[{required: true, message: "Vui lòng nhập mật khẩu của bạn"}]}
                 >
                     <Input.Password/>
                 </Form.Item>
@@ -69,7 +69,7 @@ const LoginForm = ({onDone, onError}) => {
                         htmlType="submit"
                         loading={loading}
                     >
-                        Submit
+                        Đăng nhập
                     </Button>
                 </Form.Item>
             </Form>

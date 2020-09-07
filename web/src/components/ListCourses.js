@@ -69,6 +69,7 @@ const ListCourses = () => {
         <div>
             <Button onClick={() => setVisible(true)}>Mở học phần mới</Button>
             <Table
+                loading={loading}
                 pagination={{
                     current: page,
                     total: data ? data.courses.total : 0,

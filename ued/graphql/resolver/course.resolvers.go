@@ -56,8 +56,11 @@ func (r *mutationResolver) RegisterCourse(ctx context.Context, courseID int64) (
 	if course.GetRegisterCount() >= course.Limit {
 		return nil, fmt.Errorf("course is full could not register new student")
 	}
+	if course.Open == false {
+		return nil, fmt.Errorf("course is closed")
+	}
 	var count int64
-	if err := r.DB.Model(model.Course{}).Joins("INNER JOIN course_students ON course_students.course_id = \"courses\".id AND course_students.student_id = ?", student.ID).Where("courses.lesson_day = ? AND (courses.lesson_to >= ? AND courses.lesson_to <= ?)",course.LessonDay, course.LessonFrom, course.LessonTo).Count(&count).Error; err != nil {
+	if err := r.DB.Model(model.Course{}).Joins("INNER JOIN course_students ON course_students.course_id = \"courses\".id AND course_students.student_id = ?", student.ID).Where("courses.lesson_day = ? AND (courses.lesson_to >= ? AND courses.lesson_to <= ?)", course.LessonDay, course.LessonFrom, course.LessonTo).Count(&count).Error; err != nil {
 		return nil, fmt.Errorf("an error %s", err.Error())
 	}
 	if count > 0 {

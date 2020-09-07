@@ -63,6 +63,7 @@ const ListStudentOpenCourses = () => {
     return (
         <div>
             <Table
+                loading={loading}
                 rowKey={(record) => record.id}
                 pagination={{
                     current: page,
