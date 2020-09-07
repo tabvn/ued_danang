@@ -14,13 +14,13 @@ import (
 func (r *mutationResolver) CreateClass(ctx context.Context, input model.ClassInput) (*model.Class, error) {
 	var (
 		faculty model.Faculty
-		teacher model.User
+		teacher model.Teacher
 	)
 	if err := r.DB.Where("id = ?", input.FacultyID).Take(&faculty).Error; err != nil {
 		return nil, fmt.Errorf("could not find faculty: %s", err.Error())
 	}
 	if err := r.DB.Where("id = ?", input.TeacherID).Take(&teacher).Error; err != nil {
-		return nil, fmt.Errorf("could not find teacher user: %s", err.Error())
+		return nil, fmt.Errorf("could not find teacher: %s", err.Error())
 	}
 	obj := model.Class{
 		Name:      input.Name,

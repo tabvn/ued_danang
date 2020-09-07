@@ -1,0 +1,1 @@
+gcloud beta compute ssh --zone "asia-southeast1-a" "instance-2" --project "danang-288409" -- 'sudo docker logs ued'

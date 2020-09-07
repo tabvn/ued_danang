@@ -11,16 +11,34 @@ mutation createFaculty($input: FacultyInput!){
 	}
 }
 `
+
+const updateFacultyMutation = gql`
+	mutation updateFaculty($id: ID!, $input: FacultyInput!){
+		updateFaculty(id: $id, input: $input){
+			id
+			name
+		}
+	}
+`
 const ListFaculties = () => {
 	const [visible, setVisible] = useState(false)
 	const {loading, error, data, refetch} = useQuery(GET_FACULTIES);
 	const [createFaculty] = useMutation(createFacultyMutation)
+	const [updateFaculty] = useMutation(updateFacultyMutation)
+	const [update, setUpdate] = useState(null)
+	const [isLoading, setLoading] = useState(false)
 	const columns = [
 		{
 			title: 'Tên',
 			dataIndex: 'name',
 			key: 'name',
 		},
+		{
+			title: "",
+			render: (text, record) => (
+				<Button onClick={() => setUpdate(record)} size="small">Sửa</Button>
+			)
+		}
 	];
 
 	return (
@@ -30,35 +48,69 @@ const ListFaculties = () => {
 				pagination={false}
 				loading={loading}
 				dataSource={data ? data.faculties : []} columns={columns}/>
-			<Drawer
-				onClose={() => setVisible(false)}
-				title={"Thêm khoa"}
-				placement="right"
-				width={520}
-				visible={visible}>
-				<Form onFinish={(values) => {
-					createFaculty({
-						variables: {
-							input: values
-						}
-					}).then(() => {
-						refetch()
-						setVisible(false)
-					}).catch((e) => {
-						setVisible(false)
-						notification.error({
-							message: "Có lỗi xảy " + e.toLocaleString()
+			{visible && (
+				<Drawer
+					onClose={() => setVisible(false)}
+					title={"Thêm khoa"}
+					placement="right"
+					width={520}
+					visible={visible}>
+					<Form onFinish={(values) => {
+						setLoading(true)
+						createFaculty({
+							variables: {
+								input: values
+							}
+						}).then(() => {
+							setLoading(false)
+							refetch()
+							setVisible(false)
+						}).catch((e) => {
+							setLoading(false)
+							notification.error({
+								message: "Có lỗi xảy " + e.toLocaleString()
+							})
 						})
-					})
-				}}>
-					<Form.Item  label={'Tên khoa'} name={"name"} rules={[{required: true, message: "Tên khoa là bắt buộc"}]}>
-						<Input />
-					</Form.Item>
-					<div className={"submit"}>
-						<Button htmlType={'submit'}>Thêm khoa</Button>
-					</div>
-				</Form>
-			</Drawer>
+					}}>
+						<Form.Item  label={'Tên khoa'} name={"name"} rules={[{required: true, message: "Tên khoa là bắt buộc"}]}>
+							<Input />
+						</Form.Item>
+						<div className={"submit"}>
+							<Button loading={isLoading} htmlType={'submit'}>Thêm khoa</Button>
+						</div>
+					</Form>
+				</Drawer>
+			)}
+			{
+				update ? (<Drawer width={520} visible={!!update} onClose={() => setUpdate(null)} title={"Sửa thông tin khoa"}>
+					<Form
+						initialValues={{
+							name: update ? update.name : null
+						}}
+						onFinish={(values) => {
+							setLoading(true)
+							updateFaculty({
+								variables: {
+									id: update.id,
+									input: values
+								}
+							}).then(() => {
+								setLoading(false)
+								setUpdate(null)
+							}).catch((e) => {
+								setLoading(false)
+								notification.error({message: "Có lỗi xảy ra"})
+							})
+						}}>
+						<Form.Item name={"name"} label={"Tên khoa"}>
+							<Input />
+						</Form.Item>
+						<div>
+							<Button loading={isLoading} htmlType="submit">Lưu thông tin</Button>
+						</div>
+					</Form>
+				</Drawer>) : null
+			}
 		</div>
 	);
 };

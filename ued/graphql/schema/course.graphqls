@@ -1,0 +1,63 @@
+type Course implements Model{
+	id: ID! @tag(gorm: "primaryKey")
+	code: String!
+	required: Boolean!
+	limit: Int!
+	teacherId: ID!
+	teacher: Teacher!
+	faculties: [Faculty!] @tag(gorm:"many2many:cource_faculty")
+	title: String!
+	lessonDay: Int!
+	lessonFrom: Int!
+	lessonTo: Int!
+	unit: Int!
+	registerCount: Int! @tag(gorm:"-")
+	updatedAt: Time!
+	createdAt: Time!
+}
+
+type CourseStudent implements Model{
+	id: ID! @tag(gorm:"primaryKey")
+	studentId: ID!
+	student: Student! @tag(gorm:"foreignKey:StudentID")
+	courseId: ID!
+	course:Course! @tag(gorm:"foreignKey:CourseID")
+	createdAt: Time!
+	updatedAt: Time!
+}
+
+input CourseStudentFilter{
+	search: String
+	limit: Int
+	offset: Int
+}
+input CourseInput{
+	code: String!
+	required: Boolean!
+	teacherId: ID!
+	faculties: [ID!]!
+	title: String!
+	lessonDay: Int!
+	lessonFrom: Int!
+	lessonTo: Int!
+	limit: Int!
+	unit: Int!
+}
+type CourseConnection{
+	total: Int64!
+	nodes: [Course!]
+}
+input CourseFilter{
+	search: String
+	limit: Int
+	offset: Int
+}
+extend type Query {
+	courses(filter: CourseFilter): CourseConnection!
+	getCourseStudents(courseId:ID!, filter: CourseStudentFilter!): [CourseStudent!]
+}
+extend type Mutation {
+	createCourse(input: CourseInput!): Course!
+	registerCourse(courseId: ID!): CourseStudent!
+	unregisterCourse(courseId: ID!): Boolean!
+}

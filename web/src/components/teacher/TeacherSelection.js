@@ -11,7 +11,7 @@ const TeacherSelection = forwardRef(((props, ref) => {
 		props.onChange(v)
 	}}>
 		{nodes.map((node, index) => {
-			return <Select.Option key={`k-${index}`} value={node.userId}>{`${node.lastName} ${node.firstName}`}</Select.Option>
+			return <Select.Option key={`k-${index}`} value={node.id}>{`${node.lastName} ${node.firstName}`}</Select.Option>
 		})}
 	</Select>
 }))

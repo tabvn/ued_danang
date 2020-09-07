@@ -35,7 +35,6 @@ func connect() *gorm.DB {
 		panic(err)
 	}
 	model.AutoMigrate(db)
-
 	initAdminUser(db)
 	return db
 }
@@ -114,6 +113,10 @@ func initAdminUser(db *gorm.DB) {
 			panic(err)
 		}
 	}
+
+	// migrate
+
+	db.Exec("CREATE UNIQUE INDEX IF NOT EXISTS course_student_unique_index ON course_students(student_id, course_id);")
 }
 func main() {
 	port := os.Getenv("PORT")

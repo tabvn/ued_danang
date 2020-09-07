@@ -20,6 +20,8 @@ func AutoMigrate(db *gorm.DB) {
 	db.AutoMigrate(
 
 		&Class{},
+		&Course{},
+		&CourseStudent{},
 		&ExpireToken{},
 		&Faculty{},
 		&File{},
@@ -41,7 +43,7 @@ type Class struct {
 	Faculty   *Faculty       `json:"faculty" gorm:"foreignKey:FacultyID"`
 	Year      int            `json:"year"`
 	TeacherID int64          `json:"teacherId" gorm:"index"`
-	Teacher   *User          `json:"teacher" gorm:"foreignKey:TeacherID"`
+	Teacher   *Teacher       `json:"teacher" gorm:"foreignKey:TeacherID"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
 	DeleteAt  gorm.DeletedAt `gorm:"index"`
@@ -65,6 +67,70 @@ type ClassInput struct {
 	FacultyID int64  `json:"facultyId"`
 	TeacherID int64  `json:"teacherId"`
 	Year      int    `json:"year"`
+}
+
+type Course struct {
+	ID            int64          `json:"id" gorm:"primaryKey"`
+	Code          string         `json:"code"`
+	Required      bool           `json:"required"`
+	Limit         int            `json:"limit"`
+	TeacherID     int64          `json:"teacherId"`
+	Teacher       *Teacher       `json:"teacher"`
+	Faculties     []*Faculty     `json:"faculties" gorm:"many2many:cource_faculty"`
+	Title         string         `json:"title"`
+	LessonDay     int            `json:"lessonDay"`
+	LessonFrom    int            `json:"lessonFrom"`
+	LessonTo      int            `json:"lessonTo"`
+	Unit          int            `json:"unit"`
+	RegisterCount int            `json:"registerCount" gorm:"-"`
+	UpdatedAt     time.Time      `json:"updatedAt"`
+	CreatedAt     time.Time      `json:"createdAt"`
+	DeleteAt      gorm.DeletedAt `gorm:"index"`
+}
+
+func (Course) IsModel() {}
+
+type CourseConnection struct {
+	Total int64     `json:"total"`
+	Nodes []*Course `json:"nodes"`
+}
+
+type CourseFilter struct {
+	Search *string `json:"search"`
+	Limit  *int    `json:"limit"`
+	Offset *int    `json:"offset"`
+}
+
+type CourseInput struct {
+	Code       string  `json:"code"`
+	Required   bool    `json:"required"`
+	TeacherID  int64   `json:"teacherId"`
+	Faculties  []int64 `json:"faculties"`
+	Title      string  `json:"title"`
+	LessonDay  int     `json:"lessonDay"`
+	LessonFrom int     `json:"lessonFrom"`
+	LessonTo   int     `json:"lessonTo"`
+	Limit      int     `json:"limit"`
+	Unit       int     `json:"unit"`
+}
+
+type CourseStudent struct {
+	ID        int64          `json:"id" gorm:"primaryKey"`
+	StudentID int64          `json:"studentId"`
+	Student   *Student       `json:"student" gorm:"foreignKey:StudentID"`
+	CourseID  int64          `json:"courseId"`
+	Course    *Course        `json:"course" gorm:"foreignKey:CourseID"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeleteAt  gorm.DeletedAt `gorm:"index"`
+}
+
+func (CourseStudent) IsModel() {}
+
+type CourseStudentFilter struct {
+	Search *string `json:"search"`
+	Limit  *int    `json:"limit"`
+	Offset *int    `json:"offset"`
 }
 
 type ExpireToken struct {

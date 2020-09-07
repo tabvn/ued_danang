@@ -5,7 +5,7 @@ type Class implements Model{
 	faculty: Faculty! @tag(gorm:"foreignKey:FacultyID")
 	year: Int!
 	teacherId: ID! @tag(gorm:"index")
-	teacher: User! @tag(gorm:"foreignKey:TeacherID")
+	teacher: Teacher! @tag(gorm:"foreignKey:TeacherID")
 	createdAt: Time!
 	updatedAt: Time!
 }

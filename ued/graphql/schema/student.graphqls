@@ -3,7 +3,7 @@ type Student implements Model{
 	userId: ID! @tag(gorm:"index")
 	user: User! @tag(gorm:"foreignKey:UserID")
 	code: String! @tag(gorm:"uniqueIndex")
-	classId: ID! @tag(gorm:"uniqueIndex")
+	classId: ID!
 	class: Class! @tag(gorm:"foreignKey:ClassID")
 	firstName: String!
 	lastName: String!
