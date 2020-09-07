@@ -11,7 +11,9 @@ type Course implements Model{
 	lessonFrom: Int!
 	lessonTo: Int!
 	unit: Int!
+	open: Boolean! @tag(gorm:"default:true")
 	registerCount: Int! @tag(gorm:"-")
+	isRegistered: Boolean! @tag(gorm:"-")
 	updatedAt: Time!
 	createdAt: Time!
 }
@@ -42,6 +44,7 @@ input CourseInput{
 	lessonTo: Int!
 	limit: Int!
 	unit: Int!
+	open:Boolean!
 }
 type CourseConnection{
 	total: Int64!
@@ -54,6 +57,7 @@ input CourseFilter{
 }
 extend type Query {
 	courses(filter: CourseFilter): CourseConnection!
+	studentOpenCourses(filter: CourseFilter): CourseConnection!
 	getCourseStudents(courseId:ID!, filter: CourseStudentFilter!): [CourseStudent!]
 }
 extend type Mutation {

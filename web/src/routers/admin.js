@@ -15,6 +15,7 @@ export default [
 		path: "/admin/faculties",
 		icon: <UserOutlined/>,
 		layout: MainLayout,
+		role: 'Administrator'
 	},
 	{
 		exact: true,
@@ -23,6 +24,7 @@ export default [
 		path: "/admin/teachers",
 		icon: <UserOutlined/>,
 		layout: MainLayout,
+		role: 'Administrator'
 	},
 	{
 		exact: true,
@@ -31,6 +33,7 @@ export default [
 		path: "/admin/classes",
 		icon: <UserOutlined/>,
 		layout: MainLayout,
+		role: 'Administrator'
 	},
 	{
 		exact: true,
@@ -39,6 +42,7 @@ export default [
 		path: "/admin/students",
 		icon: <UserOutlined/>,
 		layout: MainLayout,
+		role: 'Administrator'
 	},
 	{
 		exact: true,
@@ -47,6 +51,7 @@ export default [
 		path: "/admin/courses",
 		icon: <UserOutlined/>,
 		layout: MainLayout,
+		role: 'Administrator'
 	},
 
 ]

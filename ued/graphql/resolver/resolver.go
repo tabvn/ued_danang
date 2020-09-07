@@ -56,7 +56,7 @@ func (r *Resolver) GetStudentFromContext(ctx context.Context) *model.Student {
 	if user == nil {
 		return nil
 	}
-	if user.Role == model.RoleStudent.String() {
+	if user.Role != model.RoleStudent.String() {
 		return nil
 	}
 	var s model.Student
@@ -66,7 +66,7 @@ func (r *Resolver) GetStudentFromContext(ctx context.Context) *model.Student {
 	return &s
 }
 
-func (r *Resolver) CreateUser(tx *gorm.DB, first, last, email, password string) (*model.User, error) {
+func (r *Resolver) CreateUser(tx *gorm.DB, role string, first, last, email, password string) (*model.User, error) {
 	if !validate.Email(email) {
 		return nil, errors.New("invalid email address")
 	}
@@ -77,6 +77,7 @@ func (r *Resolver) CreateUser(tx *gorm.DB, first, last, email, password string) 
 		FirstName: first,
 		LastName:  last,
 		Email:     email,
+		Role:      role,
 		Password:  model.EncodePassword(password),
 	}
 	if tx == nil {

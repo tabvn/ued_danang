@@ -13,7 +13,7 @@ import (
 
 func (r *mutationResolver) CreateTeacher(ctx context.Context, input model.TeacherInput) (*model.Teacher, error) {
 	tx := r.DB.Begin()
-	user, err := r.CreateUser(tx, input.FirstName, input.LastName, input.Email, input.Password)
+	user, err := r.CreateUser(tx, model.RoleTeacher.String(), input.FirstName, input.LastName, input.Email, input.Password)
 	if err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("could not create user due an error: %s", err.Error())

@@ -10,6 +10,7 @@ export const LOGIN_MUTATION = gql`
 				firstName
 				lastName
 				email
+				role
 				password
 			}
 		}

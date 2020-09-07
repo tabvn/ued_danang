@@ -35,6 +35,7 @@ func (r *mutationResolver) CreateCourse(ctx context.Context, input model.CourseI
 		LessonFrom:    input.LessonFrom,
 		LessonTo:      input.LessonTo,
 		Unit:          input.Unit,
+		Open:          input.Open,
 		RegisterCount: 0,
 	}
 	if err := r.DB.Create(&obj).Error; err != nil {
@@ -56,7 +57,7 @@ func (r *mutationResolver) RegisterCourse(ctx context.Context, courseID int64) (
 		return nil, fmt.Errorf("course is full could not register new student")
 	}
 	var count int64
-	if err := r.DB.Model(model.CourseStudent{}).Where("student_id = ? WHERE lesson_day = ? AND (lesson_to >= ? AND lesson_to <= ?)", student.ID, course.LessonDay, course.LessonFrom, course.LessonTo).Count(&count).Error; err != nil {
+	if err := r.DB.Model(model.Course{}).Joins("INNER JOIN course_students ON course_students.course_id = \"courses\".id AND course_students.student_id = ?", student.ID).Where("courses.lesson_day = ? AND (courses.lesson_to >= ? AND courses.lesson_to <= ?)",course.LessonDay, course.LessonFrom, course.LessonTo).Count(&count).Error; err != nil {
 		return nil, fmt.Errorf("an error %s", err.Error())
 	}
 	if count > 0 {
@@ -105,12 +106,47 @@ func (r *queryResolver) Courses(ctx context.Context, filter *model.CourseFilter)
 			tx = tx.Where("code LIKE ? OR title LIKE ?", s, s)
 		}
 	}
-	if err := tx.Count(&res.Total).Limit(limit).Offset(offset).Find(&res.Nodes).Error; err != nil {
+	if err := tx.Count(&res.Total).Limit(limit).Offset(offset).Preload("Teacher").Preload("Teacher.User").Find(&res.Nodes).Error; err != nil {
 		return nil, fmt.Errorf("an error: %s", err.Error())
 	}
 	if res.Nodes != nil {
 		for _, c := range res.Nodes {
 			c.RegisterCount = c.GetRegisterCount()
+		}
+	}
+	return &res, nil
+}
+
+func (r *queryResolver) StudentOpenCourses(ctx context.Context, filter *model.CourseFilter) (*model.CourseConnection, error) {
+	var student = r.GetStudentFromContext(ctx)
+	if student == nil {
+		return nil, fmt.Errorf("you are not a student")
+	}
+	var (
+		res    model.CourseConnection
+		limit  = 100
+		offset = 0
+	)
+	tx := r.DB.Model(model.Course{})
+	if filter != nil {
+		if filter.Limit != nil {
+			limit = *filter.Limit
+		}
+		if filter.Offset != nil {
+			offset = *filter.Offset
+		}
+		if filter.Search != nil {
+			s := "%" + strings.ToLower(*filter.Search) + "%"
+			tx = tx.Where("code LIKE ? OR title LIKE ?", s, s)
+		}
+	}
+	if err := tx.Count(&res.Total).Limit(limit).Offset(offset).Preload("Teacher").Preload("Teacher.User").Find(&res.Nodes).Error; err != nil {
+		return nil, fmt.Errorf("an error: %s", err.Error())
+	}
+	if res.Nodes != nil {
+		for _, c := range res.Nodes {
+			c.RegisterCount = c.GetRegisterCount()
+			c.IsRegistered = c.StudentIsRegistered(student.ID)
 		}
 	}
 	return &res, nil

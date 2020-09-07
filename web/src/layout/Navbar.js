@@ -36,7 +36,6 @@ const Container = styled.div`
 const Navbar = (props) => {
   const history = useHistory();
   const [{ user }, dispatch] = useAppValue();
-  console.log("user", user)
   const [visible, setVisible] = useState();
   const handleCancel = () => {
     setVisible(false);

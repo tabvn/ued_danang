@@ -3,6 +3,7 @@ import { Menu } from "antd";
 import styled from "styled-components";
 import _ from "lodash";
 import { Link } from "react-router-dom";
+import {useAppValue} from "../context";
 
 const {SubMenu} = Menu
 const Container = styled.div`
@@ -24,6 +25,7 @@ const Container = styled.div`
 
 const SideBar = (props) => {
   const { location, routes, collapsed, changeSize } = props;
+    const [{ user }, dispatch] = useAppValue();
   const childMenu = _.filter(routes, (menu) => {
     return menu.child;
   });
@@ -33,6 +35,7 @@ const SideBar = (props) => {
     });
   });
   //const customizeIndicator = <AngleDown />;
+    console.log("user", user)
   return (
     <Container collapsed={collapsed} changeSize={changeSize}>
       <Menu
@@ -47,7 +50,7 @@ const SideBar = (props) => {
         }
         selectedKeys={[location.pathname]}
       >
-        {routes.map((route) =>
+        {routes.filter(r => r.role === _.get(user, 'role')).map((route) =>
           route.layout && route.title ? (
             route.child ? (
               <SubMenu key={route.path} icon={route.icon} title={route.title}>

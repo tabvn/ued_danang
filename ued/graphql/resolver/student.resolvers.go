@@ -19,7 +19,7 @@ func (r *mutationResolver) CreateStudent(ctx context.Context, input model.Studen
 		return nil, fmt.Errorf("class not found")
 	}
 	tx := r.DB.Begin()
-	user, err := r.CreateUser(tx, input.FirstName, input.LastName, input.Email, input.Password)
+	user, err := r.CreateUser(tx, model.RoleStudent.String(), input.FirstName, input.LastName, input.Email, input.Password)
 	if err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("could not create user due an error: %s", err.Error())

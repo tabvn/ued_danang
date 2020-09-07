@@ -17,8 +17,8 @@ const createClassMutation = gql`
 const ListClasses = () => {
 	const [isLoading, setLoading] = useState(false)
 	const [visible, setVisible] = useState(false)
-	const {page, setPage} = useState(1)
-	const {filter, setFilter} = useState({
+	const [page, setPage] = useState(1)
+	const [filter, setFilter] = useState({
 		limit: 50,
 		offset: 0,
 	})

@@ -70,10 +70,12 @@ type ComplexityRoot struct {
 		CreatedAt     func(childComplexity int) int
 		Faculties     func(childComplexity int) int
 		ID            func(childComplexity int) int
+		IsRegistered  func(childComplexity int) int
 		LessonDay     func(childComplexity int) int
 		LessonFrom    func(childComplexity int) int
 		LessonTo      func(childComplexity int) int
 		Limit         func(childComplexity int) int
+		Open          func(childComplexity int) int
 		RegisterCount func(childComplexity int) int
 		Required      func(childComplexity int) int
 		Teacher       func(childComplexity int) int
@@ -159,15 +161,16 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Classes           func(childComplexity int, filter *model.ClassFilter) int
-		Courses           func(childComplexity int, filter *model.CourseFilter) int
-		Faculties         func(childComplexity int) int
-		GetCourseStudents func(childComplexity int, courseID int64, filter model.CourseStudentFilter) int
-		Loggers           func(childComplexity int, filter *model.LoggerFilter) int
-		Students          func(childComplexity int, filter *model.StudentFilter) int
-		Teachers          func(childComplexity int, filter *model.TeacherFilter) int
-		User              func(childComplexity int, id int64) int
-		Viewer            func(childComplexity int) int
+		Classes            func(childComplexity int, filter *model.ClassFilter) int
+		Courses            func(childComplexity int, filter *model.CourseFilter) int
+		Faculties          func(childComplexity int) int
+		GetCourseStudents  func(childComplexity int, courseID int64, filter model.CourseStudentFilter) int
+		Loggers            func(childComplexity int, filter *model.LoggerFilter) int
+		StudentOpenCourses func(childComplexity int, filter *model.CourseFilter) int
+		Students           func(childComplexity int, filter *model.StudentFilter) int
+		Teachers           func(childComplexity int, filter *model.TeacherFilter) int
+		User               func(childComplexity int, id int64) int
+		Viewer             func(childComplexity int) int
 	}
 
 	Student struct {
@@ -248,6 +251,7 @@ type MutationResolver interface {
 type QueryResolver interface {
 	Classes(ctx context.Context, filter *model.ClassFilter) (*model.ClassConnection, error)
 	Courses(ctx context.Context, filter *model.CourseFilter) (*model.CourseConnection, error)
+	StudentOpenCourses(ctx context.Context, filter *model.CourseFilter) (*model.CourseConnection, error)
 	GetCourseStudents(ctx context.Context, courseID int64, filter model.CourseStudentFilter) ([]*model.CourseStudent, error)
 	Faculties(ctx context.Context) ([]*model.Faculty, error)
 	Loggers(ctx context.Context, filter *model.LoggerFilter) (*model.LoggerConnection, error)
@@ -377,6 +381,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Course.ID(childComplexity), true
 
+	case "Course.isRegistered":
+		if e.complexity.Course.IsRegistered == nil {
+			break
+		}
+
+		return e.complexity.Course.IsRegistered(childComplexity), true
+
 	case "Course.lessonDay":
 		if e.complexity.Course.LessonDay == nil {
 			break
@@ -404,6 +415,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Course.Limit(childComplexity), true
+
+	case "Course.open":
+		if e.complexity.Course.Open == nil {
+			break
+		}
+
+		return e.complexity.Course.Open(childComplexity), true
 
 	case "Course.registerCount":
 		if e.complexity.Course.RegisterCount == nil {
@@ -916,6 +934,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Loggers(childComplexity, args["filter"].(*model.LoggerFilter)), true
 
+	case "Query.studentOpenCourses":
+		if e.complexity.Query.StudentOpenCourses == nil {
+			break
+		}
+
+		args, err := ec.field_Query_studentOpenCourses_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.StudentOpenCourses(childComplexity, args["filter"].(*model.CourseFilter)), true
+
 	case "Query.students":
 		if e.complexity.Query.Students == nil {
 			break
@@ -1341,7 +1371,9 @@ extend type Mutation {
 	lessonFrom: Int!
 	lessonTo: Int!
 	unit: Int!
+	open: Boolean! @tag(gorm:"default:true")
 	registerCount: Int! @tag(gorm:"-")
+	isRegistered: Boolean! @tag(gorm:"-")
 	updatedAt: Time!
 	createdAt: Time!
 }
@@ -1372,6 +1404,7 @@ input CourseInput{
 	lessonTo: Int!
 	limit: Int!
 	unit: Int!
+	open:Boolean!
 }
 type CourseConnection{
 	total: Int64!
@@ -1384,6 +1417,7 @@ input CourseFilter{
 }
 extend type Query {
 	courses(filter: CourseFilter): CourseConnection!
+	studentOpenCourses(filter: CourseFilter): CourseConnection!
 	getCourseStudents(courseId:ID!, filter: CourseStudentFilter!): [CourseStudent!]
 }
 extend type Mutation {
@@ -1474,7 +1508,7 @@ type Query`, BuiltIn: false},
 	userId: ID! @tag(gorm:"index")
 	user: User! @tag(gorm:"foreignKey:UserID")
 	code: String! @tag(gorm:"uniqueIndex")
-	classId: ID! @tag(gorm:"uniqueIndex")
+	classId: ID!
 	class: Class! @tag(gorm:"foreignKey:ClassID")
 	firstName: String!
 	lastName: String!
@@ -1871,6 +1905,21 @@ func (ec *executionContext) field_Query_loggers_args(ctx context.Context, rawArg
 	if tmp, ok := rawArgs["filter"]; ok {
 		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filter"))
 		arg0, err = ec.unmarshalOLoggerFilter2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐLoggerFilter(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_studentOpenCourses_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.CourseFilter
+	if tmp, ok := rawArgs["filter"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("filter"))
+		arg0, err = ec.unmarshalOCourseFilter2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐCourseFilter(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2930,6 +2979,64 @@ func (ec *executionContext) _Course_unit(ctx context.Context, field graphql.Coll
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Course_open(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Course",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Open, nil
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			gorm, err := ec.unmarshalOString2ᚖstring(ctx, "default:true")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Tag == nil {
+				return nil, errors.New("directive tag is not implemented")
+			}
+			return ec.directives.Tag(ctx, obj, directive0, gorm)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Course_registerCount(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -2986,6 +3093,64 @@ func (ec *executionContext) _Course_registerCount(ctx context.Context, field gra
 	res := resTmp.(int)
 	fc.Result = res
 	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Course_isRegistered(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Course",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.IsRegistered, nil
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			gorm, err := ec.unmarshalOString2ᚖstring(ctx, "-")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Tag == nil {
+				return nil, errors.New("directive tag is not implemented")
+			}
+			return ec.directives.Tag(ctx, obj, directive0, gorm)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Course_updatedAt(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
@@ -5203,6 +5368,47 @@ func (ec *executionContext) _Query_courses(ctx context.Context, field graphql.Co
 	return ec.marshalNCourseConnection2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐCourseConnection(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_studentOpenCourses(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_studentOpenCourses_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().StudentOpenCourses(rctx, args["filter"].(*model.CourseFilter))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.CourseConnection)
+	fc.Result = res
+	return ec.marshalNCourseConnection2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐCourseConnection(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_getCourseStudents(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -5778,32 +5984,8 @@ func (ec *executionContext) _Student_classId(ctx context.Context, field graphql.
 
 	ctx = graphql.WithFieldContext(ctx, fc)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		directive0 := func(rctx context.Context) (interface{}, error) {
-			ctx = rctx // use context from middleware stack in children
-			return obj.ClassID, nil
-		}
-		directive1 := func(ctx context.Context) (interface{}, error) {
-			gorm, err := ec.unmarshalOString2ᚖstring(ctx, "uniqueIndex")
-			if err != nil {
-				return nil, err
-			}
-			if ec.directives.Tag == nil {
-				return nil, errors.New("directive tag is not implemented")
-			}
-			return ec.directives.Tag(ctx, obj, directive0, gorm)
-		}
-
-		tmp, err := directive1(rctx)
-		if err != nil {
-			return nil, err
-		}
-		if tmp == nil {
-			return nil, nil
-		}
-		if data, ok := tmp.(int64); ok {
-			return data, nil
-		}
-		return nil, fmt.Errorf(`unexpected type %T from directive, should be int64`, tmp)
+		ctx = rctx // use context from middleware stack in children
+		return obj.ClassID, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -8359,6 +8541,14 @@ func (ec *executionContext) unmarshalInputCourseInput(ctx context.Context, obj i
 			if err != nil {
 				return it, err
 			}
+		case "open":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("open"))
+			it.Open, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		}
 	}
 
@@ -9032,8 +9222,18 @@ func (ec *executionContext) _Course(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "open":
+			out.Values[i] = ec._Course_open(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "registerCount":
 			out.Values[i] = ec._Course_registerCount(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "isRegistered":
+			out.Values[i] = ec._Course_isRegistered(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -9504,6 +9704,20 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_courses(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			})
+		case "studentOpenCourses":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_studentOpenCourses(ctx, field)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}

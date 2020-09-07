@@ -18,7 +18,7 @@ const createStudentMutation = gql`
 const ListStudents = () => {
 	const [isLoading, setLoading] = useState(false)
 	const [visible, setVisible] = useState(false)
-	const {page, setPage} = useState(1)
+	const [page, setPage] = useState(1)
 	const [createStudent] = useMutation(createStudentMutation)
 	const [filter, setFilter] = useState({
 		limit: 50,

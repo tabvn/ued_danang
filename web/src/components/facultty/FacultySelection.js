@@ -7,7 +7,7 @@ const FacultySelection = forwardRef(((props, ref) => {
 	const {loading, error, data, refetch} = useQuery(GET_FACULTIES);
 	if (loading) return <Skeleton />
 	const faculties = data ? data.faculties : []
-	return <Select onChange={(v) => {
+	return <Select mode={props.mode} onChange={(v) => {
 		props.onChange(v)
 	}}>
 		{faculties.map((f, index) => (

@@ -27,8 +27,8 @@ mutation updateTeacher($id: ID!, $input: UpdateTeacherInput!){
 const ListTeachers = () => {
 	const [visible, setVisible] = useState(false)
 	const [isLoading, setLoading] = useState(false)
-	const {page, setPage} = useState(1)
-	const {filter, setFilter} = useState({
+	const [page, setPage] = useState(1)
+	const [filter, setFilter] = useState({
 		limit: 50,
 		offset: 0,
 	})

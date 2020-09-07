@@ -18,11 +18,10 @@ const errorLink = onError(({ networkError, graphQLErrors }) => {
   if (graphQLErrors) {
     graphQLErrors.forEach(({ message, locations, path }) => {
       if (message === "access denied") {
-        console.log(message);
         notification.error({ message: message });
         window.location.href = APP_URL + "/";
       } else {
-        notification.error({ message: message });
+        //notification.error({ message: message });
       }
     });
   }

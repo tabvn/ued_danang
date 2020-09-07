@@ -82,7 +82,9 @@ type Course struct {
 	LessonFrom    int            `json:"lessonFrom"`
 	LessonTo      int            `json:"lessonTo"`
 	Unit          int            `json:"unit"`
+	Open          bool           `json:"open" gorm:"default:true"`
 	RegisterCount int            `json:"registerCount" gorm:"-"`
+	IsRegistered  bool           `json:"isRegistered" gorm:"-"`
 	UpdatedAt     time.Time      `json:"updatedAt"`
 	CreatedAt     time.Time      `json:"createdAt"`
 	DeleteAt      gorm.DeletedAt `gorm:"index"`
@@ -112,6 +114,7 @@ type CourseInput struct {
 	LessonTo   int     `json:"lessonTo"`
 	Limit      int     `json:"limit"`
 	Unit       int     `json:"unit"`
+	Open       bool    `json:"open"`
 }
 
 type CourseStudent struct {
@@ -215,7 +218,7 @@ type Student struct {
 	UserID    int64          `json:"userId" gorm:"index"`
 	User      *User          `json:"user" gorm:"foreignKey:UserID"`
 	Code      string         `json:"code" gorm:"uniqueIndex"`
-	ClassID   int64          `json:"classId" gorm:"uniqueIndex"`
+	ClassID   int64          `json:"classId"`
 	Class     *Class         `json:"class" gorm:"foreignKey:ClassID"`
 	FirstName string         `json:"firstName"`
 	LastName  string         `json:"lastName"`
