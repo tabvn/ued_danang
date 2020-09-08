@@ -55,6 +55,9 @@ func (r *queryResolver) Students(ctx context.Context, filter *model.StudentFilte
 			s := "%" + strings.ToLower(*filter.Search) + "%"
 			tx = tx.Where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?", s, s)
 		}
+		if filter.ClassID != nil {
+			tx = tx.Where("class_id = ?", *filter.ClassID)
+		}
 	}
 	if err := tx.Model(model.Student{}).Count(&res.Total).Limit(limit).Offset(offset).Preload("Class").Preload("User").Find(&res.Nodes).Error; err != nil {
 		return nil, err

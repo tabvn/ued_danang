@@ -18,7 +18,7 @@ const ExportCourseStudentsButton = (props) => {
             setLoading(true)
             exportCourseStudents({
                 variables: {
-                    courseId: parseInt(props.courseId)
+                    courseId: props.courseId
                 }
             }).then((res) => {
                 setLoading(false)

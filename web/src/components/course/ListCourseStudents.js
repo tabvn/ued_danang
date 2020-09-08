@@ -1,18 +1,18 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Table} from "antd";
 import {useQuery} from "@apollo/react-hooks";
 import {GET_ALL_COURSE_STUDENTS} from "../../graphqls/query/courseStudents";
 import moment from 'moment'
+
 const ListCourseStudents = (props) => {
-    const [page, setPage] = useState(1)
-    const [filter, setFilter] = useState({
-        limit: 50,
-        offset: 0,
-    })
     const {loading, error, data, refetch} = useQuery(GET_ALL_COURSE_STUDENTS, {
+        fetchPolicy: "cache-and-network",
         variables: {
             courseId: props.courseId,
-            filter: {...filter},
+            filter: {
+                limit: 200,
+                offset: 0,
+            },
         },
     });
 
@@ -53,7 +53,7 @@ const ListCourseStudents = (props) => {
             <Table
                 loading={loading}
                 pagination={false}
-                dataSource={data ? data.getCourseStudents : []} columns={columns}/>
+                dataSource={data ? data.courseStudents : []} columns={columns}/>
         </div>
     );
 };

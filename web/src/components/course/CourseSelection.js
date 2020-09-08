@@ -4,7 +4,7 @@ import {Skeleton,Select} from 'antd'
 import {GET_ALL_COURSES} from "../../graphqls/query/courses";
 
 const CourseSelection = forwardRef(((props, ref) => {
-    const [value, setValue] = useState(props.value ? parseInt(props.value): null)
+    const [value, setValue] = useState(props.value ? props.value: null)
     const {loading, error, data, refetch} = useQuery(GET_ALL_COURSES);
     if (loading) return <Skeleton />
     const nodes = data ? data.courses.nodes : []

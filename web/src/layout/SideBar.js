@@ -35,7 +35,6 @@ const SideBar = (props) => {
     });
   });
   //const customizeIndicator = <AngleDown />;
-    console.log("user", user)
   return (
     <Container collapsed={collapsed} changeSize={changeSize}>
       <Menu
