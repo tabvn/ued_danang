@@ -30,37 +30,44 @@ const StudentRegisterCourseButton = (props) => {
             {course.isRegistered ?
                 <Button loading={loading} danger size="small" onClick={() => {
                     setLoading(true)
-					unregisterCourse({
-						variables: {
-							courseId: course.id,
-						}
-					}).then(() => {
-						setLoading(false)
-						props.onDone()
-					}).catch((err) => {
-						setLoading(false)
+                    unregisterCourse({
+                        variables: {
+                            courseId: course.id,
+                        }
+                    }).then(() => {
+                        setLoading(false)
 						notification.success({message: `Bạn đã huỷ học phần ${course.title}`})
-						notification.error({message: `có lỗi xảy ra: ${err.toString()}`})
-					})
-                }}>Huỷ đăng ký</Button> :
-                <Button onClick={() => {
-                    setLoading(true)
-					registerCourse({
-						variables: {
-							courseId: course.id
-						}
-					}).then(() => {
-						setLoading(false)
-						notification.success({message: "Đăng ký thành công"})
-						props.onDone()
-					}).catch((err) => {
-						setLoading(false)
-						if(err.toString().includes('course is overlap')){
-							notification.error({message: `có lỗi xảy ra: trùng lịch học`})
+                        props.onDone()
+                    }).catch((err) => {
+                        setLoading(false)
+                        if (err.toString().includes("course is closed")){
+							notification.error({message: `có lỗi xảy ra: học phần này đã khoá`})
 						}else{
 							notification.error({message: `có lỗi xảy ra: ${err.toString()}`})
 						}
-					})
+
+                    })
+                }}>Huỷ đăng ký</Button> :
+                <Button onClick={() => {
+                    setLoading(true)
+                    registerCourse({
+                        variables: {
+                            courseId: course.id
+                        }
+                    }).then(() => {
+                        setLoading(false)
+                        notification.success({message: "Đăng ký thành công"})
+                        props.onDone()
+                    }).catch((err) => {
+                        setLoading(false)
+                        if (err.toString().includes('course is overlap')) {
+                            notification.error({message: `có lỗi xảy ra: trùng lịch học`})
+                        } else if (err.toString().includes('course is closed')) {
+                            notification.error({message: "Học phần này đã dừng đăng ký"})
+                        } else {
+                            notification.error({message: `có lỗi xảy ra: ${err.toString()}`})
+                        }
+                    })
                 }} size="small" loading={loading}>
                     Đăng ký
                 </Button>}

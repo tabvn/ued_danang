@@ -21,6 +21,7 @@
     "axios": "^0.19.2",
     "graphql": "^15.3.0",
     "lodash": "^4.17.19",
+    "moment": "^2.27.0",
     "node-sass": "^4.14.1",
     "prop-types": "^15.7.2",
     "query-string": "^6.13.1",
@@ -37,6 +38,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "deploy": "gcloud compute copy-files ./build/* root@instance-2:/var/www/ued.tabvn.com/app --zone \"asia-southeast1-a\" --project \"danang-288409\"",
+    "bnd": "npm run build && npm run deploy",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

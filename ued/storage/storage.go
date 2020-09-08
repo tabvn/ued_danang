@@ -36,9 +36,9 @@ type File struct {
 func UploadDir() string {
 	return "./storage"
 }
-func BuildUploadPath(storeID string) string {
+func BuildUploadPath(userId int64) string {
 	today := time.Now().Format("2006-01-02")
-	return UploadDir() + "/" + storeID + "/" + today + "/" + id.Gen(20)
+	return UploadDir() + "/" + fmt.Sprintf("%d", userId) + "/" + today + "/" + id.Gen(20)
 }
 
 func BuildFileName(fullUrl string) string {
@@ -170,7 +170,6 @@ func HandleUpload(c *gin.Context) {
 	mime := http.DetectContentType(buffer)
 	f.Close()
 	insert := map[string]interface{}{
-		"id":         uniqueId,
 		"name":       file.Filename,
 		"Key":        key,
 		"cloud":      "Storage",

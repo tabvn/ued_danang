@@ -1,6 +1,6 @@
 import React from 'react';
 import {PageHeader} from "antd";
-import ListCourses from "../../components/ListCourses";
+import ListCourses from "../../components/course/ListCourses";
 
 const AdminCourses = () => {
     return <div>

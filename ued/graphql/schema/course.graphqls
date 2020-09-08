@@ -46,6 +46,19 @@ input CourseInput{
 	unit: Int!
 	open:Boolean!
 }
+input UpdateCourseInput{
+	code: String
+	required: Boolean
+	teacherId: ID
+	faculties: [ID!]
+	title: String
+	lessonDay: Int
+	lessonFrom: Int
+	lessonTo: Int
+	limit: Int
+	unit: Int
+	open:Boolean
+}
 type CourseConnection{
 	total: Int64!
 	nodes: [Course!]
@@ -62,6 +75,8 @@ extend type Query {
 }
 extend type Mutation {
 	createCourse(input: CourseInput!): Course!
+	updateCourse(id: ID!, input: UpdateCourseInput!): Course!
 	registerCourse(courseId: ID!): CourseStudent!
 	unregisterCourse(courseId: ID!): Boolean!
+	exportCourseStudents(courseId: ID!): String
 }

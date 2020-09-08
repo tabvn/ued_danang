@@ -9,10 +9,18 @@ export const GET_ALL_COURSES = gql `
         code
         title
         limit
+        unit
+        required
         lessonDay
         lessonFrom
         lessonTo
         registerCount
+        teacherId
+        open
+        faculties{
+          id
+          name
+        }
         teacher{
           id
           firstName

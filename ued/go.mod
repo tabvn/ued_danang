@@ -3,6 +3,8 @@ module github.com/tabvn/ued
 go 1.14
 
 require (
+	github.com/360EntSecGroup-Skylar/excelize v1.4.1
+	github.com/360EntSecGroup-Skylar/excelize/v2 v2.3.0 // indirect
 	github.com/99designs/gqlgen v0.12.2
 	github.com/dchest/uniuri v0.0.0-20200228104902-7aecb25e1fe5
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
