@@ -1,4 +1,4 @@
-import React, {forwardRef} from 'react';
+import React, {forwardRef, useState} from 'react';
 import {useQuery} from "@apollo/react-hooks";
 import {Skeleton,Select} from 'antd'
 import {GET_CLASSES} from "../../graphqls/query/classes";
@@ -10,9 +10,12 @@ const ClassSelection = forwardRef(((props, ref) => {
 				offset: 0,
 			}
 		}});
+
+	const [value, setValue] = useState(props.value)
 	if (loading) return <Skeleton />
 	const nodes = data ? data.classes.nodes : []
-	return <Select onChange={(v) => {
+	return <Select value={value} onChange={(v) => {
+		setValue(v)
 		props.onChange(v)
 	}}>
 		{nodes.map((node, index) => {

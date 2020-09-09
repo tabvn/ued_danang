@@ -79,7 +79,8 @@ func (r *mutationResolver) UpdateStudent(ctx context.Context, id int64, input mo
 	if input.Birthday != nil {
 		obj.Birthday = *input.Birthday
 	}
-	if err := r.DB.Save(&obj).Error; err != nil {
+	if err := tx.Save(&obj).Error; err != nil {
+		tx.Rollback()
 		return nil, fmt.Errorf("could not save student: %s", err.Error())
 	}
 	tx.Commit()

@@ -18,6 +18,8 @@ export const GET_STUDENTS = gql`
 				lastName
 				code
 				birthday
+				gender
+				classId
 			}
 		}
 	}

@@ -5,6 +5,7 @@ import CourseSelection from "../../components/course/CourseSelection";
 import styled from "styled-components";
 import ListCourseStudents from "../../components/course/ListCourseStudents";
 import ExportCourseStudentsButton from "../../components/course/ExportCourseStudentsButton";
+import {APP_URL} from "../../config";
 
 const Container = styled.div`
 .filter{
@@ -30,7 +31,12 @@ const AdminCourseStudent = () => {
             <div className={"filter"}>
                 <span>Chọn học phần: </span>
                 <CourseSelection value={courseId ? courseId : null} onChange={(value) => {
-                    history.replace(`/admin/courses/students?courseId=${value}`)
+                    if(!courseId){
+                        window.location.href = `${APP_URL}/admin/courses/students?courseId=${value}`
+                    }else{
+                        history.replace(`/admin/courses/students?courseId=${value}`)
+                    }
+
                 }}/>
                 {courseId && <ExportCourseStudentsButton courseId={courseId}/>}
             </div>

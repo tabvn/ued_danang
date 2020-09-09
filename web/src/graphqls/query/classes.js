@@ -7,11 +7,18 @@ export const GET_CLASSES = gql`
 			nodes{
 				id
 				name
+				teacherId
+				facultyId
+				faculty{
+					id
+					name
+				}
 				teacher{
 					id
 					firstName
 					lastName
 				}
+				year
 			}
 		}
 	}

@@ -50,6 +50,9 @@ func (r *mutationResolver) UpdateClass(ctx context.Context, id int64, input mode
 	if input.FacultyID != nil {
 		obj.FacultyID = *input.FacultyID
 	}
+	if input.Year != nil {
+		obj.Year = *input.Year
+	}
 	if err := r.DB.Save(&obj).Error; err != nil {
 		return nil, fmt.Errorf("an error saving class %s", err.Error())
 	}
