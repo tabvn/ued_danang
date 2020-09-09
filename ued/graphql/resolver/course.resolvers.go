@@ -133,7 +133,7 @@ func (r *mutationResolver) RegisterCourse(ctx context.Context, courseID int64) (
 		return nil, fmt.Errorf("access denied")
 	}
 	var course model.Course
-	if err := r.DB.Where("id = ?", courseID).Take(&course).Error; err != nil {
+	if err := r.DB.Where("id = ?", courseID).Preload("Faculties").Take(&course).Error; err != nil {
 		return nil, fmt.Errorf("course not found")
 	}
 	if course.GetRegisterCount() >= course.Limit {
@@ -142,6 +142,23 @@ func (r *mutationResolver) RegisterCourse(ctx context.Context, courseID int64) (
 	if course.Open == false {
 		return nil, fmt.Errorf("course is closed")
 	}
+	if course.Faculties != nil {
+		class := student.GetClass()
+		if class == nil {
+			return nil, fmt.Errorf("could not find student class")
+		}
+		exist := false
+		for _, f := range course.Faculties {
+			if f.ID == class.FacultyID {
+				exist = true
+				break
+			}
+		}
+		if !exist {
+			return nil, fmt.Errorf("this course is not open for your faculty")
+		}
+	}
+
 	var count int64
 	if err := r.DB.Model(model.Course{}).Joins("INNER JOIN course_students ON course_students.course_id = \"courses\".id AND course_students.student_id = ?", student.ID).Where("courses.lesson_day = ? AND (courses.lesson_to >= ? AND courses.lesson_to <= ?)", course.LessonDay, course.LessonFrom, course.LessonTo).Count(&count).Error; err != nil {
 		return nil, fmt.Errorf("an error %s", err.Error())

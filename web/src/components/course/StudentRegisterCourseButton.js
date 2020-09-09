@@ -64,7 +64,11 @@ const StudentRegisterCourseButton = (props) => {
                             notification.error({message: `có lỗi xảy ra: trùng lịch học`})
                         } else if (err.toString().includes('course is closed')) {
                             notification.error({message: "Học phần này đã dừng đăng ký"})
-                        } else {
+                        }
+                        else if (err.toString().includes('this course is not open for your faculty')){
+                        	notification.error({message: "Học phần này không đành cho khoa của bạn"})
+						}
+                        else {
                             notification.error({message: `có lỗi xảy ra: ${err.toString()}`})
                         }
                     })

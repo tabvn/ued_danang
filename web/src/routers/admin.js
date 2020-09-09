@@ -1,5 +1,5 @@
 import AdminStudent from "../pages/admin/AdminStudents";
-import {UserOutlined} from "@ant-design/icons";
+import {UserOutlined,ContactsOutlined,UsergroupAddOutlined,ProfileOutlined,RobotOutlined,ReadOutlined} from "@ant-design/icons";
 import MainLayout from "../layout/MainLayout";
 import React from "react";
 import AdminClasses from "../pages/admin/AdminClasses";
@@ -14,7 +14,7 @@ export default [
         title: "Danh sách khoa",
         component: AdminFaculties,
         path: "/admin/faculties",
-        icon: <UserOutlined/>,
+        icon: <ContactsOutlined />,
         layout: MainLayout,
         role: 'Administrator'
     },
@@ -23,7 +23,7 @@ export default [
         title: "Danh sách giảng viên",
         component: AdminTeachers,
         path: "/admin/teachers",
-        icon: <UserOutlined/>,
+        icon: <UsergroupAddOutlined />,
         layout: MainLayout,
         role: 'Administrator'
     },
@@ -32,7 +32,7 @@ export default [
         title: "Danh sách lớp",
         component: AdminClasses,
         path: "/admin/classes",
-        icon: <UserOutlined/>,
+        icon: <ProfileOutlined />,
         layout: MainLayout,
         role: 'Administrator'
     },
@@ -41,7 +41,7 @@ export default [
         title: "Danh sách sinh viên",
         component: AdminStudent,
         path: "/admin/students",
-        icon: <UserOutlined/>,
+        icon: <RobotOutlined />,
         layout: MainLayout,
         role: 'Administrator'
     },
@@ -50,7 +50,7 @@ export default [
         title: "Quản lý học phần",
         component: AdminCourses,
         path: "/admin/courses",
-        icon: <UserOutlined/>,
+        icon: <ReadOutlined />,
         layout: MainLayout,
         role: 'Administrator',
         child: [
