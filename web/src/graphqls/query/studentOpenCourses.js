@@ -14,6 +14,7 @@ export const GET_STUDENT_OPEN_COURSES = gql`
 				lessonTo
 				registerCount
 				isRegistered
+				open
 				teacher{
 					id
 					firstName

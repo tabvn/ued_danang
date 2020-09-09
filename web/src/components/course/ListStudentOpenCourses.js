@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {useQuery} from "@apollo/react-hooks";
-import {Table} from "antd";
+import {Table, Tag} from "antd";
 import {GET_STUDENT_OPEN_COURSES} from "../../graphqls/query/studentOpenCourses";
 import StudentRegisterCourseButton from "./StudentRegisterCourseButton";
 
@@ -40,6 +40,14 @@ const ListStudentOpenCourses = () => {
             key: "lessonDay",
             render: (text, record) => (
                 <div>{`Thứ ${record.lessonDay}, tiết: ${record.lessonFrom} - ${record.lessonTo}`}</div>
+            )
+        },
+        {
+            title: "Tình trạng",
+            dataIndex: "open",
+            key: 'open',
+            render: (text, record) => (
+                <Tag color={record.open ? 'success' : 'error'}>{record.open ? 'Đang mở' : 'Đã khoá'}</Tag>
             )
         },
         {
