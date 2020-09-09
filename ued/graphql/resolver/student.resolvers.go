@@ -43,6 +43,49 @@ func (r *mutationResolver) CreateStudent(ctx context.Context, input model.Studen
 	return &obj, nil
 }
 
+func (r *mutationResolver) UpdateStudent(ctx context.Context, id int64, input model.UpdateStudentInput) (*model.Student, error) {
+	var obj model.Student
+	if err := r.DB.Where("id = ?", id).Preload("User").Take(&obj).Error; err != nil {
+		return nil, fmt.Errorf("student not found %s", err.Error())
+	}
+	var tx = r.DB.Begin()
+	if input.FirstName != nil {
+		obj.User.FirstName = *input.FirstName
+		obj.FirstName = *input.FirstName
+	}
+	if input.LastName != nil {
+		obj.User.LastName = *input.LastName
+		obj.LastName = *input.LastName
+	}
+	if input.Email != nil {
+		obj.User.Email = *input.Email
+	}
+	if input.Password != nil {
+		obj.User.Password = model.EncodePassword(*input.Password)
+	}
+	if err := tx.Save(obj.User).Error; err != nil {
+		tx.Rollback()
+		return nil, fmt.Errorf("could not save user info due an error: %s", err.Error())
+	}
+	if input.Code != nil {
+		obj.Code = *input.Code
+	}
+	if input.ClassID != nil {
+		obj.ClassID = *input.ClassID
+	}
+	if input.Gender != nil {
+		obj.Gender = *input.Gender
+	}
+	if input.Birthday != nil {
+		obj.Birthday = *input.Birthday
+	}
+	if err := r.DB.Save(&obj).Error; err != nil {
+		return nil, fmt.Errorf("could not save student: %s", err.Error())
+	}
+	tx.Commit()
+	return &obj, nil
+}
+
 func (r *queryResolver) Students(ctx context.Context, filter *model.StudentFilter) (*model.StudentConnection, error) {
 	var (
 		limit  = 100

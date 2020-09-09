@@ -36,6 +36,26 @@ func (r *mutationResolver) CreateClass(ctx context.Context, input model.ClassInp
 	return &obj, nil
 }
 
+func (r *mutationResolver) UpdateClass(ctx context.Context, id int64, input model.UpdateClassInput) (*model.Class, error) {
+	var obj model.Class
+	if err := r.DB.Where("id = ?", id).Take(&obj).Error; err != nil {
+		return nil, fmt.Errorf("class not found: %s", err.Error())
+	}
+	if input.Name != nil {
+		obj.Name = *input.Name
+	}
+	if input.TeacherID != nil {
+		obj.TeacherID = *input.TeacherID
+	}
+	if input.FacultyID != nil {
+		obj.FacultyID = *input.FacultyID
+	}
+	if err := r.DB.Save(&obj).Error; err != nil {
+		return nil, fmt.Errorf("an error saving class %s", err.Error())
+	}
+	return &obj, nil
+}
+
 func (r *queryResolver) Classes(ctx context.Context, filter *model.ClassFilter) (*model.ClassConnection, error) {
 	var (
 		limit  = 100

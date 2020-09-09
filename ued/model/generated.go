@@ -295,6 +295,13 @@ type Token struct {
 	User      *User     `json:"user"`
 }
 
+type UpdateClassInput struct {
+	Name      *string `json:"name"`
+	FacultyID *int64  `json:"facultyId"`
+	TeacherID *int64  `json:"teacherId"`
+	Year      *int    `json:"year"`
+}
+
 type UpdateCourseInput struct {
 	Code       *string `json:"code"`
 	Required   *bool   `json:"required"`
@@ -307,6 +314,17 @@ type UpdateCourseInput struct {
 	Limit      *int    `json:"limit"`
 	Unit       *int    `json:"unit"`
 	Open       *bool   `json:"open"`
+}
+
+type UpdateStudentInput struct {
+	Email     *string    `json:"email"`
+	Code      *string    `json:"code"`
+	FirstName *string    `json:"firstName"`
+	LastName  *string    `json:"lastName"`
+	Password  *string    `json:"password"`
+	Gender    *int       `json:"gender"`
+	Birthday  *time.Time `json:"birthday"`
+	ClassID   *int64     `json:"classId"`
 }
 
 type UpdateTeacherInput struct {
