@@ -36,6 +36,7 @@ type TeacherConnection{
 extend type Query {
 	teachers(filter: TeacherFilter): TeacherConnection!
 	teacherCourseStudents(courseId: ID!): [Student!]
+	teacherClassStudents(classId: ID!): [Student!]
 }
 extend type Mutation {
 	createTeacher(input: TeacherInput!): Teacher!

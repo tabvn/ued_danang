@@ -5,6 +5,7 @@ package resolver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 
@@ -98,5 +99,24 @@ func (r *queryResolver) TeacherCourseStudents(ctx context.Context, courseID int6
 		return nil, fmt.Errorf("student not found %s", err.Error())
 	}
 
+	return res, nil
+}
+
+func (r *queryResolver) TeacherClassStudents(ctx context.Context, classID int64) ([]*model.Student, error) {
+	teacher := r.GetTeacherFromContext(ctx)
+	if teacher == nil {
+		return nil, fmt.Errorf("access denied")
+	}
+	var c model.Class
+	if err := r.DB.Where("id = ?", classID).Take(&c).Error; err != nil {
+		return nil, errors.New("class not found")
+	}
+	if c.TeacherID != teacher.ID {
+		return nil, errors.New("this is not your class")
+	}
+	var res []*model.Student
+	if err := r.DB.Where("class_id = ?", classID).Preload("Class").Preload("User").Find(&res).Error; err != nil {
+		return nil, fmt.Errorf("could not find students: %s", err.Error())
+	}
 	return res, nil
 }

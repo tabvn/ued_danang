@@ -1,17 +1,17 @@
 import React from 'react';
 import {useLazyQuery} from "@apollo/react-hooks";
-import TeacherCourseSelection from "./TeacherCourseSelection";
 import styled from "styled-components";
-import {TEACHER_COURSE_STUDENTS} from "../../graphqls/query/techerStudents";
+import {TEACHER_CLASS_STUDENTS} from "../../graphqls/query/techerStudents";
 import {Table} from "antd";
+import TeacherClassSelection from "../classes/TeacherClassSelection";
 
 const Container = styled.div`
 .ant-select{
     min-width: 300px;
  }
 `
-const TeacherListStudent = () => {
-    const [getStudents, {loading, data}] = useLazyQuery(TEACHER_COURSE_STUDENTS);
+const ListTeacherClassStudents = () => {
+    const [getStudents, {loading, data}] = useLazyQuery(TEACHER_CLASS_STUDENTS);
 
     const columns = [
         {
@@ -56,16 +56,16 @@ const TeacherListStudent = () => {
     ];
     return (
         <Container>
-            <span>Chọn lớp học phần: </span><TeacherCourseSelection onChange={(courseId) => {
+            <span>Chọn lớp sinh hoạt: </span><TeacherClassSelection onChange={(classId) => {
             getStudents({
-                    variables: {
-                        courseId,
-                    }
-                })
-            }}/>
-            <Table loading={loading} columns={columns} dataSource={data ? data.teacherCourseStudents : []}/>
+                variables: {
+                    classId,
+                }
+            })
+        }}/>
+            <Table loading={loading} columns={columns} dataSource={data ? data.teacherClassStudents : []}/>
         </Container>
     );
 };
 
-export default TeacherListStudent;
+export default ListTeacherClassStudents;

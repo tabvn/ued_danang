@@ -57,9 +57,10 @@ type ClassConnection struct {
 }
 
 type ClassFilter struct {
-	Search *string `json:"search"`
-	Limit  *int    `json:"limit"`
-	Offset *int    `json:"offset"`
+	Search    *string `json:"search"`
+	TeacherID *int64  `json:"teacherId"`
+	Limit     *int    `json:"limit"`
+	Offset    *int    `json:"offset"`
 }
 
 type ClassInput struct {

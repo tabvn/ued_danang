@@ -70,9 +70,24 @@ func (r *queryResolver) Classes(ctx context.Context, filter *model.ClassFilter) 
 		if filter.Search != nil {
 			tx = tx.Where("LOWER(name) LIKE ?", "%"+strings.ToLower(*filter.Search)+"%")
 		}
+		if filter.TeacherID != nil {
+			tx = tx.Where("teacher_id = ?", *filter.TeacherID)
+		}
 	}
 	if err := tx.Model(model.Class{}).Count(&res.Total).Limit(limit).Offset(offset).Preload("Faculty").Preload("Teacher").Find(&res.Nodes).Error; err != nil {
 		return nil, err
 	}
 	return &res, nil
+}
+
+func (r *queryResolver) TeacherClasses(ctx context.Context) ([]*model.Class, error) {
+	teacher := r.GetTeacherFromContext(ctx)
+	if teacher == nil {
+		return nil, fmt.Errorf("access denied")
+	}
+	var res []*model.Class
+	if err := r.DB.Where("teacher_id = ?", teacher.ID).Preload("Faculty").Preload("Teacher").Find(&res).Error; err != nil {
+		return nil, err
+	}
+	return res, nil
 }

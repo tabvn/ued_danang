@@ -22,3 +22,26 @@ export const TEACHER_COURSE_STUDENTS = gql`
 	}
 
 `
+
+export const TEACHER_CLASS_STUDENTS = gql`
+	query teacherClassStudents($classId: ID!){
+			teacherClassStudents(classId: $classId){
+			id
+			user{
+				id
+				email
+			}
+			class{
+				id
+				name
+			}
+			firstName
+			lastName
+			code
+			birthday
+			gender
+			classId
+		}
+	}
+
+`

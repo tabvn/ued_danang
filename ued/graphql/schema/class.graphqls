@@ -21,6 +21,7 @@ type ClassConnection{
 }
 input ClassFilter{
 	search: String
+	teacherId: ID
 	limit: Int
 	offset: Int
 }
@@ -32,6 +33,7 @@ input UpdateClassInput{
 }
 extend type Query {
 	classes(filter:ClassFilter): ClassConnection!
+	teacherClasses: [Class!]
 }
 extend type Mutation {
 	createClass(input: ClassInput!): Class!
