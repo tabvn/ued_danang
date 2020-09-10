@@ -30,8 +30,8 @@ func (r *mutationResolver) CreateStudent(ctx context.Context, input model.Studen
 		UserID:    user.ID,
 		User:      user,
 		Code:      input.Code,
-		FirstName: input.FirstName,
-		LastName:  input.LastName,
+		FirstName: strings.TrimSpace(input.FirstName),
+		LastName:  strings.TrimSpace(input.LastName),
 		Gender:    input.Gender,
 		Birthday:  input.Birthday,
 	}
@@ -50,15 +50,15 @@ func (r *mutationResolver) UpdateStudent(ctx context.Context, id int64, input mo
 	}
 	var tx = r.DB.Begin()
 	if input.FirstName != nil {
-		obj.User.FirstName = *input.FirstName
-		obj.FirstName = *input.FirstName
+		obj.User.FirstName = strings.TrimSpace(*input.FirstName)
+		obj.FirstName = obj.User.FirstName
 	}
 	if input.LastName != nil {
-		obj.User.LastName = *input.LastName
-		obj.LastName = *input.LastName
+		obj.User.LastName = strings.TrimSpace(*input.LastName)
+		obj.LastName = obj.User.LastName
 	}
 	if input.Email != nil {
-		obj.User.Email = *input.Email
+		obj.User.Email = strings.TrimSpace(*input.Email)
 	}
 	if input.Password != nil {
 		obj.User.Password = model.EncodePassword(*input.Password)

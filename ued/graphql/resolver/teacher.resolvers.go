@@ -22,8 +22,8 @@ func (r *mutationResolver) CreateTeacher(ctx context.Context, input model.Teache
 	obj := model.Teacher{
 		UserID:    user.ID,
 		User:      user,
-		FirstName: input.FirstName,
-		LastName:  input.LastName,
+		FirstName: strings.TrimSpace(input.FirstName),
+		LastName:  strings.TrimSpace(input.LastName),
 		Phone:     input.Phone,
 		WorkPlace: input.WorkPlace,
 	}

@@ -8,6 +8,7 @@ import (
 	"github.com/tabvn/ued/model"
 	"github.com/tabvn/ued/validate"
 	"gorm.io/gorm"
+	"strings"
 )
 
 type Resolver struct {
@@ -89,8 +90,8 @@ func (r *Resolver) CreateUser(tx *gorm.DB, role string, first, last, email, pass
 		return nil, errors.New("invalid password")
 	}
 	obj := model.User{
-		FirstName: first,
-		LastName:  last,
+		FirstName: strings.TrimSpace(first),
+		LastName:  strings.TrimSpace(last),
 		Email:     email,
 		Role:      role,
 		Password:  model.EncodePassword(password),
