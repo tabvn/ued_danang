@@ -91,13 +91,14 @@ type ComplexityRoot struct {
 	}
 
 	CourseStudent struct {
-		Course    func(childComplexity int) int
-		CourseID  func(childComplexity int) int
-		CreatedAt func(childComplexity int) int
-		ID        func(childComplexity int) int
-		Student   func(childComplexity int) int
-		StudentID func(childComplexity int) int
-		UpdatedAt func(childComplexity int) int
+		Course      func(childComplexity int) int
+		CourseID    func(childComplexity int) int
+		CreatedAt   func(childComplexity int) int
+		ID          func(childComplexity int) int
+		Student     func(childComplexity int) int
+		StudentID   func(childComplexity int) int
+		TeacherNote func(childComplexity int) int
+		UpdatedAt   func(childComplexity int) int
 	}
 
 	ExpireToken struct {
@@ -162,6 +163,7 @@ type ComplexityRoot struct {
 		UpdateFaculty        func(childComplexity int, id int64, input model.FacultyInput) int
 		UpdateStudent        func(childComplexity int, id int64, input model.UpdateStudentInput) int
 		UpdateTeacher        func(childComplexity int, id int64, input model.UpdateTeacherInput) int
+		UpdateTeacherNote    func(childComplexity int, courseID int64, studentID int64, note string) int
 	}
 
 	Query struct {
@@ -250,6 +252,7 @@ type MutationResolver interface {
 	RegisterCourse(ctx context.Context, courseID int64) (*model.CourseStudent, error)
 	UnregisterCourse(ctx context.Context, courseID int64) (bool, error)
 	ExportCourseStudents(ctx context.Context, courseID int64) (*string, error)
+	UpdateTeacherNote(ctx context.Context, courseID int64, studentID int64, note string) (bool, error)
 	CreateFaculty(ctx context.Context, input model.FacultyInput) (*model.Faculty, error)
 	UpdateFaculty(ctx context.Context, id int64, input model.FacultyInput) (*model.Faculty, error)
 	ClearAllLogs(ctx context.Context) (bool, error)
@@ -271,7 +274,7 @@ type QueryResolver interface {
 	Loggers(ctx context.Context, filter *model.LoggerFilter) (*model.LoggerConnection, error)
 	Students(ctx context.Context, filter *model.StudentFilter) (*model.StudentConnection, error)
 	Teachers(ctx context.Context, filter *model.TeacherFilter) (*model.TeacherConnection, error)
-	TeacherCourseStudents(ctx context.Context, courseID int64) ([]*model.Student, error)
+	TeacherCourseStudents(ctx context.Context, courseID int64) ([]*model.CourseStudent, error)
 	TeacherClassStudents(ctx context.Context, classID int64) ([]*model.Student, error)
 	User(ctx context.Context, id int64) (*model.User, error)
 	Viewer(ctx context.Context) (*model.Viewer, error)
@@ -543,6 +546,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CourseStudent.StudentID(childComplexity), true
+
+	case "CourseStudent.teacherNote":
+		if e.complexity.CourseStudent.TeacherNote == nil {
+			break
+		}
+
+		return e.complexity.CourseStudent.TeacherNote(childComplexity), true
 
 	case "CourseStudent.updatedAt":
 		if e.complexity.CourseStudent.UpdatedAt == nil {
@@ -942,6 +952,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateTeacher(childComplexity, args["id"].(int64), args["input"].(model.UpdateTeacherInput)), true
+
+	case "Mutation.updateTeacherNote":
+		if e.complexity.Mutation.UpdateTeacherNote == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateTeacherNote_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateTeacherNote(childComplexity, args["courseId"].(int64), args["studentId"].(int64), args["note"].(string)), true
 
 	case "Query.classes":
 		if e.complexity.Query.Classes == nil {
@@ -1495,6 +1517,7 @@ type CourseStudent implements Model{
 	student: Student! @tag(gorm:"foreignKey:StudentID")
 	courseId: ID!
 	course:Course! @tag(gorm:"foreignKey:CourseID")
+	teacherNote: String
 	createdAt: Time!
 	updatedAt: Time!
 }
@@ -1551,6 +1574,7 @@ extend type Mutation {
 	registerCourse(courseId: ID!): CourseStudent!
 	unregisterCourse(courseId: ID!): Boolean!
 	exportCourseStudents(courseId: ID!): String
+	updateTeacherNote(courseId: ID!, studentId: ID!, note: String!): Boolean!
 }`, BuiltIn: false},
 	{Name: "graphql/schema/faculty.graphqls", Input: `type Faculty implements Model{
 	id: ID! @tag(gorm: "primaryKey")
@@ -1721,7 +1745,7 @@ type TeacherConnection{
 }
 extend type Query {
 	teachers(filter: TeacherFilter): TeacherConnection!
-	teacherCourseStudents(courseId: ID!): [Student!]
+	teacherCourseStudents(courseId: ID!): [CourseStudent!]
 	teacherClassStudents(classId: ID!): [Student!]
 }
 extend type Mutation {
@@ -2031,6 +2055,39 @@ func (ec *executionContext) field_Mutation_updateStudent_args(ctx context.Contex
 		}
 	}
 	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateTeacherNote_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("courseId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 int64
+	if tmp, ok := rawArgs["studentId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("studentId"))
+		arg1, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["studentId"] = arg1
+	var arg2 string
+	if tmp, ok := rawArgs["note"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("note"))
+		arg2, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["note"] = arg2
 	return args, nil
 }
 
@@ -3787,6 +3844,37 @@ func (ec *executionContext) _CourseStudent_course(ctx context.Context, field gra
 	return ec.marshalNCourse2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐCourse(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _CourseStudent_teacherNote(ctx context.Context, field graphql.CollectedField, obj *model.CourseStudent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "CourseStudent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TeacherNote, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _CourseStudent_createdAt(ctx context.Context, field graphql.CollectedField, obj *model.CourseStudent) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -5351,6 +5439,47 @@ func (ec *executionContext) _Mutation_exportCourseStudents(ctx context.Context, 
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Mutation_updateTeacherNote(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updateTeacherNote_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateTeacherNote(rctx, args["courseId"].(int64), args["studentId"].(int64), args["note"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_createFaculty(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -6110,9 +6239,9 @@ func (ec *executionContext) _Query_teacherCourseStudents(ctx context.Context, fi
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Student)
+	res := resTmp.([]*model.CourseStudent)
 	fc.Result = res
-	return ec.marshalOStudent2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐStudentᚄ(ctx, field.Selections, res)
+	return ec.marshalOCourseStudent2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐCourseStudentᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_teacherClassStudents(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -10109,6 +10238,8 @@ func (ec *executionContext) _CourseStudent(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "teacherNote":
+			out.Values[i] = ec._CourseStudent_teacherNote(ctx, field, obj)
 		case "createdAt":
 			out.Values[i] = ec._CourseStudent_createdAt(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -10413,6 +10544,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "exportCourseStudents":
 			out.Values[i] = ec._Mutation_exportCourseStudents(ctx, field)
+		case "updateTeacherNote":
+			out.Values[i] = ec._Mutation_updateTeacherNote(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createFaculty":
 			out.Values[i] = ec._Mutation_createFaculty(ctx, field)
 			if out.Values[i] == graphql.Null {

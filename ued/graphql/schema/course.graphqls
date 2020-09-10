@@ -24,6 +24,7 @@ type CourseStudent implements Model{
 	student: Student! @tag(gorm:"foreignKey:StudentID")
 	courseId: ID!
 	course:Course! @tag(gorm:"foreignKey:CourseID")
+	teacherNote: String
 	createdAt: Time!
 	updatedAt: Time!
 }
@@ -80,4 +81,5 @@ extend type Mutation {
 	registerCourse(courseId: ID!): CourseStudent!
 	unregisterCourse(courseId: ID!): Boolean!
 	exportCourseStudents(courseId: ID!): String
+	updateTeacherNote(courseId: ID!, studentId: ID!, note: String!): Boolean!
 }

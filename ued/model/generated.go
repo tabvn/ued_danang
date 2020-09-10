@@ -119,14 +119,15 @@ type CourseInput struct {
 }
 
 type CourseStudent struct {
-	ID        int64          `json:"id" gorm:"primaryKey"`
-	StudentID int64          `json:"studentId"`
-	Student   *Student       `json:"student" gorm:"foreignKey:StudentID"`
-	CourseID  int64          `json:"courseId"`
-	Course    *Course        `json:"course" gorm:"foreignKey:CourseID"`
-	CreatedAt time.Time      `json:"createdAt"`
-	UpdatedAt time.Time      `json:"updatedAt"`
-	DeleteAt  gorm.DeletedAt `gorm:"index"`
+	ID          int64          `json:"id" gorm:"primaryKey"`
+	StudentID   int64          `json:"studentId"`
+	Student     *Student       `json:"student" gorm:"foreignKey:StudentID"`
+	CourseID    int64          `json:"courseId"`
+	Course      *Course        `json:"course" gorm:"foreignKey:CourseID"`
+	TeacherNote *string        `json:"teacherNote"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+	DeleteAt    gorm.DeletedAt `gorm:"index"`
 }
 
 func (CourseStudent) IsModel() {}

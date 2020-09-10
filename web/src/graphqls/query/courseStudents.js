@@ -24,6 +24,7 @@ export const GET_ALL_COURSE_STUDENTS = gql`
 				classId
 			}
 			createdAt
+			teacherNote
 
 		}
 	}

@@ -86,15 +86,13 @@ func (r *queryResolver) Teachers(ctx context.Context, filter *model.TeacherFilte
 	return &res, nil
 }
 
-func (r *queryResolver) TeacherCourseStudents(ctx context.Context, courseID int64) ([]*model.Student, error) {
+func (r *queryResolver) TeacherCourseStudents(ctx context.Context, courseID int64) ([]*model.CourseStudent, error) {
 	teacher := r.GetTeacherFromContext(ctx)
 	if teacher == nil {
 		return nil, fmt.Errorf("access denied")
 	}
-	var res []*model.Student
-	if err := r.DB.Model(model.Student{}).
-		Joins("INNER JOIN course_students ON course_students.student_id = \"students\".id AND course_students.course_id =?", courseID).
-		Preload("Class").Preload("User").
+	var res []*model.CourseStudent
+	if err := r.DB.Where("course_id =?", courseID).Preload("Student.Class").Preload("Student.User").
 		Find(&res).Error; err != nil {
 		return nil, fmt.Errorf("student not found %s", err.Error())
 	}

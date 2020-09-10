@@ -4,20 +4,29 @@ export const TEACHER_COURSE_STUDENTS = gql`
 	query teacherCourseStudents($courseId: ID!){
 		teacherCourseStudents(courseId: $courseId){
 			id
-			user{
+			id
+			courseId
+			studentId
+			student{
 				id
-				email
+				user{
+					id
+					email
+				}
+				class{
+					id
+					name
+				}
+				firstName
+				lastName
+				code
+				birthday
+				gender
+				classId
 			}
-			class{
-				id
-				name
-			}
-			firstName
-			lastName
-			code
-			birthday
-			gender
-			classId
+			createdAt
+			teacherNote
+
 		}
 	}
 
@@ -25,7 +34,7 @@ export const TEACHER_COURSE_STUDENTS = gql`
 
 export const TEACHER_CLASS_STUDENTS = gql`
 	query teacherClassStudents($classId: ID!){
-			teacherClassStudents(classId: $classId){
+		teacherClassStudents(classId: $classId){
 			id
 			user{
 				id

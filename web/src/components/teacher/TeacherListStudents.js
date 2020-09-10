@@ -1,9 +1,10 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {useLazyQuery} from "@apollo/react-hooks";
 import TeacherCourseSelection from "./TeacherCourseSelection";
 import styled from "styled-components";
 import {TEACHER_COURSE_STUDENTS} from "../../graphqls/query/techerStudents";
 import {Table} from "antd";
+import TeacherNoteInput from "../course/TeacherNoteInput";
 
 const Container = styled.div`
 .ant-select{
@@ -12,11 +13,11 @@ const Container = styled.div`
 `
 const TeacherListStudent = () => {
     const [getStudents, {loading, data}] = useLazyQuery(TEACHER_COURSE_STUDENTS);
-
+    const [courseId, setCourseId] = useState(null)
     const columns = [
         {
             title: 'Mã SV',
-            dataIndex: 'code',
+            dataIndex: ["student", "code"],
             key: 'code',
         },
         {
@@ -24,7 +25,7 @@ const TeacherListStudent = () => {
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => {
-                return <div>{`${record.lastName} ${record.firstName}`}</div>
+                return <div>{`${record.student.lastName} ${record.student.firstName}`}</div>
             }
         },
         {
@@ -32,17 +33,17 @@ const TeacherListStudent = () => {
             dataIndex: 'gender',
             key: 'gender',
             render: (text, record) => {
-                return <div>{record.gender === 0 ? 'Nữ' : 'Nam'}</div>
+                return <div>{record.student.gender === 0 ? 'Nữ' : 'Nam'}</div>
             }
         },
         {
             title: 'Email',
-            dataIndex: ["user", "email"],
+            dataIndex: ["student", "user", "email"],
             key: 'email',
         },
         {
             title: 'Ngày sinh',
-            dataIndex: "birthday",
+            dataIndex: ["student", "birthday"],
             key: 'birthday',
         },
         {
@@ -50,19 +51,27 @@ const TeacherListStudent = () => {
             dataIndex: 'class',
             key: 'class',
             render: (text, record) => {
-                return <div>{record.class.name}</div>
+                return <div>{record.student.class.name}</div>
             }
+        },
+        {
+            title: "Ghi chú",
+            dataIndex: "teacherNote",
+            render: ((text, record) => (
+                <TeacherNoteInput courseId={courseId} studentId={record.student.id} value={record.teacherNote}/>
+            ))
         }
     ];
     return (
         <Container>
-            <span>Chọn lớp học phần: </span><TeacherCourseSelection onChange={(courseId) => {
+            <span>Chọn lớp học phần: </span><TeacherCourseSelection onChange={(cid) => {
+            setCourseId(cid)
             getStudents({
-                    variables: {
-                        courseId,
-                    }
-                })
-            }}/>
+                variables: {
+                    courseId: cid,
+                }
+            })
+        }}/>
             <Table loading={loading} columns={columns} dataSource={data ? data.teacherCourseStudents : []}/>
         </Container>
     );

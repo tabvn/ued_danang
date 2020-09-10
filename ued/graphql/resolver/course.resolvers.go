@@ -7,12 +7,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/tabvn/ued/id"
 	"log"
 	"os"
 	"strings"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
+	"github.com/tabvn/ued/id"
 	"github.com/tabvn/ued/model"
 	"github.com/tabvn/ued/storage"
 )
@@ -248,6 +248,24 @@ func (r *mutationResolver) ExportCourseStudents(ctx context.Context, courseID in
 		return nil, fmt.Errorf("could not save file due an error: %s", err.Error())
 	}
 	return &key, nil
+}
+
+func (r *mutationResolver) UpdateTeacherNote(ctx context.Context, courseID int64, studentID int64, note string) (bool, error) {
+	teacher := r.GetTeacherFromContext(ctx)
+	if teacher == nil {
+		return false, fmt.Errorf("access denied")
+	}
+	var course model.Course
+	if err := r.DB.Where("id = ?", courseID).Take(&course).Error; err != nil {
+		return false, fmt.Errorf("course not found: %s", err.Error())
+	}
+	if course.TeacherID != teacher.ID {
+		return false, errors.New("you are not teaching this course")
+	}
+	if err := r.DB.Exec("UPDATE course_students SET teacher_note = ? WHERE course_id =? AND student_id = ?", note, courseID, studentID).Error; err != nil {
+		return false, fmt.Errorf("could not update teacher note due an error: %s", err.Error())
+	}
+	return true, nil
 }
 
 func (r *queryResolver) Courses(ctx context.Context, filter *model.CourseFilter) (*model.CourseConnection, error) {
