@@ -26,7 +26,6 @@ export const GET_ALL_COURSES = gql `
           firstName
           lastName
         }
-        
       }
     }
   }

@@ -202,6 +202,10 @@ func (r *mutationResolver) ExportCourseStudents(ctx context.Context, courseID in
 		course         model.Course
 		courseStudents []*model.CourseStudent
 	)
+	auth := r.GetAuth(ctx)
+	if auth == nil {
+		return nil, errors.New("access denied")
+	}
 	if err := r.DB.Where("id = ?", courseID).Take(&course).Error; err != nil {
 		return nil, fmt.Errorf("course not found")
 	}
@@ -323,6 +327,18 @@ func (r *queryResolver) GetCourseStudents(ctx context.Context, courseID int64, f
 		Order("students.first_name ASC").
 		Find(&res).Error; err != nil {
 		return nil, fmt.Errorf("could not find students register in this course due an error: %s", err.Error())
+	}
+	return res, nil
+}
+
+func (r *queryResolver) TeacherCourses(ctx context.Context) ([]*model.Course, error) {
+	teacher := r.GetTeacherFromContext(ctx)
+	if teacher == nil {
+		return nil, fmt.Errorf("access denied")
+	}
+	var res []*model.Course
+	if err := r.DB.Where("teacher_id = ?", teacher.ID).Find(&res).Error; err != nil {
+		return nil, fmt.Errorf("courses not found")
 	}
 	return res, nil
 }

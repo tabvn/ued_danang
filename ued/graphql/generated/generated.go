@@ -165,16 +165,18 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		Classes            func(childComplexity int, filter *model.ClassFilter) int
-		Courses            func(childComplexity int, filter *model.CourseFilter) int
-		Faculties          func(childComplexity int) int
-		GetCourseStudents  func(childComplexity int, courseID int64, filter model.CourseStudentFilter) int
-		Loggers            func(childComplexity int, filter *model.LoggerFilter) int
-		StudentOpenCourses func(childComplexity int, filter *model.CourseFilter) int
-		Students           func(childComplexity int, filter *model.StudentFilter) int
-		Teachers           func(childComplexity int, filter *model.TeacherFilter) int
-		User               func(childComplexity int, id int64) int
-		Viewer             func(childComplexity int) int
+		Classes               func(childComplexity int, filter *model.ClassFilter) int
+		Courses               func(childComplexity int, filter *model.CourseFilter) int
+		Faculties             func(childComplexity int) int
+		GetCourseStudents     func(childComplexity int, courseID int64, filter model.CourseStudentFilter) int
+		Loggers               func(childComplexity int, filter *model.LoggerFilter) int
+		StudentOpenCourses    func(childComplexity int, filter *model.CourseFilter) int
+		Students              func(childComplexity int, filter *model.StudentFilter) int
+		TeacherCourseStudents func(childComplexity int, courseID int64) int
+		TeacherCourses        func(childComplexity int) int
+		Teachers              func(childComplexity int, filter *model.TeacherFilter) int
+		User                  func(childComplexity int, id int64) int
+		Viewer                func(childComplexity int) int
 	}
 
 	Student struct {
@@ -261,10 +263,12 @@ type QueryResolver interface {
 	Courses(ctx context.Context, filter *model.CourseFilter) (*model.CourseConnection, error)
 	StudentOpenCourses(ctx context.Context, filter *model.CourseFilter) (*model.CourseConnection, error)
 	GetCourseStudents(ctx context.Context, courseID int64, filter model.CourseStudentFilter) ([]*model.CourseStudent, error)
+	TeacherCourses(ctx context.Context) ([]*model.Course, error)
 	Faculties(ctx context.Context) ([]*model.Faculty, error)
 	Loggers(ctx context.Context, filter *model.LoggerFilter) (*model.LoggerConnection, error)
 	Students(ctx context.Context, filter *model.StudentFilter) (*model.StudentConnection, error)
 	Teachers(ctx context.Context, filter *model.TeacherFilter) (*model.TeacherConnection, error)
+	TeacherCourseStudents(ctx context.Context, courseID int64) ([]*model.Student, error)
 	User(ctx context.Context, id int64) (*model.User, error)
 	Viewer(ctx context.Context) (*model.Viewer, error)
 }
@@ -1014,6 +1018,25 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Students(childComplexity, args["filter"].(*model.StudentFilter)), true
 
+	case "Query.teacherCourseStudents":
+		if e.complexity.Query.TeacherCourseStudents == nil {
+			break
+		}
+
+		args, err := ec.field_Query_teacherCourseStudents_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.TeacherCourseStudents(childComplexity, args["courseId"].(int64)), true
+
+	case "Query.teacherCourses":
+		if e.complexity.Query.TeacherCourses == nil {
+			break
+		}
+
+		return e.complexity.Query.TeacherCourses(childComplexity), true
+
 	case "Query.teachers":
 		if e.complexity.Query.Teachers == nil {
 			break
@@ -1495,6 +1518,7 @@ extend type Query {
 	courses(filter: CourseFilter): CourseConnection!
 	studentOpenCourses(filter: CourseFilter): CourseConnection!
 	getCourseStudents(courseId:ID!, filter: CourseStudentFilter!): [CourseStudent!]
+	teacherCourses: [Course!]
 }
 extend type Mutation {
 	createCourse(input: CourseInput!): Course!
@@ -1672,6 +1696,7 @@ type TeacherConnection{
 }
 extend type Query {
 	teachers(filter: TeacherFilter): TeacherConnection!
+	teacherCourseStudents(courseId: ID!): [Student!]
 }
 extend type Mutation {
 	createTeacher(input: TeacherInput!): Teacher!
@@ -2118,6 +2143,21 @@ func (ec *executionContext) field_Query_students_args(ctx context.Context, rawAr
 		}
 	}
 	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_teacherCourseStudents_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("courseId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
 	return args, nil
 }
 
@@ -5786,6 +5826,37 @@ func (ec *executionContext) _Query_getCourseStudents(ctx context.Context, field 
 	return ec.marshalOCourseStudent2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐCourseStudentᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_teacherCourses(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().TeacherCourses(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Course)
+	fc.Result = res
+	return ec.marshalOCourse2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐCourseᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_faculties(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -5932,6 +6003,44 @@ func (ec *executionContext) _Query_teachers(ctx context.Context, field graphql.C
 	res := resTmp.(*model.TeacherConnection)
 	fc.Result = res
 	return ec.marshalNTeacherConnection2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐTeacherConnection(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_teacherCourseStudents(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_teacherCourseStudents_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().TeacherCourseStudents(rctx, args["courseId"].(int64))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Student)
+	fc.Result = res
+	return ec.marshalOStudent2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐStudentᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_user(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -10310,6 +10419,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				res = ec._Query_getCourseStudents(ctx, field)
 				return res
 			})
+		case "teacherCourses":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_teacherCourses(ctx, field)
+				return res
+			})
 		case "faculties":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -10355,6 +10475,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
+				return res
+			})
+		case "teacherCourseStudents":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_teacherCourseStudents(ctx, field)
 				return res
 			})
 		case "user":
