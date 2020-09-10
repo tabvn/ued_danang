@@ -7,12 +7,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/tabvn/ued/id"
 	"log"
 	"os"
 	"strings"
 
 	"github.com/360EntSecGroup-Skylar/excelize"
-	"github.com/tabvn/ued/id"
 	"github.com/tabvn/ued/model"
 	"github.com/tabvn/ued/storage"
 )
@@ -219,7 +219,8 @@ func (r *mutationResolver) ExportCourseStudents(ctx context.Context, courseID in
 	}
 	log.Println(courseStudents)
 	f := excelize.NewFile()
-	sheet := "Sheet1"
+	sheet := course.Code + "-" + course.Title
+	f.SetSheetName("Sheet1", sheet)
 	f.SetColWidth(sheet, "A", "E", 30)
 	f.SetCellValue(sheet, "A1", "Mã sinh viên")
 	f.SetCellValue(sheet, "B1", "Họ và tên")
@@ -240,7 +241,7 @@ func (r *mutationResolver) ExportCourseStudents(ctx context.Context, courseID in
 		f.SetCellValue(sheet, fmt.Sprintf("E%d", index+2), "")
 	}
 	// Save xlsx file by the given path.
-	key := id.Gen(20) + "_" + course.Code + "_sinh_vien.xlsx"
+	key := course.Code + "_sinh_vien_" + id.Gen(20) + ".xlsx"
 	os.MkdirAll(storage.UploadDir(), 0775)
 	if err := f.SaveAs(storage.UploadDir() + "/" + key); err != nil {
 		fmt.Println(err)
