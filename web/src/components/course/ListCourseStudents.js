@@ -3,6 +3,7 @@ import {Table} from "antd";
 import {useQuery} from "@apollo/react-hooks";
 import {GET_ALL_COURSE_STUDENTS} from "../../graphqls/query/courseStudents";
 import moment from 'moment'
+import AdminUnregisterCourseButton from "./AdminUnregsiterCourseButton";
 
 const ListCourseStudents = (props) => {
     const {loading, error, data, refetch} = useQuery(GET_ALL_COURSE_STUDENTS, {
@@ -46,6 +47,11 @@ const ListCourseStudents = (props) => {
             render: (text, record) => <div>
                 {moment(record.createdAt).format("DD/MM/YYYY hh:mm:ss")}
             </div>
+        },{
+            "title": "",
+            render: ((text, record) => (
+                <AdminUnregisterCourseButton onDone={() => refetch()} courseId={props.courseId} studentId={record.student.id} />
+            ))
         }
     ]
     return (

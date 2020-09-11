@@ -268,6 +268,20 @@ func (r *mutationResolver) UpdateTeacherNote(ctx context.Context, courseID int64
 	return true, nil
 }
 
+func (r *mutationResolver) AdminUnregisterCourse(ctx context.Context, courseID int64, studentID int64) (bool, error) {
+	user := r.GetCurrentUser(ctx)
+	if user == nil {
+		return false, errors.New("access denied")
+	}
+	if !user.IsAdministrator() {
+		return false, errors.New("access denied")
+	}
+	if err := r.DB.Exec("DELETE FROM course_students WHERE course_id = ? AND student_id = ?", courseID, studentID).Error; err != nil {
+		return false, fmt.Errorf("an error: %s", err.Error())
+	}
+	return true, nil
+}
+
 func (r *queryResolver) Courses(ctx context.Context, filter *model.CourseFilter) (*model.CourseConnection, error) {
 	var (
 		res    model.CourseConnection

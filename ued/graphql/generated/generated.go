@@ -147,23 +147,24 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		ClearAllLogs         func(childComplexity int) int
-		CreateClass          func(childComplexity int, input model.ClassInput) int
-		CreateCourse         func(childComplexity int, input model.CourseInput) int
-		CreateFaculty        func(childComplexity int, input model.FacultyInput) int
-		CreateStudent        func(childComplexity int, input model.StudentInput) int
-		CreateTeacher        func(childComplexity int, input model.TeacherInput) int
-		ExportCourseStudents func(childComplexity int, courseID int64) int
-		Login                func(childComplexity int, email string, password string) int
-		Logout               func(childComplexity int) int
-		RegisterCourse       func(childComplexity int, courseID int64) int
-		UnregisterCourse     func(childComplexity int, courseID int64) int
-		UpdateClass          func(childComplexity int, id int64, input model.UpdateClassInput) int
-		UpdateCourse         func(childComplexity int, id int64, input model.UpdateCourseInput) int
-		UpdateFaculty        func(childComplexity int, id int64, input model.FacultyInput) int
-		UpdateStudent        func(childComplexity int, id int64, input model.UpdateStudentInput) int
-		UpdateTeacher        func(childComplexity int, id int64, input model.UpdateTeacherInput) int
-		UpdateTeacherNote    func(childComplexity int, courseID int64, studentID int64, note string) int
+		AdminUnregisterCourse func(childComplexity int, courseID int64, studentID int64) int
+		ClearAllLogs          func(childComplexity int) int
+		CreateClass           func(childComplexity int, input model.ClassInput) int
+		CreateCourse          func(childComplexity int, input model.CourseInput) int
+		CreateFaculty         func(childComplexity int, input model.FacultyInput) int
+		CreateStudent         func(childComplexity int, input model.StudentInput) int
+		CreateTeacher         func(childComplexity int, input model.TeacherInput) int
+		ExportCourseStudents  func(childComplexity int, courseID int64) int
+		Login                 func(childComplexity int, email string, password string) int
+		Logout                func(childComplexity int) int
+		RegisterCourse        func(childComplexity int, courseID int64) int
+		UnregisterCourse      func(childComplexity int, courseID int64) int
+		UpdateClass           func(childComplexity int, id int64, input model.UpdateClassInput) int
+		UpdateCourse          func(childComplexity int, id int64, input model.UpdateCourseInput) int
+		UpdateFaculty         func(childComplexity int, id int64, input model.FacultyInput) int
+		UpdateStudent         func(childComplexity int, id int64, input model.UpdateStudentInput) int
+		UpdateTeacher         func(childComplexity int, id int64, input model.UpdateTeacherInput) int
+		UpdateTeacherNote     func(childComplexity int, courseID int64, studentID int64, note string) int
 	}
 
 	Query struct {
@@ -253,6 +254,7 @@ type MutationResolver interface {
 	UnregisterCourse(ctx context.Context, courseID int64) (bool, error)
 	ExportCourseStudents(ctx context.Context, courseID int64) (*string, error)
 	UpdateTeacherNote(ctx context.Context, courseID int64, studentID int64, note string) (bool, error)
+	AdminUnregisterCourse(ctx context.Context, courseID int64, studentID int64) (bool, error)
 	CreateFaculty(ctx context.Context, input model.FacultyInput) (*model.Faculty, error)
 	UpdateFaculty(ctx context.Context, id int64, input model.FacultyInput) (*model.Faculty, error)
 	ClearAllLogs(ctx context.Context) (bool, error)
@@ -770,6 +772,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.LoggerConnection.Total(childComplexity), true
+
+	case "Mutation.adminUnregisterCourse":
+		if e.complexity.Mutation.AdminUnregisterCourse == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_adminUnregisterCourse_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.AdminUnregisterCourse(childComplexity, args["courseId"].(int64), args["studentId"].(int64)), true
 
 	case "Mutation.clearAllLogs":
 		if e.complexity.Mutation.ClearAllLogs == nil {
@@ -1575,6 +1589,7 @@ extend type Mutation {
 	unregisterCourse(courseId: ID!): Boolean!
 	exportCourseStudents(courseId: ID!): String
 	updateTeacherNote(courseId: ID!, studentId: ID!, note: String!): Boolean!
+	adminUnregisterCourse(courseId: ID!, studentId: ID!):Boolean!
 }`, BuiltIn: false},
 	{Name: "graphql/schema/faculty.graphqls", Input: `type Faculty implements Model{
 	id: ID! @tag(gorm: "primaryKey")
@@ -1815,6 +1830,30 @@ func (ec *executionContext) dir_tag_args(ctx context.Context, rawArgs map[string
 		}
 	}
 	args["gorm"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_adminUnregisterCourse_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("courseId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 int64
+	if tmp, ok := rawArgs["studentId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("studentId"))
+		arg1, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["studentId"] = arg1
 	return args, nil
 }
 
@@ -5464,6 +5503,47 @@ func (ec *executionContext) _Mutation_updateTeacherNote(ctx context.Context, fie
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateTeacherNote(rctx, args["courseId"].(int64), args["studentId"].(int64), args["note"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_adminUnregisterCourse(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_adminUnregisterCourse_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().AdminUnregisterCourse(rctx, args["courseId"].(int64), args["studentId"].(int64))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10546,6 +10626,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec._Mutation_exportCourseStudents(ctx, field)
 		case "updateTeacherNote":
 			out.Values[i] = ec._Mutation_updateTeacherNote(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "adminUnregisterCourse":
+			out.Values[i] = ec._Mutation_adminUnregisterCourse(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}

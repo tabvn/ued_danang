@@ -82,4 +82,5 @@ extend type Mutation {
 	unregisterCourse(courseId: ID!): Boolean!
 	exportCourseStudents(courseId: ID!): String
 	updateTeacherNote(courseId: ID!, studentId: ID!, note: String!): Boolean!
+	adminUnregisterCourse(courseId: ID!, studentId: ID!):Boolean!
 }

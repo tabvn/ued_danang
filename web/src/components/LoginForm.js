@@ -27,7 +27,7 @@ const LoginForm = ({onDone, onError}) => {
                 onDone(data.login);
             },
         }).catch((e) => {
-            notification.error({message: `Lỗi xảy ra: ${e.toString()}`})
+            notification.error({message: `Email hoặc mật khẩu không chính xác`})
             if (onError) {
                 onError(e);
             }
