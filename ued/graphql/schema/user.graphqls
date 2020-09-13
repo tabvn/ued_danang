@@ -25,6 +25,8 @@ type Token {
 	user: User!
 }
 input NewUser{
+	firstName: String!
+	lastName: String!
 	email: String!
 	password: String!
 }
@@ -36,6 +38,7 @@ type Viewer{
 extend type Mutation {
 	login(email: String!, password: String!): Token!
 	changePassword(newPassword: String!): Boolean!
+	createAdminUser(input: NewUser!): User!
 	logout: Boolean!
 }
 extend type Query {

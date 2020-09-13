@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/sessions"
@@ -47,6 +48,20 @@ func (r *mutationResolver) ChangePassword(ctx context.Context, newPassword strin
 		return false, fmt.Errorf("could not change password due an error: %s", err.Error())
 	}
 	return true, nil
+}
+
+func (r *mutationResolver) CreateAdminUser(ctx context.Context, input model.NewUser) (*model.User, error) {
+	obj := model.User{
+		FirstName: strings.TrimSpace(input.FirstName),
+		LastName:  strings.TrimSpace(input.LastName),
+		Email:     strings.TrimSpace(input.Email),
+		Password:  model.EncodePassword(input.Password),
+		Role:      model.RoleAdministrator.String(),
+	}
+	if err := r.DB.Create(&obj).Error; err != nil {
+		return nil, fmt.Errorf("could not create user due an error: %s", err.Error())
+	}
+	return &obj, nil
 }
 
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {

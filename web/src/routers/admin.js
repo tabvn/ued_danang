@@ -1,5 +1,13 @@
 import AdminStudent from "../pages/admin/AdminStudents";
-import {UserOutlined,ContactsOutlined,UsergroupAddOutlined,ProfileOutlined,RobotOutlined,ReadOutlined} from "@ant-design/icons";
+import {
+    BarChartOutlined,
+    ContactsOutlined,
+    ProfileOutlined,
+    ReadOutlined,
+    RobotOutlined,
+    UsergroupAddOutlined,
+    UserOutlined,
+} from "@ant-design/icons";
 import MainLayout from "../layout/MainLayout";
 import React from "react";
 import AdminClasses from "../pages/admin/AdminClasses";
@@ -7,6 +15,7 @@ import AdminFaculties from "../pages/admin/AdminFacultties";
 import AdminTeachers from "../pages/admin/AdminTeachers";
 import AdminCourses from "../pages/admin/AdminCourses";
 import AdminCourseStudent from "../pages/admin/AdminCourseStudents";
+import AdminScoreManagement from "../pages/admin/AdminScoreManagement";
 
 export default [
     {
@@ -14,45 +23,45 @@ export default [
         title: "Danh sách khoa",
         component: AdminFaculties,
         path: "/admin/faculties",
-        icon: <ContactsOutlined />,
+        icon: <ContactsOutlined/>,
         layout: MainLayout,
-        role: 'Administrator'
+        role: "Administrator",
     },
     {
         exact: true,
         title: "Danh sách giảng viên",
         component: AdminTeachers,
         path: "/admin/teachers",
-        icon: <UsergroupAddOutlined />,
+        icon: <UsergroupAddOutlined/>,
         layout: MainLayout,
-        role: 'Administrator'
+        role: "Administrator",
     },
     {
         exact: true,
         title: "Danh sách lớp",
         component: AdminClasses,
         path: "/admin/classes",
-        icon: <ProfileOutlined />,
+        icon: <ProfileOutlined/>,
         layout: MainLayout,
-        role: 'Administrator'
+        role: "Administrator",
     },
     {
         exact: true,
         title: "Danh sách sinh viên",
         component: AdminStudent,
         path: "/admin/students",
-        icon: <RobotOutlined />,
+        icon: <RobotOutlined/>,
         layout: MainLayout,
-        role: 'Administrator'
+        role: "Administrator",
     },
     {
         exact: true,
         title: "Quản lý học phần",
         component: AdminCourses,
         path: "/admin/courses",
-        icon: <ReadOutlined />,
+        icon: <ReadOutlined/>,
         layout: MainLayout,
-        role: 'Administrator',
+        role: "Administrator",
         child: [
             {
                 exact: true,
@@ -61,7 +70,7 @@ export default [
                 path: "/admin/courses",
                 icon: <UserOutlined/>,
                 layout: MainLayout,
-                role: 'Administrator',
+                role: "Administrator",
             },
             {
                 exact: true,
@@ -70,9 +79,17 @@ export default [
                 path: "/admin/courses/students",
                 icon: <UserOutlined/>,
                 layout: MainLayout,
-                role: 'Administrator',
-            }
-        ]
+                role: "Administrator",
+            },
+        ],
     },
-
-]
+    {
+        exact: true,
+        title: "Quản lý điểm",
+        component: AdminScoreManagement,
+        path: "/admin/scores",
+        icon: <BarChartOutlined/>,
+        layout: MainLayout,
+        role: "Administrator",
+    },
+];

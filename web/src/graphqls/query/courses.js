@@ -1,10 +1,10 @@
-import {gql} from "@apollo/client";
+import { gql } from "@apollo/client";
 
-export const GET_ALL_COURSES = gql `
-  query courses($filter: CourseFilter){
-    courses(filter: $filter){
+export const GET_ALL_COURSES = gql`
+  query courses($filter: CourseFilter) {
+    courses(filter: $filter) {
       total
-      nodes{
+      nodes {
         id
         code
         title
@@ -17,16 +17,17 @@ export const GET_ALL_COURSES = gql `
         registerCount
         teacherId
         open
-        faculties{
+        faculties {
           id
           name
         }
-        teacher{
+        teacher {
           id
           firstName
           lastName
         }
+        scoreConfigure
       }
     }
   }
-`
+`;

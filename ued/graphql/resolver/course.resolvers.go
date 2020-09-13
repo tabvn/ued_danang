@@ -297,7 +297,6 @@ func (r *mutationResolver) UpdateCourseScoreConfigure(ctx context.Context, cours
 		if err := r.DB.Where("id = ?", courseID).Take(&course).Error; err != nil {
 			return false, fmt.Errorf("course not found")
 		}
-		return false, errors.New("access denied")
 	} else {
 		if err := r.DB.Where("id = ? AND teacher_id = ?", courseID, teacher.ID).Take(&course).Error; err != nil {
 			return false, fmt.Errorf("could not find course you are teaching")
@@ -341,7 +340,6 @@ func (r *mutationResolver) UpdateScores(ctx context.Context, courseID int64, sco
 		if err := r.DB.Where("id = ?", courseID).Take(&course).Error; err != nil {
 			return false, fmt.Errorf("course not found")
 		}
-		return false, errors.New("access denied")
 	} else {
 		if err := r.DB.Where("id = ? AND teacher_id = ?", courseID, teacher.ID).Take(&course).Error; err != nil {
 			return false, fmt.Errorf("could not find course you are teaching")

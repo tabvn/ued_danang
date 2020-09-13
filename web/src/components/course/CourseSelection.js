@@ -14,7 +14,7 @@ const CourseSelection = forwardRef((props, ref) => {
       mode={props.mode}
       onChange={(v) => {
         setValue(v);
-        props.onChange(v);
+        props.onChange(v, data.courses.nodes.find((s) => s.id === v));
       }}
     >
       {nodes.map((f, index) => (
