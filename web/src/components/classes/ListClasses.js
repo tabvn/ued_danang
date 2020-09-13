@@ -96,7 +96,7 @@ const ListClasses = () => {
     <div>
       <Button onClick={() => setVisible(true)}>Thêm lớp</Button>
       <Table
-          scroll={{ x: 1200 }}
+        scroll={{ x: 1200 }}
         pagination={{
           current: page,
           total: data ? data.classes.total : 0,
@@ -116,7 +116,7 @@ const ListClasses = () => {
           onClose={() => setVisible(false)}
           title={editClass ? "Sửa thông tin lớp" : "Thêm lớp"}
           placement="right"
-          width={620}
+          width={window.innerWidth < 620 ? window.innerWidth : 620}
           visible={visible}
         >
           <Form

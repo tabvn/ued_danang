@@ -109,16 +109,17 @@ const Navbar = (props) => {
           }}
         >
           {user && (
-            <div onClick={(e) => e.defaultPrevented} className="user-profile">
-              <span
-                style={{ marginRight: 10 }}
-              >{`${user.lastName} ${user.firstName}`}</span>
-              <Dropdown overlay={menu} placement="bottomCenter">
+            <Dropdown trigger={["click"]} overlay={menu} placement="bottomCenter">
+              <div onClick={(e) => e.defaultPrevented} className="user-profile">
+                <Button type="link"
+                  style={{ marginRight: 10 }}
+                >{`${user.lastName} ${user.firstName}`}</Button>
+
                 <div style={{ cursor: "pointer" }}>
                   <Avatar>{user && _.first(user.firstName)}</Avatar>
                 </div>
-              </Dropdown>
-            </div>
+              </div>
+            </Dropdown>
           )}
         </Col>
       </Row>

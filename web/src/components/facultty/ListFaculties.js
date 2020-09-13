@@ -47,7 +47,7 @@ const ListFaculties = () => {
     <div>
       <Button onClick={() => setVisible(true)}>Thêm khoa</Button>
       <Table
-        scroll={{ x: 910 }}
+        scroll={{ x: 320 }}
         pagination={false}
         loading={loading}
         dataSource={data ? data.faculties : []}
