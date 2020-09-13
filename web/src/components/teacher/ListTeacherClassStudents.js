@@ -67,14 +67,6 @@ const ListTeacherClassStudents = () => {
       dataIndex: "birthday",
       key: "birthday",
     },
-    {
-      title: "Lớp",
-      dataIndex: "class",
-      key: "class",
-      render: (text, record) => {
-        return <div>{record.class.name}</div>;
-      },
-    },
   ];
   return (
     <Container>

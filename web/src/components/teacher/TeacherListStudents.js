@@ -13,21 +13,21 @@ const Container = styled.div`
   }
   .filter {
     .filter-label {
-       margin-right: 0;
+      margin-right: 0;
     }
   }
-  @media(min-width: 991px){
-  .ant-select{
-    min-width: 300px;
-    margin-bottom: 0;
-  }
+  @media (min-width: 991px) {
+    .ant-select {
+      min-width: 300px;
+      margin-bottom: 0;
+    }
   }
   .filter {
     @media (min-width: 991px) {
       display: flex;
       align-items: center;
       justify-items: center;
-      .filter-label{
+      .filter-label {
         margin-right: 10px;
       }
     }
@@ -43,6 +43,10 @@ const TeacherListStudent = () => {
       title: "Mã SV",
       dataIndex: ["student", "code"],
       key: "code",
+    },
+    {
+      title: "Lớp",
+      dataIndex: ["student", "class", "name"],
     },
     {
       title: "Họ và tên",
@@ -73,14 +77,6 @@ const TeacherListStudent = () => {
       key: "birthday",
     },
     {
-      title: "Lớp",
-      dataIndex: "class",
-      key: "class",
-      render: (text, record) => {
-        return <div>{record.student.class.name}</div>;
-      },
-    },
-    {
       title: "Ghi chú",
       dataIndex: "teacherNote",
       render: (text, record) => (
@@ -94,18 +90,18 @@ const TeacherListStudent = () => {
   ];
   return (
     <Container>
-      <div className={'filter'}>
-          <div className="filter-label">Chọn lớp học phần: </div>
-          <TeacherCourseSelection
-              onChange={(cid) => {
-                  setCourseId(cid);
-                  getStudents({
-                      variables: {
-                          courseId: cid,
-                      },
-                  });
-              }}
-          />
+      <div className={"filter"}>
+        <div className="filter-label">Chọn lớp học phần:</div>
+        <TeacherCourseSelection
+          onChange={(cid) => {
+            setCourseId(cid);
+            getStudents({
+              variables: {
+                courseId: cid,
+              },
+            });
+          }}
+        />
       </div>
       <Table
         scroll={{ x: 1200 }}

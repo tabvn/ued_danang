@@ -58,6 +58,10 @@ const Scores = (props) => {
       dataIndex: ["student", "code"],
     },
     {
+      title: "Lớp",
+      dataIndex: ["student", "class", "name"],
+    },
+    {
       title: "Họ và tên",
       render: (text, record) => (
         <div>{`${record.student.lastName} ${record.student.firstName}`}</div>
@@ -118,6 +122,27 @@ const Scores = (props) => {
       ];
     }
   }
+  columns = [
+    ...columns,
+    {
+      title: "Tổng kết",
+      render: (text, record, index) => {
+        const scores = active ? editData[index] : record;
+        let score = 0;
+        let hasScore = false;
+        for (let i = 0; i < scoreConfig.length; i++) {
+          if (scoreConfig[i].status) {
+            const name = scoreConfig[i].name;
+            if (scores[name] !== null) {
+              hasScore = true;
+            }
+            score += scores[name] * scoreConfig[i].value;
+          }
+        }
+        return <div>{hasScore ? score : ""}</div>;
+      },
+    },
+  ];
   return (
     <div>
       {data && data.scores && data.scores.length && (

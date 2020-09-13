@@ -48,6 +48,10 @@ const ListStudents = () => {
       key: "code",
     },
     {
+      title: "Lớp",
+      dataIndex: ["student", "class", "name"],
+    },
+    {
       title: "Họ và tên",
       dataIndex: "name",
       key: "name",
@@ -72,14 +76,6 @@ const ListStudents = () => {
       title: "Ngày sinh",
       dataIndex: "birthday",
       key: "birthday",
-    },
-    {
-      title: "Lớp",
-      dataIndex: "class",
-      key: "class",
-      render: (text, record) => {
-        return <div>{record.class.name}</div>;
-      },
     },
     {
       title: "",
