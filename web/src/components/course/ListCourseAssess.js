@@ -1,8 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import React from "react";
 import {Table} from "antd";
 import {useQuery} from "@apollo/react-hooks";
 import {GET_ALL_COURSE_STUDENTS} from "../../graphqls/query/courseStudents";
-import moment from 'moment'
 
 const ListCourseStudents = (props) => {
     const {loading, error, data, refetch} = useQuery(GET_ALL_COURSE_STUDENTS, {
@@ -19,24 +18,23 @@ const ListCourseStudents = (props) => {
     const columns = [
         {
             title: "Năm Học",
-            render: (text, record) => <div>
-                {record.student.code}
-            </div>
+            render: (text, record) => <div>{record.student.code}</div>,
         },
         {
             title: "Học kỳ",
-            render: (text, record) => <div>
-                {`${record.student.lastName} ${record.student.firstName}`}
-            </div>
+            render: (text, record) => (
+                <div>{`${record.student.lastName} ${record.student.firstName}`}</div>
+            ),
         },
-
-    ]
+    ];
     return (
         <div>
             <Table
                 loading={loading}
                 pagination={false}
-                dataSource={data ? data.courseStudents : []} columns={columns}/>
+                dataSource={data ? data.courseStudents : []}
+                columns={columns}
+            />
         </div>
     );
 };

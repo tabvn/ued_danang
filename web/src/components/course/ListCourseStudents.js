@@ -1,8 +1,8 @@
-import React, {useEffect, useState} from 'react';
+import React from "react";
 import {Table} from "antd";
 import {useQuery} from "@apollo/react-hooks";
 import {GET_ALL_COURSE_STUDENTS} from "../../graphqls/query/courseStudents";
-import moment from 'moment'
+import moment from "moment";
 import AdminUnregisterCourseButton from "./AdminUnregsiterCourseButton";
 
 const ListCourseStudents = (props) => {
@@ -20,46 +20,47 @@ const ListCourseStudents = (props) => {
     const columns = [
         {
             title: "Mã sinh viên",
-            render: (text, record) => <div>
-                {record.student.code}
-            </div>
+            render: (text, record) => <div>{record.student.code}</div>,
         },
         {
             title: "Họ và tên",
-            render: (text, record) => <div>
-                {`${record.student.lastName} ${record.student.firstName}`}
-            </div>
+            render: (text, record) => (
+                <div>{`${record.student.lastName} ${record.student.firstName}`}</div>
+            ),
         },
         {
             title: "Ngày sinh",
-            render: (text, record) => <div>
-                {`${record.student.birthday}`}
-            </div>
+            render: (text, record) => <div>{`${record.student.birthday}`}</div>,
         },
         {
             title: "Lớp sinh hoạt",
-            render: (text, record) => <div>
-                {`${record.student.class.name}`}
-            </div>
+            render: (text, record) => <div>{`${record.student.class.name}`}</div>,
         },
         {
             title: "Thời gian đăng ký",
-            render: (text, record) => <div>
-                {moment(record.createdAt).format("DD/MM/YYYY hh:mm:ss")}
-            </div>
-        },{
-            "title": "",
-            render: ((text, record) => (
-                <AdminUnregisterCourseButton onDone={() => refetch()} courseId={props.courseId} studentId={record.student.id} />
-            ))
-        }
-    ]
+            render: (text, record) => (
+                <div>{moment(record.createdAt).format("DD/MM/YYYY hh:mm:ss")}</div>
+            ),
+        },
+        {
+            title: "",
+            render: (text, record) => (
+                <AdminUnregisterCourseButton
+                    onDone={() => refetch()}
+                    courseId={props.courseId}
+                    studentId={record.student.id}
+                />
+            ),
+        },
+    ];
     return (
         <div>
             <Table
                 loading={loading}
                 pagination={false}
-                dataSource={data ? data.courseStudents : []} columns={columns}/>
+                dataSource={data ? data.courseStudents : []}
+                columns={columns}
+            />
         </div>
     );
 };
