@@ -66,23 +66,24 @@ type ComplexityRoot struct {
 	}
 
 	Course struct {
-		Code          func(childComplexity int) int
-		CreatedAt     func(childComplexity int) int
-		Faculties     func(childComplexity int) int
-		ID            func(childComplexity int) int
-		IsRegistered  func(childComplexity int) int
-		LessonDay     func(childComplexity int) int
-		LessonFrom    func(childComplexity int) int
-		LessonTo      func(childComplexity int) int
-		Limit         func(childComplexity int) int
-		Open          func(childComplexity int) int
-		RegisterCount func(childComplexity int) int
-		Required      func(childComplexity int) int
-		Teacher       func(childComplexity int) int
-		TeacherID     func(childComplexity int) int
-		Title         func(childComplexity int) int
-		Unit          func(childComplexity int) int
-		UpdatedAt     func(childComplexity int) int
+		Code           func(childComplexity int) int
+		CreatedAt      func(childComplexity int) int
+		Faculties      func(childComplexity int) int
+		ID             func(childComplexity int) int
+		IsRegistered   func(childComplexity int) int
+		LessonDay      func(childComplexity int) int
+		LessonFrom     func(childComplexity int) int
+		LessonTo       func(childComplexity int) int
+		Limit          func(childComplexity int) int
+		Open           func(childComplexity int) int
+		RegisterCount  func(childComplexity int) int
+		Required       func(childComplexity int) int
+		ScoreConfigure func(childComplexity int) int
+		Teacher        func(childComplexity int) int
+		TeacherID      func(childComplexity int) int
+		Title          func(childComplexity int) int
+		Unit           func(childComplexity int) int
+		UpdatedAt      func(childComplexity int) int
 	}
 
 	CourseConnection struct {
@@ -95,6 +96,11 @@ type ComplexityRoot struct {
 		CourseID    func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
 		ID          func(childComplexity int) int
+		Score       func(childComplexity int) int
+		Score1      func(childComplexity int) int
+		Score2      func(childComplexity int) int
+		Score3      func(childComplexity int) int
+		Score4      func(childComplexity int) int
 		Student     func(childComplexity int) int
 		StudentID   func(childComplexity int) int
 		TeacherNote func(childComplexity int) int
@@ -147,25 +153,26 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AdminUnregisterCourse func(childComplexity int, courseID int64, studentID int64) int
-		ChangePassword        func(childComplexity int, newPassword string) int
-		ClearAllLogs          func(childComplexity int) int
-		CreateClass           func(childComplexity int, input model.ClassInput) int
-		CreateCourse          func(childComplexity int, input model.CourseInput) int
-		CreateFaculty         func(childComplexity int, input model.FacultyInput) int
-		CreateStudent         func(childComplexity int, input model.StudentInput) int
-		CreateTeacher         func(childComplexity int, input model.TeacherInput) int
-		ExportCourseStudents  func(childComplexity int, courseID int64) int
-		Login                 func(childComplexity int, email string, password string) int
-		Logout                func(childComplexity int) int
-		RegisterCourse        func(childComplexity int, courseID int64) int
-		UnregisterCourse      func(childComplexity int, courseID int64) int
-		UpdateClass           func(childComplexity int, id int64, input model.UpdateClassInput) int
-		UpdateCourse          func(childComplexity int, id int64, input model.UpdateCourseInput) int
-		UpdateFaculty         func(childComplexity int, id int64, input model.FacultyInput) int
-		UpdateStudent         func(childComplexity int, id int64, input model.UpdateStudentInput) int
-		UpdateTeacher         func(childComplexity int, id int64, input model.UpdateTeacherInput) int
-		UpdateTeacherNote     func(childComplexity int, courseID int64, studentID int64, note string) int
+		AdminUnregisterCourse      func(childComplexity int, courseID int64, studentID int64) int
+		ChangePassword             func(childComplexity int, newPassword string) int
+		ClearAllLogs               func(childComplexity int) int
+		CreateClass                func(childComplexity int, input model.ClassInput) int
+		CreateCourse               func(childComplexity int, input model.CourseInput) int
+		CreateFaculty              func(childComplexity int, input model.FacultyInput) int
+		CreateStudent              func(childComplexity int, input model.StudentInput) int
+		CreateTeacher              func(childComplexity int, input model.TeacherInput) int
+		ExportCourseStudents       func(childComplexity int, courseID int64) int
+		Login                      func(childComplexity int, email string, password string) int
+		Logout                     func(childComplexity int) int
+		RegisterCourse             func(childComplexity int, courseID int64) int
+		UnregisterCourse           func(childComplexity int, courseID int64) int
+		UpdateClass                func(childComplexity int, id int64, input model.UpdateClassInput) int
+		UpdateCourse               func(childComplexity int, id int64, input model.UpdateCourseInput) int
+		UpdateCourseScoreConfigure func(childComplexity int, courseID int64, configure []*model.ScoreConfigureItem) int
+		UpdateFaculty              func(childComplexity int, id int64, input model.FacultyInput) int
+		UpdateStudent              func(childComplexity int, id int64, input model.UpdateStudentInput) int
+		UpdateTeacher              func(childComplexity int, id int64, input model.UpdateTeacherInput) int
+		UpdateTeacherNote          func(childComplexity int, courseID int64, studentID int64, note string) int
 	}
 
 	Query struct {
@@ -256,6 +263,7 @@ type MutationResolver interface {
 	ExportCourseStudents(ctx context.Context, courseID int64) (*string, error)
 	UpdateTeacherNote(ctx context.Context, courseID int64, studentID int64, note string) (bool, error)
 	AdminUnregisterCourse(ctx context.Context, courseID int64, studentID int64) (bool, error)
+	UpdateCourseScoreConfigure(ctx context.Context, courseID int64, configure []*model.ScoreConfigureItem) (bool, error)
 	CreateFaculty(ctx context.Context, input model.FacultyInput) (*model.Faculty, error)
 	UpdateFaculty(ctx context.Context, id int64, input model.FacultyInput) (*model.Faculty, error)
 	ClearAllLogs(ctx context.Context) (bool, error)
@@ -460,6 +468,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Course.Required(childComplexity), true
 
+	case "Course.scoreConfigure":
+		if e.complexity.Course.ScoreConfigure == nil {
+			break
+		}
+
+		return e.complexity.Course.ScoreConfigure(childComplexity), true
+
 	case "Course.teacher":
 		if e.complexity.Course.Teacher == nil {
 			break
@@ -536,6 +551,41 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.CourseStudent.ID(childComplexity), true
+
+	case "CourseStudent.score":
+		if e.complexity.CourseStudent.Score == nil {
+			break
+		}
+
+		return e.complexity.CourseStudent.Score(childComplexity), true
+
+	case "CourseStudent.score1":
+		if e.complexity.CourseStudent.Score1 == nil {
+			break
+		}
+
+		return e.complexity.CourseStudent.Score1(childComplexity), true
+
+	case "CourseStudent.score2":
+		if e.complexity.CourseStudent.Score2 == nil {
+			break
+		}
+
+		return e.complexity.CourseStudent.Score2(childComplexity), true
+
+	case "CourseStudent.score3":
+		if e.complexity.CourseStudent.Score3 == nil {
+			break
+		}
+
+		return e.complexity.CourseStudent.Score3(childComplexity), true
+
+	case "CourseStudent.score4":
+		if e.complexity.CourseStudent.Score4 == nil {
+			break
+		}
+
+		return e.complexity.CourseStudent.Score4(childComplexity), true
 
 	case "CourseStudent.student":
 		if e.complexity.CourseStudent.Student == nil {
@@ -944,6 +994,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.UpdateCourse(childComplexity, args["id"].(int64), args["input"].(model.UpdateCourseInput)), true
+
+	case "Mutation.updateCourseScoreConfigure":
+		if e.complexity.Mutation.UpdateCourseScoreConfigure == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateCourseScoreConfigure_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateCourseScoreConfigure(childComplexity, args["courseId"].(int64), args["configure"].([]*model.ScoreConfigureItem)), true
 
 	case "Mutation.updateFaculty":
 		if e.complexity.Mutation.UpdateFaculty == nil {
@@ -1533,18 +1595,29 @@ extend type Mutation {
 	lessonTo: Int!
 	unit: Int!
 	open: Boolean! @tag(gorm:"default:true")
+	scoreConfigure: Json
 	registerCount: Int! @tag(gorm:"-")
 	isRegistered: Boolean! @tag(gorm:"-")
 	updatedAt: Time!
 	createdAt: Time!
 }
 
+input ScoreConfigureItem{
+	name: String!
+	value: Float!
+	status: Boolean!
+}
 type CourseStudent implements Model{
 	id: ID! @tag(gorm:"primaryKey")
 	studentId: ID!
 	student: Student! @tag(gorm:"foreignKey:StudentID")
 	courseId: ID!
 	course:Course! @tag(gorm:"foreignKey:CourseID")
+	score1: Float
+	score2: Float
+	score3:Float
+	score4:Float
+	score: Float
 	teacherNote: String
 	createdAt: Time!
 	updatedAt: Time!
@@ -1604,6 +1677,7 @@ extend type Mutation {
 	exportCourseStudents(courseId: ID!): String
 	updateTeacherNote(courseId: ID!, studentId: ID!, note: String!): Boolean!
 	adminUnregisterCourse(courseId: ID!, studentId: ID!):Boolean!
+	updateCourseScoreConfigure(courseId: ID!, configure: [ScoreConfigureItem!]!): Boolean!
 }`, BuiltIn: false},
 	{Name: "graphql/schema/faculty.graphqls", Input: `type Faculty implements Model{
 	id: ID! @tag(gorm: "primaryKey")
@@ -2052,6 +2126,30 @@ func (ec *executionContext) field_Mutation_updateClass_args(ctx context.Context,
 		}
 	}
 	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateCourseScoreConfigure_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("courseId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 []*model.ScoreConfigureItem
+	if tmp, ok := rawArgs["configure"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("configure"))
+		arg1, err = ec.unmarshalNScoreConfigureItem2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreConfigureItemᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["configure"] = arg1
 	return args, nil
 }
 
@@ -3422,6 +3520,37 @@ func (ec *executionContext) _Course_open(ctx context.Context, field graphql.Coll
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Course_scoreConfigure(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Course",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ScoreConfigure, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(datatypes.JSON)
+	fc.Result = res
+	return ec.marshalOJson2gormᚗioᚋdatatypesᚐJSON(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Course_registerCount(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -3911,6 +4040,161 @@ func (ec *executionContext) _CourseStudent_course(ctx context.Context, field gra
 	res := resTmp.(*model.Course)
 	fc.Result = res
 	return ec.marshalNCourse2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐCourse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CourseStudent_score1(ctx context.Context, field graphql.CollectedField, obj *model.CourseStudent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "CourseStudent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Score1, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CourseStudent_score2(ctx context.Context, field graphql.CollectedField, obj *model.CourseStudent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "CourseStudent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Score2, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CourseStudent_score3(ctx context.Context, field graphql.CollectedField, obj *model.CourseStudent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "CourseStudent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Score3, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CourseStudent_score4(ctx context.Context, field graphql.CollectedField, obj *model.CourseStudent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "CourseStudent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Score4, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _CourseStudent_score(ctx context.Context, field graphql.CollectedField, obj *model.CourseStudent) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "CourseStudent",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Score, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _CourseStudent_teacherNote(ctx context.Context, field graphql.CollectedField, obj *model.CourseStudent) (ret graphql.Marshaler) {
@@ -5574,6 +5858,47 @@ func (ec *executionContext) _Mutation_adminUnregisterCourse(ctx context.Context,
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().AdminUnregisterCourse(rctx, args["courseId"].(int64), args["studentId"].(int64))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updateCourseScoreConfigure(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updateCourseScoreConfigure_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateCourseScoreConfigure(rctx, args["courseId"].(int64), args["configure"].([]*model.ScoreConfigureItem))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9521,6 +9846,42 @@ func (ec *executionContext) unmarshalInputNewUser(ctx context.Context, obj inter
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputScoreConfigureItem(ctx context.Context, obj interface{}) (model.ScoreConfigureItem, error) {
+	var it model.ScoreConfigureItem
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "name":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("name"))
+			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "value":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("value"))
+			it.Value, err = ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "status":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("status"))
+			it.Status, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSort(ctx context.Context, obj interface{}) (model.Sort, error) {
 	var it model.Sort
 	var asMap = obj.(map[string]interface{})
@@ -10293,6 +10654,8 @@ func (ec *executionContext) _Course(ctx context.Context, sel ast.SelectionSet, o
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "scoreConfigure":
+			out.Values[i] = ec._Course_scoreConfigure(ctx, field, obj)
 		case "registerCount":
 			out.Values[i] = ec._Course_registerCount(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
@@ -10389,6 +10752,16 @@ func (ec *executionContext) _CourseStudent(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "score1":
+			out.Values[i] = ec._CourseStudent_score1(ctx, field, obj)
+		case "score2":
+			out.Values[i] = ec._CourseStudent_score2(ctx, field, obj)
+		case "score3":
+			out.Values[i] = ec._CourseStudent_score3(ctx, field, obj)
+		case "score4":
+			out.Values[i] = ec._CourseStudent_score4(ctx, field, obj)
+		case "score":
+			out.Values[i] = ec._CourseStudent_score(ctx, field, obj)
 		case "teacherNote":
 			out.Values[i] = ec._CourseStudent_teacherNote(ctx, field, obj)
 		case "createdAt":
@@ -10702,6 +11075,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "adminUnregisterCourse":
 			out.Values[i] = ec._Mutation_adminUnregisterCourse(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "updateCourseScoreConfigure":
+			out.Values[i] = ec._Mutation_updateCourseScoreConfigure(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -11675,6 +12053,21 @@ func (ec *executionContext) unmarshalNFacultyInput2githubᚗcomᚋtabvnᚋuedᚋ
 	return res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
+	res, err := graphql.UnmarshalFloat(v)
+	return res, graphql.WrapErrorWithInputPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	res := graphql.MarshalFloat(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) unmarshalNID2int64(ctx context.Context, v interface{}) (int64, error) {
 	res, err := graphql.UnmarshalInt64(v)
 	return res, graphql.WrapErrorWithInputPath(ctx, err)
@@ -11758,6 +12151,32 @@ func (ec *executionContext) marshalNLogger2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodel
 		return graphql.Null
 	}
 	return ec._Logger(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNScoreConfigureItem2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreConfigureItemᚄ(ctx context.Context, v interface{}) ([]*model.ScoreConfigureItem, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*model.ScoreConfigureItem, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithIndex(i))
+		res[i], err = ec.unmarshalNScoreConfigureItem2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreConfigureItem(ctx, vSlice[i])
+		if err != nil {
+			return nil, graphql.WrapErrorWithInputPath(ctx, err)
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNScoreConfigureItem2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreConfigureItem(ctx context.Context, v interface{}) (*model.ScoreConfigureItem, error) {
+	res, err := ec.unmarshalInputScoreConfigureItem(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNString2string(ctx context.Context, v interface{}) (string, error) {
@@ -12332,6 +12751,21 @@ func (ec *executionContext) marshalOFaculty2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋm
 	}
 	wg.Wait()
 	return ret
+}
+
+func (ec *executionContext) unmarshalOFloat2ᚖfloat64(ctx context.Context, v interface{}) (*float64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalFloat(v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOFloat2ᚖfloat64(ctx context.Context, sel ast.SelectionSet, v *float64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return graphql.MarshalFloat(*v)
 }
 
 func (ec *executionContext) unmarshalOID2ᚕint64ᚄ(ctx context.Context, v interface{}) ([]int64, error) {

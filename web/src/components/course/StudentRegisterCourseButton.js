@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { useMutation } from "@apollo/react-hooks";
-import { gql } from "apollo-boost";
+import { useMutation,gql } from "@apollo/client";
 import { Button, notification } from "antd";
 
 const registerCourseMutation = gql`

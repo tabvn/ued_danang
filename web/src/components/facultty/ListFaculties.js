@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { useMutation, useQuery } from "@apollo/react-hooks";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { Button, Drawer, Form, Input, notification, Table } from "antd";
 import { GET_FACULTIES } from "../../graphqls/query/faculties";
-import { gql } from "apollo-boost";
 
 const createFacultyMutation = gql`
   mutation createFaculty($input: FacultyInput!) {

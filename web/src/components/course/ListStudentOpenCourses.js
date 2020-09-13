@@ -1,5 +1,5 @@
 import React, {useState} from "react";
-import {useQuery} from "@apollo/react-hooks";
+import {useQuery} from "@apollo/client";
 import {Table, Tag} from "antd";
 import {GET_STUDENT_OPEN_COURSES} from "../../graphqls/query/studentOpenCourses";
 import StudentRegisterCourseButton from "./StudentRegisterCourseButton";

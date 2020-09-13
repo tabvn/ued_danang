@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Route, Switch } from "react-router-dom";
-import { ApolloProvider } from "@apollo/react-hooks";
+import { ApolloProvider } from "@apollo/client";
 import routes from "../routers";
 import RenderRoute from "./RenderRoute";
 import { apolloClient, JWT_TOKEN_KEY } from "../client";

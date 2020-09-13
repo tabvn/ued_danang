@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {useLazyQuery} from "@apollo/react-hooks";
+import {useLazyQuery} from "@apollo/client";
 import TeacherCourseSelection from "./TeacherCourseSelection";
 import styled from "styled-components";
 import {TEACHER_COURSE_STUDENTS} from "../../graphqls/query/techerStudents";

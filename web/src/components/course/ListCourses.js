@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useMutation, useQuery } from "@apollo/react-hooks";
+import { useMutation, useQuery,gql } from "@apollo/client";
 import {
   Button,
   Col,
@@ -14,7 +14,6 @@ import {
   Tag,
 } from "antd";
 import { GET_ALL_COURSES } from "../../graphqls/query/courses";
-import { gql } from "apollo-boost";
 import FacultySelection from "../facultty/FacultySelection";
 import TeacherSelection from "../teacher/TeacherSelection";
 

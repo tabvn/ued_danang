@@ -15,6 +15,7 @@ import (
 	"github.com/tabvn/ued/id"
 	"github.com/tabvn/ued/model"
 	"github.com/tabvn/ued/storage"
+	"github.com/tabvn/ued/util"
 )
 
 func (r *mutationResolver) CreateCourse(ctx context.Context, input model.CourseInput) (*model.Course, error) {
@@ -278,6 +279,33 @@ func (r *mutationResolver) AdminUnregisterCourse(ctx context.Context, courseID i
 	}
 	if err := r.DB.Exec("DELETE FROM course_students WHERE course_id = ? AND student_id = ?", courseID, studentID).Error; err != nil {
 		return false, fmt.Errorf("an error: %s", err.Error())
+	}
+	return true, nil
+}
+
+func (r *mutationResolver) UpdateCourseScoreConfigure(ctx context.Context, courseID int64, configure []*model.ScoreConfigureItem) (bool, error) {
+	var course model.Course
+	var teacher = r.GetTeacherFromContext(ctx)
+	if teacher == nil {
+		user := r.GetCurrentUser(ctx)
+		if user == nil {
+			return false, errors.New("access denied")
+		}
+		if !user.IsAdministrator() {
+			return false, errors.New("access denied")
+		}
+		if err := r.DB.Where("id = ?", courseID).Take(&course).Error; err != nil {
+			return false, fmt.Errorf("course not found")
+		}
+		return false, errors.New("access denied")
+	} else {
+		if err := r.DB.Where("id = ? AND teacher_id = ?", courseID, teacher.ID).Take(&course).Error; err != nil {
+			return false, fmt.Errorf("could not find course you are teaching")
+		}
+	}
+	course.ScoreConfigure = util.JsonFromInterface(configure)
+	if err := r.DB.Save(&course).Error; err != nil {
+		return false, fmt.Errorf("could not update course configure due an error: %s", err.Error())
 	}
 	return true, nil
 }

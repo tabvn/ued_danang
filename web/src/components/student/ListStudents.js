@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import { useMutation, useQuery } from "@apollo/react-hooks";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { GET_STUDENTS } from "../../graphqls/query/students";
 import { Button, Drawer, Form, Input, notification, Select, Table } from "antd";
-import { gql } from "apollo-boost";
 import ClassSelection from "../classes/ClassSelection";
 import StudentFilter from "./StudentFilter";
 

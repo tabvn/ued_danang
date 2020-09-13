@@ -12,18 +12,29 @@ type Course implements Model{
 	lessonTo: Int!
 	unit: Int!
 	open: Boolean! @tag(gorm:"default:true")
+	scoreConfigure: Json
 	registerCount: Int! @tag(gorm:"-")
 	isRegistered: Boolean! @tag(gorm:"-")
 	updatedAt: Time!
 	createdAt: Time!
 }
 
+input ScoreConfigureItem{
+	name: String!
+	value: Float!
+	status: Boolean!
+}
 type CourseStudent implements Model{
 	id: ID! @tag(gorm:"primaryKey")
 	studentId: ID!
 	student: Student! @tag(gorm:"foreignKey:StudentID")
 	courseId: ID!
 	course:Course! @tag(gorm:"foreignKey:CourseID")
+	score1: Float
+	score2: Float
+	score3:Float
+	score4:Float
+	score: Float
 	teacherNote: String
 	createdAt: Time!
 	updatedAt: Time!
@@ -83,4 +94,5 @@ extend type Mutation {
 	exportCourseStudents(courseId: ID!): String
 	updateTeacherNote(courseId: ID!, studentId: ID!, note: String!): Boolean!
 	adminUnregisterCourse(courseId: ID!, studentId: ID!):Boolean!
+	updateCourseScoreConfigure(courseId: ID!, configure: [ScoreConfigureItem!]!): Boolean!
 }

@@ -1,11 +1,12 @@
-import {gql} from "apollo-boost";
+import { gql } from "@apollo/client";
 
 export const TEACHER_COURSES = gql`
-	query teacherCourses{
-		teacherCourses{
-			id
-			code
-			title
-		}
-	}
-`
+  query teacherCourses {
+    teacherCourses {
+      id
+      code
+      title
+      scoreConfigure
+    }
+  }
+`;

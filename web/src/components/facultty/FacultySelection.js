@@ -1,5 +1,5 @@
 import React, { forwardRef, useState } from "react";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import { GET_FACULTIES } from "../../graphqls/query/faculties";
 import { Select, Skeleton } from "antd";
 

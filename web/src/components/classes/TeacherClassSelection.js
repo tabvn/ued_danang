@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useState } from "react";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery } from "@apollo/client";
 import { Select, Skeleton } from "antd";
 import { TEACHER_CLASSES } from "../../graphqls/query/classes";
 
@@ -34,4 +34,4 @@ const TeacherClassSelection = forwardRef((props, ref) => {
   );
 });
 
-export default TeacherClassSelection
+export default TeacherClassSelection;

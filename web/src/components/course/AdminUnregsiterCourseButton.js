@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Button, notification, Popconfirm } from "antd";
-import { useMutation } from "@apollo/react-hooks";
-import { gql } from "apollo-boost";
+import { useMutation,gql } from "@apollo/client";
 
 const adminUnregisterCourseMutation = gql`
   mutation adminUnregisterCourse($courseId: ID!, $studentId: ID!) {

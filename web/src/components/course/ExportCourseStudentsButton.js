@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { DownloadOutlined } from "@ant-design/icons";
 import { Button, notification } from "antd";
-import { useMutation } from "@apollo/react-hooks";
-import { gql } from "apollo-boost";
+import { gql, useMutation } from "@apollo/client";
 import { API_URL } from "../../config";
 
 const exportCourseStudentsMutation = gql`

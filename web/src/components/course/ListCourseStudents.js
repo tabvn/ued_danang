@@ -1,6 +1,6 @@
 import React from "react";
 import {Table} from "antd";
-import {useQuery} from "@apollo/react-hooks";
+import {useQuery} from "@apollo/client";
 import {GET_ALL_COURSE_STUDENTS} from "../../graphqls/query/courseStudents";
 import moment from "moment";
 import AdminUnregisterCourseButton from "./AdminUnregsiterCourseButton";

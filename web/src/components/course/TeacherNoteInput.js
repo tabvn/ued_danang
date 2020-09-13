@@ -3,8 +3,7 @@ import { Button, Input } from "antd";
 import styled from "styled-components";
 import { EditOutlined } from "@ant-design/icons";
 import OutsideClickHandler from "react-outside-click-handler";
-import { useMutation } from "@apollo/react-hooks";
-import { gql } from "apollo-boost";
+import { gql, useMutation } from "@apollo/client";
 
 const Container = styled.div`
   .value {

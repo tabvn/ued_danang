@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { Button, Form, Input, notification } from "antd";
 import { LOGIN_MUTATION } from "../graphqls/mutation/login";
-import { useMutation } from "@apollo/react-hooks";
+import { useMutation } from "@apollo/client";
 import { useAppValue } from "../context";
 
 const layout = {
