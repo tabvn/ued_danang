@@ -403,3 +403,49 @@ func (r *queryResolver) TeacherCourses(ctx context.Context) ([]*model.Course, er
 	}
 	return res, nil
 }
+
+func (r *queryResolver) Scores(ctx context.Context, courseID int64) ([]*model.Score, error) {
+	teacher := r.GetTeacherFromContext(ctx)
+	var course model.Course
+	if teacher != nil {
+		if err := r.DB.Where("id = ? AND teacher_id = ?", courseID, teacher.ID).Take(&course).Error; err != nil {
+			return nil, errors.New("course you are teaching not found")
+		}
+	} else {
+		user := r.GetCurrentUser(ctx)
+		if user == nil {
+			return nil, errors.New("access denied")
+		}
+		if !user.IsAdministrator() {
+			return nil, errors.New("access denied")
+		}
+		if err := r.DB.Where("id = ?", courseID).Take(&course).Error; err != nil {
+			return nil, errors.New("course not found")
+		}
+	}
+	var courseStudents []*model.CourseStudent
+	if err := r.DB.Model(model.CourseStudent{}).
+		Joins("INNER JOIN students ON students.id = \"course_students\".student_id").Where("course_students.course_id = ?", courseID).
+		Preload("Student").
+		Preload("Student.User").
+		Preload("Student.Class").
+		Order("students.first_name ASC").
+		Find(&courseStudents).Error; err != nil {
+		return nil, fmt.Errorf("could not find scores due an error: %s", err.Error())
+	}
+	var res []*model.Score
+	if courseStudents != nil {
+		for _, s := range courseStudents {
+			res = append(res, &model.Score{
+				ID:      s.ID,
+				Student: s.Student,
+				Score1:  s.Score1,
+				Score2:  s.Score2,
+				Score3:  s.Score3,
+				Score4:  s.Score4,
+				Score:   s.Score,
+			})
+		}
+	}
+	return res, nil
+}

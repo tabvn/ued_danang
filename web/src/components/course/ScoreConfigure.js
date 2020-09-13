@@ -1,25 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { InputNumber, Switch, Table } from "antd";
 
+export const getTitle = (record) => {
+  switch (record.name) {
+    case "score1":
+      return "Điểm bộ phận 1";
+
+    case "score2":
+      return "Điểm bộ phận 2";
+
+    case "score3":
+      return "Điểm giữa kì";
+    case "score4":
+      return "Điểm cuối kì";
+
+    default:
+      return record.name;
+  }
+};
+
 const ScoreConfigure = (props) => {
   const [dataSource, setDataSource] = useState(props.value ? props.value : []);
-  const getTitle = (record) => {
-    switch (record.name) {
-      case "score1":
-        return "Điểm bộ phận 1";
-
-      case "score2":
-        return "Điểm bộ phận 2";
-
-      case "score3":
-        return "Điểm giữa kì";
-      case "score4":
-        return "Điểm cuối kì";
-
-      default:
-        return record.name;
-    }
-  };
 
   useEffect(() => {
     props.onChange(dataSource);

@@ -216,6 +216,16 @@ type NewUser struct {
 	Password string `json:"password"`
 }
 
+type Score struct {
+	ID      int64    `json:"id"`
+	Student *Student `json:"student"`
+	Score1  *float64 `json:"score1"`
+	Score2  *float64 `json:"score2"`
+	Score3  *float64 `json:"score3"`
+	Score4  *float64 `json:"score4"`
+	Score   *float64 `json:"score"`
+}
+
 type ScoreConfigureItem struct {
 	Name   string  `json:"name"`
 	Value  float64 `json:"value"`

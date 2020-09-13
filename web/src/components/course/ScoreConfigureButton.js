@@ -4,7 +4,7 @@ import ScoreConfigure from "./ScoreConfigure";
 import { SettingOutlined } from "@ant-design/icons";
 import { useMutation,gql} from "@apollo/client";
 
-const initScoreConfigure = () => {
+export const initScoreConfigure = () => {
   return [
     {
       name: "score1",
@@ -49,7 +49,7 @@ const ScoreConfigureButton = (props) => {
       <Button
         icon={<SettingOutlined />}
         onClick={() => setVisible(true)}
-        style={{ marginLeft: 5 }}
+        style={{ marginLeft: 10 }}
       >
         Thay đổi cấu hình điểm học phần
       </Button>

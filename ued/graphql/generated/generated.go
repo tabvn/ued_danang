@@ -181,6 +181,7 @@ type ComplexityRoot struct {
 		Faculties             func(childComplexity int) int
 		GetCourseStudents     func(childComplexity int, courseID int64, filter model.CourseStudentFilter) int
 		Loggers               func(childComplexity int, filter *model.LoggerFilter) int
+		Scores                func(childComplexity int, courseID int64) int
 		StudentOpenCourses    func(childComplexity int, filter *model.CourseFilter) int
 		Students              func(childComplexity int, filter *model.StudentFilter) int
 		TeacherClassStudents  func(childComplexity int, classID int64) int
@@ -190,6 +191,16 @@ type ComplexityRoot struct {
 		Teachers              func(childComplexity int, filter *model.TeacherFilter) int
 		User                  func(childComplexity int, id int64) int
 		Viewer                func(childComplexity int) int
+	}
+
+	Score struct {
+		ID      func(childComplexity int) int
+		Score   func(childComplexity int) int
+		Score1  func(childComplexity int) int
+		Score2  func(childComplexity int) int
+		Score3  func(childComplexity int) int
+		Score4  func(childComplexity int) int
+		Student func(childComplexity int) int
 	}
 
 	Student struct {
@@ -282,6 +293,7 @@ type QueryResolver interface {
 	StudentOpenCourses(ctx context.Context, filter *model.CourseFilter) (*model.CourseConnection, error)
 	GetCourseStudents(ctx context.Context, courseID int64, filter model.CourseStudentFilter) ([]*model.CourseStudent, error)
 	TeacherCourses(ctx context.Context) ([]*model.Course, error)
+	Scores(ctx context.Context, courseID int64) ([]*model.Score, error)
 	Faculties(ctx context.Context) ([]*model.Faculty, error)
 	Loggers(ctx context.Context, filter *model.LoggerFilter) (*model.LoggerConnection, error)
 	Students(ctx context.Context, filter *model.StudentFilter) (*model.StudentConnection, error)
@@ -1110,6 +1122,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.Loggers(childComplexity, args["filter"].(*model.LoggerFilter)), true
 
+	case "Query.scores":
+		if e.complexity.Query.Scores == nil {
+			break
+		}
+
+		args, err := ec.field_Query_scores_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.Scores(childComplexity, args["courseId"].(int64)), true
+
 	case "Query.studentOpenCourses":
 		if e.complexity.Query.StudentOpenCourses == nil {
 			break
@@ -1202,6 +1226,55 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Viewer(childComplexity), true
+
+	case "Score.id":
+		if e.complexity.Score.ID == nil {
+			break
+		}
+
+		return e.complexity.Score.ID(childComplexity), true
+
+	case "Score.score":
+		if e.complexity.Score.Score == nil {
+			break
+		}
+
+		return e.complexity.Score.Score(childComplexity), true
+
+	case "Score.score1":
+		if e.complexity.Score.Score1 == nil {
+			break
+		}
+
+		return e.complexity.Score.Score1(childComplexity), true
+
+	case "Score.score2":
+		if e.complexity.Score.Score2 == nil {
+			break
+		}
+
+		return e.complexity.Score.Score2(childComplexity), true
+
+	case "Score.score3":
+		if e.complexity.Score.Score3 == nil {
+			break
+		}
+
+		return e.complexity.Score.Score3(childComplexity), true
+
+	case "Score.score4":
+		if e.complexity.Score.Score4 == nil {
+			break
+		}
+
+		return e.complexity.Score.Score4(childComplexity), true
+
+	case "Score.student":
+		if e.complexity.Score.Student == nil {
+			break
+		}
+
+		return e.complexity.Score.Student(childComplexity), true
 
 	case "Student.birthday":
 		if e.complexity.Student.Birthday == nil {
@@ -1663,11 +1736,21 @@ input CourseFilter{
 	limit: Int
 	offset: Int
 }
+type Score {
+	id: ID!
+	student: Student!
+	score1: Float
+	score2: Float
+	score3: Float
+	score4:Float
+	score: Float
+}
 extend type Query {
 	courses(filter: CourseFilter): CourseConnection!
 	studentOpenCourses(filter: CourseFilter): CourseConnection!
 	getCourseStudents(courseId:ID!, filter: CourseStudentFilter!): [CourseStudent!]
 	teacherCourses: [Course!]
+	scores(courseId: ID!): [Score!]
 }
 extend type Mutation {
 	createCourse(input: CourseInput!): Course!
@@ -2363,6 +2446,21 @@ func (ec *executionContext) field_Query_loggers_args(ctx context.Context, rawArg
 		}
 	}
 	args["filter"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_scores_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("courseId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
 	return args, nil
 }
 
@@ -6534,6 +6632,44 @@ func (ec *executionContext) _Query_teacherCourses(ctx context.Context, field gra
 	return ec.marshalOCourse2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐCourseᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_scores(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Query_scores_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().Scores(rctx, args["courseId"].(int64))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Score)
+	fc.Result = res
+	return ec.marshalOScore2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_faculties(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -6897,6 +7033,229 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	res := resTmp.(*introspection.Schema)
 	fc.Result = res
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Score_id(ctx context.Context, field graphql.CollectedField, obj *model.Score) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Score",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ID, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int64)
+	fc.Result = res
+	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Score_student(ctx context.Context, field graphql.CollectedField, obj *model.Score) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Score",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Student, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Student)
+	fc.Result = res
+	return ec.marshalNStudent2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐStudent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Score_score1(ctx context.Context, field graphql.CollectedField, obj *model.Score) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Score",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Score1, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Score_score2(ctx context.Context, field graphql.CollectedField, obj *model.Score) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Score",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Score2, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Score_score3(ctx context.Context, field graphql.CollectedField, obj *model.Score) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Score",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Score3, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Score_score4(ctx context.Context, field graphql.CollectedField, obj *model.Score) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Score",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Score4, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Score_score(ctx context.Context, field graphql.CollectedField, obj *model.Score) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Score",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Score, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*float64)
+	fc.Result = res
+	return ec.marshalOFloat2ᚖfloat64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Student_id(ctx context.Context, field graphql.CollectedField, obj *model.Student) (ret graphql.Marshaler) {
@@ -11234,6 +11593,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				res = ec._Query_teacherCourses(ctx, field)
 				return res
 			})
+		case "scores":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_scores(ctx, field)
+				return res
+			})
 		case "faculties":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -11332,6 +11702,48 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Values[i] = ec._Query___type(ctx, field)
 		case "__schema":
 			out.Values[i] = ec._Query___schema(ctx, field)
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var scoreImplementors = []string{"Score"}
+
+func (ec *executionContext) _Score(ctx context.Context, sel ast.SelectionSet, obj *model.Score) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, scoreImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("Score")
+		case "id":
+			out.Values[i] = ec._Score_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "student":
+			out.Values[i] = ec._Score_student(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "score1":
+			out.Values[i] = ec._Score_score1(ctx, field, obj)
+		case "score2":
+			out.Values[i] = ec._Score_score2(ctx, field, obj)
+		case "score3":
+			out.Values[i] = ec._Score_score3(ctx, field, obj)
+		case "score4":
+			out.Values[i] = ec._Score_score4(ctx, field, obj)
+		case "score":
+			out.Values[i] = ec._Score_score(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -12153,6 +12565,16 @@ func (ec *executionContext) marshalNLogger2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodel
 	return ec._Logger(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNScore2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScore(ctx context.Context, sel ast.SelectionSet, v *model.Score) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._Score(ctx, sel, v)
+}
+
 func (ec *executionContext) unmarshalNScoreConfigureItem2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreConfigureItemᚄ(ctx context.Context, v interface{}) ([]*model.ScoreConfigureItem, error) {
 	var vSlice []interface{}
 	if v != nil {
@@ -12902,6 +13324,46 @@ func (ec *executionContext) unmarshalOLoggerFilter2ᚖgithubᚗcomᚋtabvnᚋued
 	}
 	res, err := ec.unmarshalInputLoggerFilter(ctx, v)
 	return &res, graphql.WrapErrorWithInputPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOScore2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Score) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNScore2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScore(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+	return ret
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {

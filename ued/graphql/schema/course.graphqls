@@ -80,11 +80,21 @@ input CourseFilter{
 	limit: Int
 	offset: Int
 }
+type Score {
+	id: ID!
+	student: Student!
+	score1: Float
+	score2: Float
+	score3: Float
+	score4:Float
+	score: Float
+}
 extend type Query {
 	courses(filter: CourseFilter): CourseConnection!
 	studentOpenCourses(filter: CourseFilter): CourseConnection!
 	getCourseStudents(courseId:ID!, filter: CourseStudentFilter!): [CourseStudent!]
 	teacherCourses: [Course!]
+	scores(courseId: ID!): [Score!]
 }
 extend type Mutation {
 	createCourse(input: CourseInput!): Course!
