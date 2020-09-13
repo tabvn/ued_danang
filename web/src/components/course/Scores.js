@@ -127,6 +127,9 @@ const Scores = (props) => {
     {
       title: "Tổng kết",
       render: (text, record, index) => {
+        if(!active){
+          return <div>{record.score}</div>
+        }
         const scores = active ? editData[index] : record;
         let score = 0;
         let hasScore = false;
