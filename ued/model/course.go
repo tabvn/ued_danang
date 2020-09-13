@@ -51,8 +51,8 @@ func (c *Course) GetScoreConfigure() []*ScoreConfigureItem {
 	return res
 }
 
-func (c *Course) GetTotalScore(s1, s2, s3, s4 *float64) float64 {
-	var s float64
+func (c *Course) GetTotalScore(s1, s2, s3, s4 *float64) *float64 {
+	var s *float64
 	config := c.GetScoreConfigure()
 	m := map[string]*float64{
 		"score1": s1,
@@ -64,7 +64,10 @@ func (c *Course) GetTotalScore(s1, s2, s3, s4 *float64) float64 {
 		if cf.Status {
 			if score, ok := m[cf.Name]; ok {
 				if score != nil {
-					s += *score * cf.Value
+					if s == nil {
+						s = new(float64)
+					}
+					*s += *score * cf.Value
 				}
 			}
 		}

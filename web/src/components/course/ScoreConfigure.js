@@ -37,6 +37,7 @@ const ScoreConfigure = (props) => {
       title: "Hệ số điểm",
       render: (text, record, index) => (
         <InputNumber
+          step={0.1}
           disabled={!record.status}
           value={record.value}
           onChange={(num) => {

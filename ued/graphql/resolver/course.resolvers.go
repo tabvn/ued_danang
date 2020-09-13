@@ -304,9 +304,75 @@ func (r *mutationResolver) UpdateCourseScoreConfigure(ctx context.Context, cours
 		}
 	}
 	course.ScoreConfigure = util.JsonFromInterface(configure)
-	if err := r.DB.Save(&course).Error; err != nil {
+	tx := r.DB.Begin()
+	if err := tx.Save(&course).Error; err != nil {
+		tx.Rollback()
 		return false, fmt.Errorf("could not update course configure due an error: %s", err.Error())
 	}
+	var courseStudents []*model.CourseStudent
+	if err := tx.Where("course_id = ?", courseID).Find(&courseStudents).Error; err != nil {
+		tx.Rollback()
+		return false, fmt.Errorf("could not find course students due an error: %s", err.Error())
+	}
+	if courseStudents != nil {
+		for _, s := range courseStudents {
+			s.Score = course.GetTotalScore(s.Score1, s.Score2, s.Score3, s.Score4)
+			if err := tx.Save(s).Error; err != nil {
+				tx.Rollback()
+				return false, fmt.Errorf("update student total score error: %s", err.Error())
+			}
+		}
+	}
+	tx.Commit()
+	return true, nil
+}
+
+func (r *mutationResolver) UpdateScores(ctx context.Context, courseID int64, scores []*model.ScoreInput) (bool, error) {
+	var course model.Course
+	var teacher = r.GetTeacherFromContext(ctx)
+	if teacher == nil {
+		user := r.GetCurrentUser(ctx)
+		if user == nil {
+			return false, errors.New("access denied")
+		}
+		if !user.IsAdministrator() {
+			return false, errors.New("access denied")
+		}
+		if err := r.DB.Where("id = ?", courseID).Take(&course).Error; err != nil {
+			return false, fmt.Errorf("course not found")
+		}
+		return false, errors.New("access denied")
+	} else {
+		if err := r.DB.Where("id = ? AND teacher_id = ?", courseID, teacher.ID).Take(&course).Error; err != nil {
+			return false, fmt.Errorf("could not find course you are teaching")
+		}
+	}
+	var courseStudents []*model.CourseStudent
+	if err := r.DB.Where("course_id =?", courseID).Find(&courseStudents).Error; err != nil {
+		return false, fmt.Errorf("could not find course students due an error: %s", err.Error())
+	}
+	if courseStudents == nil {
+		return false, errors.New("no student in this course")
+	}
+	courseStudentMap := make(map[int64]*model.CourseStudent)
+	for _, c := range courseStudents {
+		courseStudentMap[c.StudentID] = c
+	}
+	tx := r.DB.Begin()
+	for _, s := range scores {
+		if cs, ok := courseStudentMap[s.StudentID]; ok {
+			cs.Score1 = s.Score1
+			cs.Score2 = s.Score2
+			cs.Score3 = s.Score3
+			cs.Score4 = s.Score4
+			cs.Score = course.GetTotalScore(s.Score1, s.Score2, s.Score3, s.Score4)
+			if err := tx.Save(cs).Error; err != nil {
+				tx.Rollback()
+				return false, fmt.Errorf("could not update score due an error: %s", err.Error())
+			}
+		}
+	}
+	tx.Commit()
 	return true, nil
 }
 

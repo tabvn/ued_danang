@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Button, InputNumber, Table } from "antd";
-import { gql, useQuery } from "@apollo/client";
+import { Button, InputNumber, notification, Popconfirm, Table } from "antd";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import ErrorMessage from "../ErrorMessage";
 import { initScoreConfigure } from "./ScoreConfigureButton";
 import { getTitle } from "./ScoreConfigure";
@@ -34,13 +34,23 @@ const scoreQuery = gql`
     }
   }
 `;
+
+const updateScoresMutation = gql`
+  mutation updateScores($courseId: ID!, $scores: [ScoreInput!]!) {
+    updateScores(courseId: $courseId, scores: $scores)
+  }
+`;
 const Scores = (props) => {
-  const { loading, error, data } = useQuery(scoreQuery, {
+  const { loading, error, data, refetch } = useQuery(scoreQuery, {
     variables: {
       courseId: props.course.id,
     },
   });
   const [active, setActive] = useState(false);
+  const [editData, setEditData] = useState([]);
+  const [isChange, setIsChange] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [updateScores] = useMutation(updateScoresMutation);
   if (error) return <ErrorMessage error={error}>Error!</ErrorMessage>;
   let columns = [
     {
@@ -74,14 +84,36 @@ const Scores = (props) => {
       columns = [
         ...columns,
         {
-          title: getTitle({ name: scoreConfig[i].name }),
+          title: `${getTitle({ name: scoreConfig[i].name })}(${
+            scoreConfig[i].value
+          })`,
           dataIndex: [`${scoreConfig[i]}.name`],
-          render: (text, record, index) =>
-            active ? (
-              <InputNumber min={0} max={10} />
+          render: (text, record, index) => {
+            const name = scoreConfig[i].name;
+            return active ? (
+              <InputNumber
+                onChange={(num) => {
+                  setIsChange(true);
+                  setEditData((prevState) => {
+                    return prevState.map((s, idx) => {
+                      if (idx === index) {
+                        return {
+                          ...s,
+                          [name]: num,
+                        };
+                      }
+                      return s;
+                    });
+                  });
+                }}
+                value={editData[index][name]}
+                min={0}
+                max={10}
+              />
             ) : (
-              <div>{record[scoreConfig[i].name]}</div>
-            ),
+              <div>{record[name]}</div>
+            );
+          },
         },
       ];
     }
@@ -99,18 +131,93 @@ const Scores = (props) => {
           }}
         >
           <div>
-            <Button onClick={() => setActive(!active)}>
-              {!active ? "Nhập điểm" : "Huỷ"}
-            </Button>
-            {
-              active && (
-                  <Button style={{marginLeft: 10}} type="primary">Lưu kết quả</Button>
-              )
-            }
+            {active && !isChange && (
+              <Button
+                onClick={() => {
+                  setIsChange(false);
+                  setActive(false);
+                  setEditData([]);
+                }}
+              >
+                Huỷ
+              </Button>
+            )}
+            {active && isChange && (
+              <Popconfirm
+                onConfirm={() => {
+                  setIsChange(false);
+                  setActive(false);
+                  setEditData([]);
+                }}
+                cancelText={"Không"}
+                okText="Có tôi muốn huỷ"
+                title={"Bạn có chắc muốn huỷ điểm đã nhập không?"}
+              >
+                <Button>Huỷ</Button>
+              </Popconfirm>
+            )}
+            {!active && (
+              <Button
+                type="primary"
+                onClick={() => {
+                  setEditData(
+                    data.scores.map((s) => {
+                      return {
+                        studentId: s.student.id,
+                        score1: s.score1,
+                        score2: s.score2,
+                        score3: s.score3,
+                        score4: s.score4,
+                      };
+                    })
+                  );
+                  setIsChange(false);
+                  setActive(true);
+                }}
+              >
+                Nhập điểm
+              </Button>
+            )}
+            {active && (
+              <Button
+                onClick={() => {
+                  setIsLoading(true);
+                  updateScores({
+                    variables: {
+                      courseId: props.course.id,
+                      scores: editData,
+                    },
+                  })
+                    .then(() => {
+                      refetch().then(() => {
+                        setIsLoading(false);
+                        setActive(false);
+                        setEditData([]);
+                        notification.success({
+                          message: "Điểm đã được cập nhật thành công",
+                        });
+                      });
+
+                    })
+                    .catch((e) => {
+                      setIsLoading(false);
+                      notification.error({
+                        message: `Có lỗi xảy ra: ${e.toString()}`,
+                      });
+                    });
+                }}
+                loading={isLoading}
+                style={{ marginLeft: 10 }}
+                type="primary"
+              >
+                Lưu kết quả
+              </Button>
+            )}
           </div>
         </div>
       )}
       <Table
+        bordered
         loading={loading}
         pagination={false}
         rowKey={(_, index) => index}

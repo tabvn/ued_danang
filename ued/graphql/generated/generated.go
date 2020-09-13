@@ -170,6 +170,7 @@ type ComplexityRoot struct {
 		UpdateCourse               func(childComplexity int, id int64, input model.UpdateCourseInput) int
 		UpdateCourseScoreConfigure func(childComplexity int, courseID int64, configure []*model.ScoreConfigureItem) int
 		UpdateFaculty              func(childComplexity int, id int64, input model.FacultyInput) int
+		UpdateScores               func(childComplexity int, courseID int64, scores []*model.ScoreInput) int
 		UpdateStudent              func(childComplexity int, id int64, input model.UpdateStudentInput) int
 		UpdateTeacher              func(childComplexity int, id int64, input model.UpdateTeacherInput) int
 		UpdateTeacherNote          func(childComplexity int, courseID int64, studentID int64, note string) int
@@ -275,6 +276,7 @@ type MutationResolver interface {
 	UpdateTeacherNote(ctx context.Context, courseID int64, studentID int64, note string) (bool, error)
 	AdminUnregisterCourse(ctx context.Context, courseID int64, studentID int64) (bool, error)
 	UpdateCourseScoreConfigure(ctx context.Context, courseID int64, configure []*model.ScoreConfigureItem) (bool, error)
+	UpdateScores(ctx context.Context, courseID int64, scores []*model.ScoreInput) (bool, error)
 	CreateFaculty(ctx context.Context, input model.FacultyInput) (*model.Faculty, error)
 	UpdateFaculty(ctx context.Context, id int64, input model.FacultyInput) (*model.Faculty, error)
 	ClearAllLogs(ctx context.Context) (bool, error)
@@ -1031,6 +1033,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateFaculty(childComplexity, args["id"].(int64), args["input"].(model.FacultyInput)), true
 
+	case "Mutation.updateScores":
+		if e.complexity.Mutation.UpdateScores == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateScores_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateScores(childComplexity, args["courseId"].(int64), args["scores"].([]*model.ScoreInput)), true
+
 	case "Mutation.updateStudent":
 		if e.complexity.Mutation.UpdateStudent == nil {
 			break
@@ -1745,6 +1759,13 @@ type Score {
 	score4:Float
 	score: Float
 }
+input ScoreInput{
+	studentId: ID!
+	score1: Float
+	score2: Float
+	score3: Float
+	score4:Float
+}
 extend type Query {
 	courses(filter: CourseFilter): CourseConnection!
 	studentOpenCourses(filter: CourseFilter): CourseConnection!
@@ -1761,6 +1782,7 @@ extend type Mutation {
 	updateTeacherNote(courseId: ID!, studentId: ID!, note: String!): Boolean!
 	adminUnregisterCourse(courseId: ID!, studentId: ID!):Boolean!
 	updateCourseScoreConfigure(courseId: ID!, configure: [ScoreConfigureItem!]!): Boolean!
+	updateScores(courseId: ID!, scores: [ScoreInput!]!): Boolean!
 }`, BuiltIn: false},
 	{Name: "graphql/schema/faculty.graphqls", Input: `type Faculty implements Model{
 	id: ID! @tag(gorm: "primaryKey")
@@ -2281,6 +2303,30 @@ func (ec *executionContext) field_Mutation_updateFaculty_args(ctx context.Contex
 		}
 	}
 	args["input"] = arg1
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateScores_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int64
+	if tmp, ok := rawArgs["courseId"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("courseId"))
+		arg0, err = ec.unmarshalNID2int64(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["courseId"] = arg0
+	var arg1 []*model.ScoreInput
+	if tmp, ok := rawArgs["scores"]; ok {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("scores"))
+		arg1, err = ec.unmarshalNScoreInput2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreInputᚄ(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["scores"] = arg1
 	return args, nil
 }
 
@@ -5997,6 +6043,47 @@ func (ec *executionContext) _Mutation_updateCourseScoreConfigure(ctx context.Con
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().UpdateCourseScoreConfigure(rctx, args["courseId"].(int64), args["configure"].([]*model.ScoreConfigureItem))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updateScores(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updateScores_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateScores(rctx, args["courseId"].(int64), args["scores"].([]*model.ScoreInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10241,6 +10328,58 @@ func (ec *executionContext) unmarshalInputScoreConfigureItem(ctx context.Context
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputScoreInput(ctx context.Context, obj interface{}) (model.ScoreInput, error) {
+	var it model.ScoreInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "studentId":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("studentId"))
+			it.StudentID, err = ec.unmarshalNID2int64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "score1":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("score1"))
+			it.Score1, err = ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "score2":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("score2"))
+			it.Score2, err = ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "score3":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("score3"))
+			it.Score3, err = ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "score4":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("score4"))
+			it.Score4, err = ec.unmarshalOFloat2ᚖfloat64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputSort(ctx context.Context, obj interface{}) (model.Sort, error) {
 	var it model.Sort
 	var asMap = obj.(map[string]interface{})
@@ -11442,6 +11581,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "updateScores":
+			out.Values[i] = ec._Mutation_updateScores(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "createFaculty":
 			out.Values[i] = ec._Mutation_createFaculty(ctx, field)
 			if out.Values[i] == graphql.Null {
@@ -12598,6 +12742,32 @@ func (ec *executionContext) unmarshalNScoreConfigureItem2ᚕᚖgithubᚗcomᚋta
 
 func (ec *executionContext) unmarshalNScoreConfigureItem2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreConfigureItem(ctx context.Context, v interface{}) (*model.ScoreConfigureItem, error) {
 	res, err := ec.unmarshalInputScoreConfigureItem(ctx, v)
+	return &res, graphql.WrapErrorWithInputPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNScoreInput2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreInputᚄ(ctx context.Context, v interface{}) ([]*model.ScoreInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*model.ScoreInput, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithIndex(i))
+		res[i], err = ec.unmarshalNScoreInput2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, graphql.WrapErrorWithInputPath(ctx, err)
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNScoreInput2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreInput(ctx context.Context, v interface{}) (*model.ScoreInput, error) {
+	res, err := ec.unmarshalInputScoreInput(ctx, v)
 	return &res, graphql.WrapErrorWithInputPath(ctx, err)
 }
 

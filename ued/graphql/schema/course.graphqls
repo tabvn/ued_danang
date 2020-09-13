@@ -89,6 +89,13 @@ type Score {
 	score4:Float
 	score: Float
 }
+input ScoreInput{
+	studentId: ID!
+	score1: Float
+	score2: Float
+	score3: Float
+	score4:Float
+}
 extend type Query {
 	courses(filter: CourseFilter): CourseConnection!
 	studentOpenCourses(filter: CourseFilter): CourseConnection!
@@ -105,4 +112,5 @@ extend type Mutation {
 	updateTeacherNote(courseId: ID!, studentId: ID!, note: String!): Boolean!
 	adminUnregisterCourse(courseId: ID!, studentId: ID!):Boolean!
 	updateCourseScoreConfigure(courseId: ID!, configure: [ScoreConfigureItem!]!): Boolean!
+	updateScores(courseId: ID!, scores: [ScoreInput!]!): Boolean!
 }

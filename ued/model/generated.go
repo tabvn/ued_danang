@@ -232,6 +232,14 @@ type ScoreConfigureItem struct {
 	Status bool    `json:"status"`
 }
 
+type ScoreInput struct {
+	StudentID int64    `json:"studentId"`
+	Score1    *float64 `json:"score1"`
+	Score2    *float64 `json:"score2"`
+	Score3    *float64 `json:"score3"`
+	Score4    *float64 `json:"score4"`
+}
+
 type Sort struct {
 	Name  string `json:"name"`
 	Value string `json:"value"`
