@@ -6,7 +6,7 @@ const AdminClasses = () => {
   return (
     <div>
       <PageHeader className="site-page-header" title="Lớp học" />
-      <ListClasses />
+      <ListClasses  />
     </div>
   );
 };

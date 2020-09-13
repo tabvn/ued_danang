@@ -7,9 +7,29 @@ import ListCourseStudents from "../../components/course/ListCourseStudents";
 import ExportCourseStudentsButton from "../../components/course/ExportCourseStudentsButton";
 
 const Container = styled.div`
+  .ant-select {
+    min-width: 100%;
+    margin-bottom: 10px;
+  }
   .filter {
-    .ant-select {
-      min-width: 300px;
+    .filter-label {
+       margin-right: 0;
+    }
+  }
+  @media(min-width: 991px){
+  .ant-select{
+    min-width: 300px;
+    margin-bottom: 0;
+  }
+  }
+  .filter {
+    @media (min-width: 991px) {
+      display: flex;
+      align-items: center;
+      justify-items: center;
+      .filter-label{
+        margin-right: 10px;
+      }
     }
   }
 `;
@@ -28,7 +48,7 @@ const AdminCourseStudent = () => {
     <Container>
       <PageHeader className="site-page-header" title="Đánh giá học phần" />
       <div className={"filter"}>
-        <span>Chọn Năm: </span>
+        <div className="filter-label">Chọn Năm: </div>
         <CourseSelection
           value={courseId ? courseId : null}
           onChange={(value) => {

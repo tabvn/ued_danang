@@ -96,6 +96,7 @@ const ListClasses = () => {
     <div>
       <Button onClick={() => setVisible(true)}>Thêm lớp</Button>
       <Table
+          scroll={{ x: 1200 }}
         pagination={{
           current: page,
           total: data ? data.classes.total : 0,

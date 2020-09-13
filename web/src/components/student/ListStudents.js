@@ -116,6 +116,7 @@ const ListStudents = () => {
         />
       </div>
       <Table
+        scroll={{ x: 1200 }}
         loading={loading}
         pagination={{
           current: page,
@@ -136,7 +137,7 @@ const ListStudents = () => {
           onClose={() => setVisible(false)}
           title={editStudent ? "Sửa thông tin sinh viên" : "Thêm sinh viên"}
           placement="right"
-          width={520}
+          width={window.innerWidth < 520 ? window.innerWidth : 520}
           visible={visible}
         >
           <Form

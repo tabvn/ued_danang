@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {Button, Card, PageHeader} from "antd";
+import { Card, PageHeader } from "antd";
 import TeacherCourseSelection from "../../components/teacher/TeacherCourseSelection";
 import styled from "styled-components";
 import ScoreConfigureButton, {
@@ -12,13 +12,32 @@ import { getTitle } from "../../components/course/ScoreConfigure";
 
 const Container = styled.div`
   .ant-select {
+    margin-top: 10px;
+    margin-bottom: 10px;
     min-width: 250px;
   }
   .filter {
-    @media(min-width: 991px){
-        display: flex;
-        flex-direction: row;
-        align-items: center;
+    @media (min-width: 991px) {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+  }
+  .score-configure {
+    @media (min-width: 991px) {
+      display: flex;
+      align-items: center;
+    }
+  }
+  .score-config-btn {
+    @media (min-width: 991px) {
+      margin-left: 10px;
+    }
+  }
+  @media (min-width: 991px) {
+    .ant-select {
+      margin-top: 0;
+      margin-bottom: 0;
     }
   }
 `;
@@ -34,7 +53,7 @@ const TeacherScoreManagement = () => {
       <PageHeader title={"Quản lý điểm"} />
       <Card title={"Thông tin học phần"}>
         <div className={"filter"}>
-          <div style={{marginRight:10}}>Chọn học phần: </div>
+          <div style={{ marginRight: 10 }}>Chọn học phần:</div>
           <TeacherCourseSelection
             onChange={(id, inf) => {
               setCourseId(id);
@@ -72,14 +91,14 @@ const TeacherScoreManagement = () => {
             />
           )}
           {courseId && (
-            <div>
+            <div className={"score-configure"}>
               {getData(info)
                 .filter((v) => v.status)
                 .map((v) => {
                   return (
-                    <span style={{ marginLeft: 10 }}>
+                    <div style={{ marginLeft: 10 }}>
                       {getTitle(v)}: <strong>{v.value}</strong>
-                    </span>
+                    </div>
                   );
                 })}
             </div>

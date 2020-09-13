@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useMutation, useQuery,gql } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   Button,
   Col,
@@ -130,6 +130,7 @@ const ListCourses = () => {
         Mở học phần mới
       </Button>
       <Table
+        scroll={{ x: 1200 }}
         loading={loading}
         pagination={{
           current: page,
@@ -149,7 +150,7 @@ const ListCourses = () => {
           onClose={() => setVisible(false)}
           title={"Mở học phần mới"}
           placement="right"
-          width={520}
+          width={window.innerWidth < 520 ? window.innerWidth : 520}
           visible={visible}
         >
           <Form

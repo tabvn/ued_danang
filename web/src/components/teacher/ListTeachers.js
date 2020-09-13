@@ -93,6 +93,7 @@ const ListTeachers = () => {
     <div>
       <Button onClick={() => setVisible(true)}>Thêm giảng viên</Button>
       <Table
+        scroll={{ x: 1200 }}
         pagination={{
           current: page,
           total: data ? data.teachers.total : 0,
@@ -110,7 +111,7 @@ const ListTeachers = () => {
         onClose={() => setVisible(false)}
         title={"Thêm giảng viên"}
         placement="right"
-        width={520}
+        width={window.innerWidth < 520 ? window.innerWidth : 520}
         visible={visible}
       >
         <Form

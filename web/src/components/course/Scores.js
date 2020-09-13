@@ -197,7 +197,6 @@ const Scores = (props) => {
                           message: "Điểm đã được cập nhật thành công",
                         });
                       });
-
                     })
                     .catch((e) => {
                       setIsLoading(false);
@@ -217,6 +216,7 @@ const Scores = (props) => {
         </div>
       )}
       <Table
+        scroll={{ x: 1200 }}
         bordered
         loading={loading}
         pagination={false}

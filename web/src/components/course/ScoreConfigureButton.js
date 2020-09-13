@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Button, Modal, notification } from "antd";
 import ScoreConfigure from "./ScoreConfigure";
 import { SettingOutlined } from "@ant-design/icons";
-import { useMutation,gql} from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 
 export const initScoreConfigure = () => {
   return [
@@ -47,9 +47,9 @@ const ScoreConfigureButton = (props) => {
   return (
     <>
       <Button
+        className={"score-config-btn"}
         icon={<SettingOutlined />}
         onClick={() => setVisible(true)}
-        style={{ marginLeft: 10 }}
       >
         Thay đổi cấu hình điểm học phần
       </Button>
@@ -85,7 +85,7 @@ const ScoreConfigureButton = (props) => {
                 }
               })
               .catch((e) => {
-                setLoading(false)
+                setLoading(false);
                 notification.error({
                   message: `Có lỗi xảy ra: ${e.toString()}`,
                 });

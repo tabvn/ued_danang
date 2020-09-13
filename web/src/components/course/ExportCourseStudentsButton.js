@@ -14,6 +14,7 @@ const ExportCourseStudentsButton = (props) => {
   const [exportCourseStudents] = useMutation(exportCourseStudentsMutation);
   return (
     <Button
+        className={"export-btn"}
       loading={loading}
       onClick={() => {
         setLoading(true);
@@ -32,7 +33,6 @@ const ExportCourseStudentsButton = (props) => {
             notification.error({ message: `Có lỗi xảy ra: ${e.toString()}` });
           });
       }}
-      style={{ marginLeft: 10 }}
       icon={<DownloadOutlined />}
     >
       Tải về dạng excel

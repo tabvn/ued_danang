@@ -47,6 +47,7 @@ const ListFaculties = () => {
     <div>
       <Button onClick={() => setVisible(true)}>Thêm khoa</Button>
       <Table
+        scroll={{ x: 910 }}
         pagination={false}
         loading={loading}
         dataSource={data ? data.faculties : []}
@@ -57,7 +58,7 @@ const ListFaculties = () => {
           onClose={() => setVisible(false)}
           title={"Thêm khoa"}
           placement="right"
-          width={520}
+          width={window.innerWidth < 520 ? window.innerWidth : 520}
           visible={visible}
         >
           <Form
@@ -98,7 +99,7 @@ const ListFaculties = () => {
       )}
       {update ? (
         <Drawer
-          width={520}
+          width={window.innerWidth < 520 ? window.innerWidth : 520}
           visible={!!update}
           onClose={() => setUpdate(null)}
           title={"Sửa thông tin khoa"}
