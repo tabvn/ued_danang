@@ -56,7 +56,7 @@ const LoginForm = ({onDone, onError}) => {
                 </Form.Item>
 
                 <Form.Item
-                    label="Password"
+                    label="Mật khẩu"
                     name="password"
                     rules={[{required: true, message: "Vui lòng nhập mật khẩu của bạn"}]}
                 >

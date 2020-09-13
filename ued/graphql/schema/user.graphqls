@@ -35,6 +35,7 @@ type Viewer{
 }
 extend type Mutation {
 	login(email: String!, password: String!): Token!
+	changePassword(newPassword: String!): Boolean!
 	logout: Boolean!
 }
 extend type Query {

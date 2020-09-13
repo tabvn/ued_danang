@@ -3,6 +3,7 @@ import LoginForm from "../components/LoginForm";
 import styled from "styled-components";
 import { useHistory } from "react-router-dom";
 import { useAppValue } from "../context";
+import {Card} from "antd";
 
 const Container = styled.div`
   padding: 20px 40px 20px 20px;
@@ -24,16 +25,13 @@ const Login = () => {
 
   return (
     <Container>
-      <div className={"form"}>
-          <div className="text">
-              <h1>Đăng nhập tài khoản</h1>
-          </div>
+      <Card title={"Đăng nhập tài khoản"} className={"form"}>
           <LoginForm
               onDone={(values) => {
                   history.push("/");
               }}
           />
-      </div>
+      </Card>
     </Container>
   );
 };

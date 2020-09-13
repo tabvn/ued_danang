@@ -37,6 +37,18 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 	}, nil
 }
 
+func (r *mutationResolver) ChangePassword(ctx context.Context, newPassword string) (bool, error) {
+	var user = r.GetCurrentUser(ctx)
+	if user == nil {
+		return false, errors.New("access denied")
+	}
+	user.Password = model.EncodePassword(newPassword)
+	if err := r.DB.Save(user).Error; err != nil {
+		return false, fmt.Errorf("could not change password due an error: %s", err.Error())
+	}
+	return true, nil
+}
+
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	a := r.GetAuth(ctx)
 	if a != nil {
