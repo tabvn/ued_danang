@@ -47,13 +47,16 @@ func (r *mutationResolver) UpdateTeacher(ctx context.Context, id int64, input mo
 	if err := r.DB.Where("id = ?", id).Preload("User").Take(&obj).Error; err != nil {
 		return nil, fmt.Errorf("could not find teacher due an error: %s", err.Error())
 	}
-	obj.FirstName = input.FirstName
-	obj.LastName = input.LastName
+	obj.FirstName = strings.TrimSpace(input.FirstName)
+	obj.LastName = strings.TrimSpace(input.LastName)
 	obj.Phone = input.Phone
 	obj.WorkPlace = input.WorkPlace
-	obj.User.FirstName = input.FirstName
-	obj.User.LastName = input.LastName
-	obj.User.Email = input.Email
+	obj.User.FirstName = obj.FirstName
+	obj.User.LastName = obj.LastName
+	obj.User.Email = strings.TrimSpace(input.Email)
+	if input.Password != nil {
+		obj.User.Password = model.EncodePassword(*input.Password)
+	}
 	var tx = r.DB.Begin()
 	if err := tx.Save(obj.User).Error; err != nil {
 		tx.Rollback()
@@ -80,7 +83,7 @@ func (r *queryResolver) Teachers(ctx context.Context, filter *model.TeacherFilte
 			tx = tx.Where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?", s, s)
 		}
 	}
-	if err := tx.Model(&model.Teacher{}).Count(&res.Total).Limit(limit).Offset(offset).Preload("User").Find(&res.Nodes).Error; err != nil {
+	if err := tx.Model(&model.Teacher{}).Count(&res.Total).Limit(limit).Offset(offset).Joins("User").Find(&res.Nodes).Error; err != nil {
 		return nil, err
 	}
 	return &res, nil
@@ -113,7 +116,7 @@ func (r *queryResolver) TeacherClassStudents(ctx context.Context, classID int64)
 		return nil, errors.New("this is not your class")
 	}
 	var res []*model.Student
-	if err := r.DB.Where("class_id = ?", classID).Preload("Class").Preload("User").Find(&res).Error; err != nil {
+	if err := r.DB.Where("class_id = ?", classID).Joins("Class").Joins("User").Find(&res).Error; err != nil {
 		return nil, fmt.Errorf("could not find students: %s", err.Error())
 	}
 	return res, nil

@@ -22,6 +22,7 @@ input UpdateTeacherInput{
 	firstName: String!
 	lastName: String!
 	phone: String!
+	password: String
 	workPlace: String
 }
 input TeacherFilter{

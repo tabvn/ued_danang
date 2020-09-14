@@ -31,6 +31,7 @@ const ListStudents = () => {
   const [createStudent] = useMutation(createStudentMutation);
   const [updateStudent] = useMutation(updateStudentMutation);
   const [editStudent, setEditStudent] = useState(null);
+  const [showEditPassword, setShowEditPassword] = useState(false);
   const [filter, setFilter] = useState({
     limit: 50,
     offset: 0,
@@ -99,6 +100,8 @@ const ListStudents = () => {
     <div>
       <Button
         onClick={() => {
+          setEditStudent(false);
+          setShowEditPassword(false);
           setVisible(true);
         }}
       >
@@ -130,7 +133,11 @@ const ListStudents = () => {
 
       {visible && (
         <Drawer
-          onClose={() => setVisible(false)}
+          onClose={() => {
+            setEditStudent(null);
+            setVisible(false);
+            setShowEditPassword(false);
+          }}
           title={editStudent ? "Sửa thông tin sinh viên" : "Thêm sinh viên"}
           placement="right"
           width={window.innerWidth < 520 ? window.innerWidth : 520}
@@ -162,6 +169,7 @@ const ListStudents = () => {
                 })
                   .then(() => {
                     refetch();
+                    setShowEditPassword(false);
                     setVisible(false);
                     setLoading(false);
                   })
@@ -198,6 +206,32 @@ const ListStudents = () => {
             >
               <Input />
             </Form.Item>
+            {editStudent && (
+              <>
+                {showEditPassword ? (
+                  <>
+                    <Form.Item
+                      label={"Mật khẩu mới"}
+                      name="password"
+                      rules={[{ required: true, message: "Nhập mật khẩu mới" }]}
+                    >
+                      <Input.Password />
+                    </Form.Item>
+                  </>
+                ) : (
+                  <div className="ant-form-item">
+                    <Button
+                      onClick={() => {
+                        setShowEditPassword(true);
+                      }}
+                      type="default"
+                    >
+                      Đổi mât khẩu
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
             {!editStudent && (
               <Form.Item
                 label={"Mật khẩu"}

@@ -40,6 +40,7 @@ const ListTeachers = () => {
   const [createTeacher] = useMutation(createTeacherMutation);
   const [updateTeacher] = useMutation(updateTeacherMutation);
   const [update, setUpdate] = useState(null);
+  const [showEditPassword, setShowEditPassword] = useState(false)
   const columns = [
     {
       title: "Họ và tên",
@@ -107,168 +108,205 @@ const ListTeachers = () => {
         dataSource={data ? data.teachers.nodes : []}
         columns={columns}
       />
-      <Drawer
-        onClose={() => setVisible(false)}
-        title={"Thêm giảng viên"}
-        placement="right"
-        width={window.innerWidth < 520 ? window.innerWidth : 520}
-        visible={visible}
-      >
-        <Form
-          layout={"vertical"}
-          onFinish={(values) => {
-            setLoading(true);
-            createTeacher({
-              variables: {
-                input: values,
-              },
-            })
-              .then(() => {
-                refetch();
-                setVisible(false);
-                setLoading(false);
-              })
-              .catch((e) => {
-                setLoading(false);
-                notification.error({
-                  message: "Có lỗi xảy " + e.toLocaleString(),
-                });
-              });
-          }}
-        >
-          <Form.Item
-            label={"Email"}
-            name={"email"}
-            rules={[{ required: true, message: "Email là bắt buộc" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label={"Mật khẩu"}
-            name={"password"}
-            rules={[{ required: true, message: "Mật khẩu là bắt buộc" }]}
-          >
-            <Input type="password" />
-          </Form.Item>
-          <Form.Item
-            label={"Họ"}
-            name={"lastName"}
-            rules={[{ required: true, message: "Họ là bắt buộc" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label={"Tên"}
-            name={"firstName"}
-            rules={[{ required: true, message: "Tên là bắt buộc" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label={"Số điện thoại"}
-            name={"phone"}
-            rules={[{ required: true, message: "Số điện thoại là bắt buộc" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label={"Nơi công tác"}
-            name={"workPlace"}
-            rules={[{ required: true, message: "Nơi công tác là bắt buộc" }]}
-          >
-            <Input />
-          </Form.Item>
-          <div className={"submit"}>
-            <Button loading={isLoading} htmlType={"submit"}>
-              Thêm giảng viên
-            </Button>
-          </div>
-        </Form>
-      </Drawer>
+      {
+        visible && (
+            <Drawer
+                onClose={() => {
+                  setShowEditPassword(false);
+                  setVisible(false);
+                }}
+                title={"Thêm giảng viên"}
+                placement="right"
+                width={window.innerWidth < 520 ? window.innerWidth : 520}
+                visible={visible}
+            >
+              <Form
+                  layout={"vertical"}
+                  onFinish={(values) => {
+                    setLoading(true);
+                    createTeacher({
+                      variables: {
+                        input: values,
+                      },
+                    })
+                        .then(() => {
+                          refetch();
+                          setVisible(false);
+                          setLoading(false);
+                        })
+                        .catch((e) => {
+                          setLoading(false);
+                          notification.error({
+                            message: "Có lỗi xảy " + e.toLocaleString(),
+                          });
+                        });
+                  }}
+              >
+                <Form.Item
+                    label={"Email"}
+                    name={"email"}
+                    rules={[{ required: true, message: "Email là bắt buộc" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                    label={"Mật khẩu"}
+                    name={"password"}
+                    rules={[{ required: true, message: "Mật khẩu là bắt buộc" }]}
+                >
+                  <Input type="password" />
+                </Form.Item>
+                <Form.Item
+                    label={"Họ"}
+                    name={"lastName"}
+                    rules={[{ required: true, message: "Họ là bắt buộc" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                    label={"Tên"}
+                    name={"firstName"}
+                    rules={[{ required: true, message: "Tên là bắt buộc" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                    label={"Số điện thoại"}
+                    name={"phone"}
+                    rules={[{ required: true, message: "Số điện thoại là bắt buộc" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                    label={"Nơi công tác"}
+                    name={"workPlace"}
+                    rules={[{ required: true, message: "Nơi công tác là bắt buộc" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <div className={"submit"}>
+                  <Button loading={isLoading} htmlType={"submit"}>
+                    Thêm giảng viên
+                  </Button>
+                </div>
+              </Form>
+            </Drawer>
+        )
+      }
 
-      <Drawer
-        onClose={() => setUpdate(null)}
-        title={"Sửa thông tin giảng viên"}
-        placement="right"
-        width={520}
-        visible={!!update}
-      >
-        <Form
-          initialValues={
-            update
-              ? {
-                  firstName: update.firstName,
-                  lastName: update.lastName,
-                  email: update.user.email,
-                  phone: update.phone,
-                  workPlace: update.workPlace,
-                }
-              : {}
-          }
-          layout={"vertical"}
-          onFinish={(values) => {
-            setLoading(true);
-            updateTeacher({
-              variables: {
-                id: update ? update.id : null,
-                input: values,
-              },
-            })
-              .then(() => {
-                refetch();
-                setUpdate(null);
-                setLoading(false);
-              })
-              .catch((e) => {
-                setLoading(false);
-                notification.error({
-                  message: "Có lỗi xảy " + e.toLocaleString(),
-                });
-              });
-          }}
-        >
-          <Form.Item
-            label={"Email"}
-            name={"email"}
-            rules={[{ required: true, message: "Email là bắt buộc" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label={"Họ"}
-            name={"lastName"}
-            rules={[{ required: true, message: "Họ là bắt buộc" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label={"Tên"}
-            name={"firstName"}
-            rules={[{ required: true, message: "Tên là bắt buộc" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label={"Số điện thoại"}
-            name={"phone"}
-            rules={[{ required: true, message: "Số điện thoại là bắt buộc" }]}
-          >
-            <Input />
-          </Form.Item>
-          <Form.Item
-            label={"Nơi công tác"}
-            name={"workPlace"}
-            rules={[{ required: true, message: "Nơi công tác là bắt buộc" }]}
-          >
-            <Input />
-          </Form.Item>
-          <div className={"submit"}>
-            <Button loading={isLoading} htmlType={"submit"}>
-              Sửa thông tin giảng viên
-            </Button>
-          </div>
-        </Form>
-      </Drawer>
+      {
+        update && (
+            <Drawer
+                onClose={() => {
+                  setShowEditPassword(false)
+                  setUpdate(null);
+                }}
+                title={"Sửa thông tin giảng viên"}
+                placement="right"
+                width={520}
+                visible={!!update}
+            >
+              <Form
+                  initialValues={
+                    update
+                        ? {
+                          firstName: update.firstName,
+                          lastName: update.lastName,
+                          email: update.user.email,
+                          phone: update.phone,
+                          workPlace: update.workPlace,
+                        }
+                        : {}
+                  }
+                  layout={"vertical"}
+                  onFinish={(values) => {
+                    setLoading(true);
+                    updateTeacher({
+                      variables: {
+                        id: update ? update.id : null,
+                        input: values,
+                      },
+                    })
+                        .then(() => {
+                          refetch();
+                          setShowEditPassword(false)
+                          setUpdate(null);
+                          setLoading(false);
+                        })
+                        .catch((e) => {
+                          setLoading(false);
+                          notification.error({
+                            message: "Có lỗi xảy " + e.toLocaleString(),
+                          });
+                        });
+                  }}
+              >
+                <Form.Item
+                    label={"Email"}
+                    name={"email"}
+                    rules={[{ required: true, message: "Email là bắt buộc" }]}
+                >
+                  <Input />
+                </Form.Item>
+                {showEditPassword ? (
+                    <>
+                      <Form.Item
+                          label={"Mật khẩu mới"}
+                          name="password"
+                          rules={[{ required: true, message: "Nhập mật khẩu mới" }]}
+                      >
+                        <Input.Password />
+                      </Form.Item>
+                    </>
+                ) : (
+                    <div className="ant-form-item">
+                      <Button
+                          onClick={() => {
+                            setShowEditPassword(true);
+                          }}
+                          type="default"
+                      >
+                        Đổi mât khẩu
+                      </Button>
+                    </div>
+                )}
+                <Form.Item
+                    label={"Họ"}
+                    name={"lastName"}
+                    rules={[{ required: true, message: "Họ là bắt buộc" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                    label={"Tên"}
+                    name={"firstName"}
+                    rules={[{ required: true, message: "Tên là bắt buộc" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                    label={"Số điện thoại"}
+                    name={"phone"}
+                    rules={[{ required: true, message: "Số điện thoại là bắt buộc" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                    label={"Nơi công tác"}
+                    name={"workPlace"}
+                    rules={[{ required: true, message: "Nơi công tác là bắt buộc" }]}
+                >
+                  <Input />
+                </Form.Item>
+                <div className={"submit"}>
+                  <Button loading={isLoading} htmlType={"submit"}>
+                    Sửa thông tin giảng viên
+                  </Button>
+                </div>
+              </Form>
+            </Drawer>
+        )
+      }
     </div>
   );
 };

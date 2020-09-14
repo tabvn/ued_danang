@@ -372,6 +372,7 @@ type UpdateTeacherInput struct {
 	FirstName string  `json:"firstName"`
 	LastName  string  `json:"lastName"`
 	Phone     string  `json:"phone"`
+	Password  *string `json:"password"`
 	WorkPlace *string `json:"workPlace"`
 }
 

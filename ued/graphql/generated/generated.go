@@ -2015,6 +2015,7 @@ input UpdateTeacherInput{
 	firstName: String!
 	lastName: String!
 	phone: String!
+	password: String
 	workPlace: String
 }
 input TeacherFilter{
@@ -11322,6 +11323,14 @@ func (ec *executionContext) unmarshalInputUpdateTeacherInput(ctx context.Context
 
 			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("phone"))
 			it.Phone, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "password":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("password"))
+			it.Password, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}
