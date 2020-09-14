@@ -80,7 +80,7 @@ func (r *queryResolver) Teachers(ctx context.Context, filter *model.TeacherFilte
 			tx = tx.Where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?", s, s)
 		}
 	}
-	if err := tx.Model(model.Teacher{}).Count(&res.Total).Limit(limit).Offset(offset).Preload("User").Find(&res.Nodes).Error; err != nil {
+	if err := tx.Model(&model.Teacher{}).Count(&res.Total).Limit(limit).Offset(offset).Preload("User").Find(&res.Nodes).Error; err != nil {
 		return nil, err
 	}
 	return &res, nil

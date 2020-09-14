@@ -161,7 +161,7 @@ func (r *mutationResolver) RegisterCourse(ctx context.Context, courseID int64) (
 	}
 
 	var count int64
-	if err := r.DB.Model(model.Course{}).Joins("INNER JOIN course_students ON course_students.course_id = \"courses\".id AND course_students.student_id = ?", student.ID).Where("courses.lesson_day = ? AND (courses.lesson_to >= ? AND courses.lesson_to <= ?)", course.LessonDay, course.LessonFrom, course.LessonTo).Count(&count).Error; err != nil {
+	if err := r.DB.Model(&model.Course{}).Joins("INNER JOIN course_students ON course_students.course_id = \"courses\".id AND course_students.student_id = ?", student.ID).Where("courses.lesson_day = ? AND (courses.lesson_to >= ? AND courses.lesson_to <= ?)", course.LessonDay, course.LessonFrom, course.LessonTo).Count(&count).Error; err != nil {
 		return nil, fmt.Errorf("an error %s", err.Error())
 	}
 	if count > 0 {
@@ -210,7 +210,7 @@ func (r *mutationResolver) ExportCourseStudents(ctx context.Context, courseID in
 	if err := r.DB.Where("id = ?", courseID).Take(&course).Error; err != nil {
 		return nil, fmt.Errorf("course not found")
 	}
-	if err := r.DB.Model(model.CourseStudent{}).Joins("INNER JOIN students on students.id = course_students.student_id").Where("course_id = ?", courseID).
+	if err := r.DB.Model(&model.CourseStudent{}).Joins("INNER JOIN students on students.id = course_students.student_id").Where("course_id = ?", courseID).
 		Preload("Student").
 		Preload("Student.User").
 		Preload("Student.Class").
@@ -380,7 +380,7 @@ func (r *queryResolver) Courses(ctx context.Context, filter *model.CourseFilter)
 		limit  = 100
 		offset = 0
 	)
-	tx := r.DB.Model(model.Course{})
+	tx := r.DB.Model(&model.Course{})
 	if filter != nil {
 		if filter.Limit != nil {
 			limit = *filter.Limit
@@ -418,7 +418,7 @@ func (r *queryResolver) StudentOpenCourses(ctx context.Context, filter *model.Co
 	if c == nil {
 		return nil, fmt.Errorf("your class is not found")
 	}
-	tx := r.DB.Model(model.Course{}).Select("DISTINCT courses.*").Joins("INNER JOIN course_faculties ON course_faculties.course_id = courses.id AND course_faculties.faculty_id = ?", c.FacultyID)
+	tx := r.DB.Model(&model.Course{}).Select("DISTINCT courses.*").Joins("INNER JOIN course_faculties ON course_faculties.course_id = courses.id AND course_faculties.faculty_id = ?", c.FacultyID)
 	if filter != nil {
 		if filter.Limit != nil {
 			limit = *filter.Limit
@@ -445,7 +445,7 @@ func (r *queryResolver) StudentOpenCourses(ctx context.Context, filter *model.Co
 
 func (r *queryResolver) GetCourseStudents(ctx context.Context, courseID int64, filter model.CourseStudentFilter) ([]*model.CourseStudent, error) {
 	var res []*model.CourseStudent
-	if err := r.DB.Model(model.CourseStudent{}).Joins("INNER JOIN students on students.id = course_students.student_id").Where("course_id = ?", courseID).
+	if err := r.DB.Model(&model.CourseStudent{}).Joins("INNER JOIN students on students.id = course_students.student_id").Where("course_id = ?", courseID).
 		Preload("Student").
 		Preload("Student.User").
 		Preload("Student.Class").
