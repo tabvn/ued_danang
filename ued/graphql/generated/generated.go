@@ -188,6 +188,7 @@ type ComplexityRoot struct {
 		Loggers               func(childComplexity int, filter *model.LoggerFilter) int
 		Scores                func(childComplexity int, courseID int64) int
 		StudentOpenCourses    func(childComplexity int, filter *model.CourseFilter) int
+		StudentScores         func(childComplexity int) int
 		Students              func(childComplexity int, filter *model.StudentFilter) int
 		TeacherClassStudents  func(childComplexity int, classID int64) int
 		TeacherClasses        func(childComplexity int) int
@@ -199,6 +200,7 @@ type ComplexityRoot struct {
 	}
 
 	Score struct {
+		Course  func(childComplexity int) int
 		ID      func(childComplexity int) int
 		Score   func(childComplexity int) int
 		Score1  func(childComplexity int) int
@@ -308,6 +310,7 @@ type QueryResolver interface {
 	GetCourseStudents(ctx context.Context, courseID int64, filter model.CourseStudentFilter) ([]*model.CourseStudent, error)
 	TeacherCourses(ctx context.Context) ([]*model.Course, error)
 	Scores(ctx context.Context, courseID int64) ([]*model.Score, error)
+	StudentScores(ctx context.Context) ([]*model.Score, error)
 	Faculties(ctx context.Context) ([]*model.Faculty, error)
 	Loggers(ctx context.Context, filter *model.LoggerFilter) (*model.LoggerConnection, error)
 	Students(ctx context.Context, filter *model.StudentFilter) (*model.StudentConnection, error)
@@ -1221,6 +1224,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.StudentOpenCourses(childComplexity, args["filter"].(*model.CourseFilter)), true
 
+	case "Query.studentScores":
+		if e.complexity.Query.StudentScores == nil {
+			break
+		}
+
+		return e.complexity.Query.StudentScores(childComplexity), true
+
 	case "Query.students":
 		if e.complexity.Query.Students == nil {
 			break
@@ -1301,6 +1311,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Viewer(childComplexity), true
+
+	case "Score.course":
+		if e.complexity.Score.Course == nil {
+			break
+		}
+
+		return e.complexity.Score.Course(childComplexity), true
 
 	case "Score.id":
 		if e.complexity.Score.ID == nil {
@@ -1827,7 +1844,8 @@ input CourseFilter{
 }
 type Score {
 	id: ID!
-	student: Student!
+	student: Student
+	course: Course
 	score1: Float
 	score2: Float
 	score3: Float
@@ -1847,6 +1865,7 @@ extend type Query {
 	getCourseStudents(courseId:ID!, filter: CourseStudentFilter!): [CourseStudent!]
 	teacherCourses: [Course!]
 	scores(courseId: ID!): [Score!]
+	studentScores: [Score!]
 }
 extend type Mutation {
 	createCourse(input: CourseInput!): Course!
@@ -7046,6 +7065,37 @@ func (ec *executionContext) _Query_scores(ctx context.Context, field graphql.Col
 	return ec.marshalOScore2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreᚄ(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _Query_studentScores(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().StudentScores(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.Score)
+	fc.Result = res
+	return ec.marshalOScore2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐScoreᚄ(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Query_faculties(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -7507,14 +7557,42 @@ func (ec *executionContext) _Score_student(ctx context.Context, field graphql.Co
 		return graphql.Null
 	}
 	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
 		return graphql.Null
 	}
 	res := resTmp.(*model.Student)
 	fc.Result = res
-	return ec.marshalNStudent2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐStudent(ctx, field.Selections, res)
+	return ec.marshalOStudent2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐStudent(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Score_course(ctx context.Context, field graphql.CollectedField, obj *model.Score) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Score",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Course, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*model.Course)
+	fc.Result = res
+	return ec.marshalOCourse2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐCourse(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Score_score1(ctx context.Context, field graphql.CollectedField, obj *model.Score) (ret graphql.Marshaler) {
@@ -12259,6 +12337,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 				res = ec._Query_scores(ctx, field)
 				return res
 			})
+		case "studentScores":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_studentScores(ctx, field)
+				return res
+			})
 		case "faculties":
 			field := field
 			out.Concurrently(i, func() (res graphql.Marshaler) {
@@ -12397,9 +12486,8 @@ func (ec *executionContext) _Score(ctx context.Context, sel ast.SelectionSet, ob
 			}
 		case "student":
 			out.Values[i] = ec._Score_student(ctx, field, obj)
-			if out.Values[i] == graphql.Null {
-				invalids++
-			}
+		case "course":
+			out.Values[i] = ec._Score_course(ctx, field, obj)
 		case "score1":
 			out.Values[i] = ec._Score_score1(ctx, field, obj)
 		case "score2":
@@ -13809,6 +13897,13 @@ func (ec *executionContext) marshalOCourse2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmo
 	}
 	wg.Wait()
 	return ret
+}
+
+func (ec *executionContext) marshalOCourse2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐCourse(ctx context.Context, sel ast.SelectionSet, v *model.Course) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Course(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOCourseFilter2ᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐCourseFilter(ctx context.Context, v interface{}) (*model.CourseFilter, error) {

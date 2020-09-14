@@ -227,6 +227,7 @@ type NewUser struct {
 type Score struct {
 	ID      int64    `json:"id"`
 	Student *Student `json:"student"`
+	Course  *Course  `json:"course"`
 	Score1  *float64 `json:"score1"`
 	Score2  *float64 `json:"score2"`
 	Score3  *float64 `json:"score3"`

@@ -513,3 +513,29 @@ func (r *queryResolver) Scores(ctx context.Context, courseID int64) ([]*model.Sc
 	}
 	return res, nil
 }
+
+func (r *queryResolver) StudentScores(ctx context.Context) ([]*model.Score, error) {
+	s := r.GetStudentFromContext(ctx)
+	if s == nil {
+		return nil, errors.New("access denied")
+	}
+	var courseStudents []*model.CourseStudent
+	if err := r.DB.Where("student_id = ?", s.ID).Joins("Course").Order("created_at ASC").Find(&courseStudents).Error; err != nil {
+		return nil, fmt.Errorf("an error: %s", err.Error())
+	}
+	var res []*model.Score
+	if courseStudents != nil {
+		for _, s := range courseStudents {
+			res = append(res, &model.Score{
+				ID:     s.ID,
+				Course: s.Course,
+				Score1: s.Score1,
+				Score2: s.Score2,
+				Score3: s.Score3,
+				Score4: s.Score4,
+				Score:  s.Score,
+			})
+		}
+	}
+	return res, nil
+}
