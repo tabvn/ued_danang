@@ -36,6 +36,12 @@ type Model interface {
 	IsModel()
 }
 
+type AdminUserFilter struct {
+	Search *string `json:"search"`
+	Limit  *int    `json:"limit"`
+	Offset *int    `json:"offset"`
+}
+
 type Class struct {
 	ID        int64          `json:"id" gorm:"primaryKey"`
 	Name      string         `json:"name" gorm:"uniqueIndex"`
@@ -369,6 +375,13 @@ type UpdateTeacherInput struct {
 	WorkPlace *string `json:"workPlace"`
 }
 
+type UpdateUserInput struct {
+	FirstName   *string `json:"firstName"`
+	LastName    *string `json:"lastName"`
+	NewPassword *string `json:"newPassword"`
+	Email       *string `json:"email"`
+}
+
 type User struct {
 	ID        int64          `json:"id" gorm:"primaryKey"`
 	FirstName string         `json:"firstName"`
@@ -382,6 +395,11 @@ type User struct {
 }
 
 func (User) IsModel() {}
+
+type UserConnection struct {
+	Total int64   `json:"total"`
+	Nodes []*User `json:"nodes"`
+}
 
 type Viewer struct {
 	User    *User    `json:"user"`
