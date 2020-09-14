@@ -7,13 +7,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/tabvn/ued/util"
 	"strings"
 	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/tabvn/ued/auth"
 	"github.com/tabvn/ued/model"
+	"github.com/tabvn/ued/util"
 )
 
 func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.Token, error) {
@@ -89,6 +89,20 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id int64, input model
 	return &user, nil
 }
 
+func (r *mutationResolver) DeleteUser(ctx context.Context, id int64) (bool, error) {
+	currentUser := r.GetCurrentUser(ctx)
+	if currentUser == nil {
+		return false, errors.New("access denied")
+	}
+	if !currentUser.IsAdministrator() {
+		return false, errors.New("access denied")
+	}
+	if err := r.DB.Delete(&model.User{}, id).Error; err != nil {
+		return false, fmt.Errorf("could not delete user %s", err.Error())
+	}
+	return true, nil
+}
+
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	a := r.GetAuth(ctx)
 	if a != nil {
@@ -141,7 +155,7 @@ func (r *queryResolver) AdminUsers(ctx context.Context, filter *model.AdminUserF
 			tx = tx.Where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ? OR LOWER(email) LIKE ?", s, s, s)
 		}
 	}
-	if err := r.DB.Model(model.User{}).Count(&res.Total).Limit(limit).Offset(offset).Find(&res.Nodes).Error; err != nil {
+	if err := r.DB.Model(&model.User{}).Count(&res.Total).Limit(limit).Offset(offset).Find(&res.Nodes).Error; err != nil {
 		return nil, fmt.Errorf("could not find users due an error: %s", err.Error())
 	}
 	return &res, nil

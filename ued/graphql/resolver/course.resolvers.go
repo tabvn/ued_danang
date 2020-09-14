@@ -488,7 +488,7 @@ func (r *queryResolver) Scores(ctx context.Context, courseID int64) ([]*model.Sc
 		}
 	}
 	var courseStudents []*model.CourseStudent
-	if err := r.DB.Model(model.CourseStudent{}).
+	if err := r.DB.Model(&model.CourseStudent{}).
 		Joins("INNER JOIN students ON students.id = \"course_students\".student_id").Where("course_students.course_id = ?", courseID).
 		Preload("Student").
 		Preload("Student.User").
