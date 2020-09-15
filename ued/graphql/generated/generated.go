@@ -2105,7 +2105,7 @@ type Viewer{
 input UpdateUserInput{
 	firstName: String
 	lastName: String
-	newPassword: String
+	password: String
 	email: String
 }
 extend type Mutation {
@@ -11448,11 +11448,11 @@ func (ec *executionContext) unmarshalInputUpdateUserInput(ctx context.Context, o
 			if err != nil {
 				return it, err
 			}
-		case "newPassword":
+		case "password":
 			var err error
 
-			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("newPassword"))
-			it.NewPassword, err = ec.unmarshalOString2ᚖstring(ctx, v)
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("password"))
+			it.Password, err = ec.unmarshalOString2ᚖstring(ctx, v)
 			if err != nil {
 				return it, err
 			}

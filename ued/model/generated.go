@@ -378,10 +378,10 @@ type UpdateTeacherInput struct {
 }
 
 type UpdateUserInput struct {
-	FirstName   *string `json:"firstName"`
-	LastName    *string `json:"lastName"`
-	NewPassword *string `json:"newPassword"`
-	Email       *string `json:"email"`
+	FirstName *string `json:"firstName"`
+	LastName  *string `json:"lastName"`
+	Password  *string `json:"password"`
+	Email     *string `json:"email"`
 }
 
 type User struct {

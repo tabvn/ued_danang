@@ -47,7 +47,7 @@ type Viewer{
 input UpdateUserInput{
 	firstName: String
 	lastName: String
-	newPassword: String
+	password: String
 	email: String
 }
 extend type Mutation {

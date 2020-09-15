@@ -80,8 +80,8 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, id int64, input model
 	user.FirstName = strings.TrimSpace(util.GetString(input.FirstName, user.FirstName))
 	user.LastName = strings.TrimSpace(util.GetString(input.LastName, user.LastName))
 	user.Email = strings.TrimSpace(util.GetString(input.Email, user.Email))
-	if input.NewPassword != nil {
-		user.Password = model.EncodePassword(*input.NewPassword)
+	if input.Password != nil {
+		user.Password = model.EncodePassword(*input.Password)
 	}
 	if err := r.DB.Save(&user).Error; err != nil {
 		return nil, fmt.Errorf("could not save user: %s", err.Error())
@@ -97,7 +97,12 @@ func (r *mutationResolver) DeleteUser(ctx context.Context, id int64) (bool, erro
 	if !currentUser.IsAdministrator() {
 		return false, errors.New("access denied")
 	}
-	if err := r.DB.Delete(&model.User{}, id).Error; err != nil {
+	var count int64
+	r.DB.Model(&model.User{}).Where("role = ?", model.RoleAdministrator.String()).Count(&count)
+	if count == 1 {
+		return false, errors.New("there is only one administrator you could not delete it")
+	}
+	if err := r.DB.Exec("DELETE FROM users WHERE id = ?", id).Error; err != nil {
 		return false, fmt.Errorf("could not delete user %s", err.Error())
 	}
 	return true, nil
@@ -142,20 +147,20 @@ func (r *queryResolver) AdminUsers(ctx context.Context, filter *model.AdminUserF
 		limit  = 50
 		offset = 0
 	)
-	tx := r.DB
+	tx := r.DB.Model(&model.User{})
 	if filter != nil {
 		if filter.Limit != nil {
 			limit = *filter.Limit
 		}
 		if filter.Offset != nil {
-			limit = *filter.Offset
+			offset = *filter.Offset
 		}
 		if filter.Search != nil {
 			s := "%" + strings.ToLower(*filter.Search) + "%"
 			tx = tx.Where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ? OR LOWER(email) LIKE ?", s, s, s)
 		}
 	}
-	if err := r.DB.Model(&model.User{}).Count(&res.Total).Limit(limit).Offset(offset).Find(&res.Nodes).Error; err != nil {
+	if err := tx.Where("role = ?", model.RoleAdministrator.String()).Count(&res.Total).Limit(limit).Offset(offset).Find(&res.Nodes).Error; err != nil {
 		return nil, fmt.Errorf("could not find users due an error: %s", err.Error())
 	}
 	return &res, nil

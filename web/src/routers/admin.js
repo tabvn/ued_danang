@@ -5,6 +5,7 @@ import {
     ProfileOutlined,
     ReadOutlined,
     RobotOutlined,
+    SettingOutlined,
     UsergroupAddOutlined,
     UserOutlined,
 } from "@ant-design/icons";
@@ -16,6 +17,7 @@ import AdminTeachers from "../pages/admin/AdminTeachers";
 import AdminCourses from "../pages/admin/AdminCourses";
 import AdminCourseStudent from "../pages/admin/AdminCourseStudents";
 import AdminScoreManagement from "../pages/admin/AdminScoreManagement";
+import AdminUsers from "../pages/admin/AdminUsers";
 
 export default [
     {
@@ -89,6 +91,15 @@ export default [
         component: AdminScoreManagement,
         path: "/admin/scores",
         icon: <BarChartOutlined/>,
+        layout: MainLayout,
+        role: "Administrator",
+    },
+    {
+        exact: true,
+        title: "Quản trị viên",
+        component: AdminUsers,
+        path: "/admin/users",
+        icon: <SettingOutlined/>,
         layout: MainLayout,
         role: "Administrator",
     },
