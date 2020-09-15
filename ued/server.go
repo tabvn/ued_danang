@@ -8,6 +8,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/lru"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	_ "github.com/GoogleCloudPlatform/cloudsql-proxy/proxy/dialers/postgres"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -26,11 +27,20 @@ import (
 )
 
 func connect() *gorm.DB {
+	var db *gorm.DB
+	var err error
 	dsn := os.Getenv("POSTGRESQL_URL")
 	if len(dsn) == 0 {
 		dsn = "user=postgres password=root dbname=goo port=5432 sslmode=disable"
 	}
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if os.Getenv("DRIVER") == "cloudsqlpostgres" {
+		db, err = gorm.Open(postgres.New(postgres.Config{
+			DriverName: "cloudsqlpostgres",
+			DSN:        dsn,
+		}), &gorm.Config{})
+	} else {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	}
 	if err != nil {
 		panic(err)
 	}
@@ -129,10 +139,11 @@ func main() {
 	r := gin.Default()
 	r.MaxMultipartMemory = 8 << 20 // 8 MiB
 	addCors(r)
-	r.Use(auth.Middleware())
-	r.POST("/api/query", graphqlHandler(db))
-	r.POST("/api/storage/upload", storage.HandleUpload)
-	r.Static("/api/storage", "./storage")
+	api := r.Group("/api")
+	api.Use(auth.Middleware())
+	api.POST("/query", graphqlHandler(db))
+	api.POST("/storage/upload", storage.HandleUpload)
+	api.Static("/storage", "./storage")
 	r.GET("/api", playgroundHandler())
 	log.Printf("connect to http://127.0.0.1:%s/api for GraphQL playground", port)
 	log.Fatal(r.Run(":" + port))
