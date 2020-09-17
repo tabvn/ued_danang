@@ -453,7 +453,7 @@ func (r *queryResolver) StudentOpenCourses(ctx context.Context, filter *model.Co
 func (r *queryResolver) GetCourseStudents(ctx context.Context, courseID int64, filter model.CourseStudentFilter) ([]*model.CourseStudent, error) {
 	var res []*model.CourseStudent
 	if err := r.DB.Model(&model.CourseStudent{}).Joins("INNER JOIN students on students.id = course_students.student_id").Where("course_id = ?", courseID).
-		Preload("Student").
+		Joins("Student").
 		Preload("Student.User").
 		Preload("Student.Class").
 		Order("students.first_name ASC").
