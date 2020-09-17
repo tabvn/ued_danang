@@ -126,7 +126,7 @@ const ListFaculties = () => {
                 });
             }}
           >
-            <Form.Item name={"name"} label={"Tên khoa"}>
+            <Form.Item name={"name"} label={"Tên khoa"} rules={[{required: true, message: "Nhập tên khoa"}]}>
               <Input />
             </Form.Item>
             <div>

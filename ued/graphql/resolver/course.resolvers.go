@@ -393,7 +393,10 @@ func (r *queryResolver) Courses(ctx context.Context, filter *model.CourseFilter)
 			tx = tx.Where("code LIKE ? OR title LIKE ?", s, s)
 		}
 	}
-	if err := tx.Count(&res.Total).Limit(limit).Offset(offset).Preload("Faculties").Preload("Teacher").Preload("Teacher.User").Find(&res.Nodes).Error; err != nil {
+	if err := tx.Count(&res.Total).Limit(limit).Offset(offset).
+		Preload("Faculties").
+		Joins("Teacher").
+		Preload("Teacher.User").Find(&res.Nodes).Error; err != nil {
 		return nil, fmt.Errorf("an error: %s", err.Error())
 	}
 	if res.Nodes != nil {
@@ -418,7 +421,8 @@ func (r *queryResolver) StudentOpenCourses(ctx context.Context, filter *model.Co
 	if c == nil {
 		return nil, fmt.Errorf("your class is not found")
 	}
-	tx := r.DB.Model(&model.Course{}).Select("DISTINCT courses.*").Joins("INNER JOIN course_faculties ON course_faculties.course_id = courses.id AND course_faculties.faculty_id = ?", c.FacultyID)
+	tx := r.DB.Model(&model.Course{}).Select("DISTINCT courses.*").
+		Joins("INNER JOIN course_faculties ON course_faculties.course_id = courses.id AND course_faculties.faculty_id = ?", c.FacultyID)
 	if filter != nil {
 		if filter.Limit != nil {
 			limit = *filter.Limit
@@ -431,7 +435,10 @@ func (r *queryResolver) StudentOpenCourses(ctx context.Context, filter *model.Co
 			tx = tx.Where("code LIKE ? OR title LIKE ?", s, s)
 		}
 	}
-	if err := tx.Count(&res.Total).Limit(limit).Offset(offset).Preload("Teacher").Preload("Teacher.User").Find(&res.Nodes).Error; err != nil {
+	if err := tx.Count(&res.Total).Limit(limit).Offset(offset).
+		Joins("Teacher").
+		Preload("Teacher.User").
+		Find(&res.Nodes).Error; err != nil {
 		return nil, fmt.Errorf("an error: %s", err.Error())
 	}
 	if res.Nodes != nil {
@@ -490,7 +497,7 @@ func (r *queryResolver) Scores(ctx context.Context, courseID int64) ([]*model.Sc
 	var courseStudents []*model.CourseStudent
 	if err := r.DB.Model(&model.CourseStudent{}).
 		Joins("INNER JOIN students ON students.id = \"course_students\".student_id").Where("course_students.course_id = ?", courseID).
-		Preload("Student").
+		Joins("Student").
 		Preload("Student.User").
 		Preload("Student.Class").
 		Order("students.first_name ASC").
