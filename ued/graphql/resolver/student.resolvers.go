@@ -30,6 +30,7 @@ func (r *mutationResolver) CreateStudent(ctx context.Context, input model.Studen
 		UserID:    user.ID,
 		User:      user,
 		Code:      input.Code,
+		Year:      input.Year,
 		FirstName: strings.TrimSpace(input.FirstName),
 		LastName:  strings.TrimSpace(input.LastName),
 		Gender:    input.Gender,
@@ -79,6 +80,9 @@ func (r *mutationResolver) UpdateStudent(ctx context.Context, id int64, input mo
 	if input.Birthday != nil {
 		obj.Birthday = *input.Birthday
 	}
+	if input.Year != nil {
+		obj.Year = *input.Year
+	}
 	if err := tx.Save(&obj).Error; err != nil {
 		tx.Rollback()
 		return nil, fmt.Errorf("could not save student: %s", err.Error())
@@ -97,10 +101,13 @@ func (r *queryResolver) Students(ctx context.Context, filter *model.StudentFilte
 	if filter != nil {
 		if filter.Search != nil {
 			s := "%" + strings.ToLower(*filter.Search) + "%"
-			tx = tx.Where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ?", s, s)
+			tx = tx.Where("LOWER(students.first_name) LIKE ? OR LOWER(students.last_name) LIKE ? OR students.code = ?", s, s, *filter.Search)
 		}
 		if filter.ClassID != nil {
-			tx = tx.Where("class_id = ?", *filter.ClassID)
+			tx = tx.Where("students.class_id = ?", *filter.ClassID)
+		}
+		if filter.Year != nil {
+			tx = tx.Where("students.year = ?", *filter.Year)
 		}
 	}
 	if err := tx.Model(&model.Student{}).Count(&res.Total).Limit(limit).Offset(offset).Joins("Class").Joins("User").Find(&res.Nodes).Error; err != nil {

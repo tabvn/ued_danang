@@ -19,7 +19,7 @@ const CourseSelection = forwardRef((props, ref) => {
     >
       {nodes.map((f, index) => (
         <Select.Option key={index} value={f.id}>
-          {f.title}
+          {`${f.code} - ${f.title}`}
         </Select.Option>
       ))}
     </Select>

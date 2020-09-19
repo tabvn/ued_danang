@@ -1,7 +1,16 @@
 import React, { useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import { GET_STUDENTS } from "../../graphqls/query/students";
-import { Button, Drawer, Form, Input, notification, Select, Table } from "antd";
+import {
+  Button,
+  Drawer,
+  Form,
+  Input,
+  InputNumber,
+  notification,
+  Select,
+  Table,
+} from "antd";
 import ClassSelection from "../classes/ClassSelection";
 import StudentFilter from "./StudentFilter";
 
@@ -35,6 +44,8 @@ const ListStudents = () => {
   const [filter, setFilter] = useState({
     limit: 50,
     offset: 0,
+    search: null,
+    year: null,
   });
   const { loading, error, data, refetch } = useQuery(GET_STUDENTS, {
     variables: {
@@ -49,8 +60,12 @@ const ListStudents = () => {
       key: "code",
     },
     {
+      title: "Khoá",
+      dataIndex: "year",
+    },
+    {
       title: "Lớp",
-      dataIndex: ["student", "class", "name"],
+      dataIndex: ["class", "name"],
     },
     {
       title: "Họ và tên",
@@ -110,7 +125,7 @@ const ListStudents = () => {
       <div className={"filter"}>
         <StudentFilter
           onChange={(v) => {
-            setFilter({ ...filter, classId: v.classId });
+            setFilter({ ...filter, ...v });
           }}
         />
       </div>
@@ -154,6 +169,7 @@ const ListStudents = () => {
                     birthday: editStudent.birthday,
                     gender: editStudent.gender,
                     classId: editStudent.classId,
+                    year: editStudent.year,
                   }
                 : null
             }
@@ -247,6 +263,9 @@ const ListStudents = () => {
               rules={[{ required: true, message: "Mã sinh viên là bắt buộc" }]}
             >
               <Input />
+            </Form.Item>
+            <Form.Item label={"Khoá"} name={"year"}>
+              <InputNumber min={1990} />
             </Form.Item>
             <Form.Item
               label={"Họ"}

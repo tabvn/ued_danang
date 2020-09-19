@@ -67,6 +67,7 @@ type ClassFilter struct {
 	TeacherID *int64  `json:"teacherId"`
 	Limit     *int    `json:"limit"`
 	Offset    *int    `json:"offset"`
+	Year      *int    `json:"year"`
 }
 
 type ClassInput struct {
@@ -265,6 +266,7 @@ type Student struct {
 	LastName  string         `json:"lastName"`
 	Gender    int            `json:"gender"`
 	Birthday  time.Time      `json:"birthday"`
+	Year      int            `json:"year" gorm:"default:2018"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
 	DeleteAt  gorm.DeletedAt `gorm:"index"`
@@ -282,6 +284,7 @@ type StudentFilter struct {
 	ClassID *int64  `json:"classId"`
 	Limit   *int    `json:"limit"`
 	Offset  *int    `json:"offset"`
+	Year    *int    `json:"year"`
 }
 
 type StudentInput struct {
@@ -293,6 +296,7 @@ type StudentInput struct {
 	Gender    int       `json:"gender"`
 	Birthday  time.Time `json:"birthday"`
 	ClassID   int64     `json:"classId"`
+	Year      int       `json:"year"`
 }
 
 type Teacher struct {
@@ -366,6 +370,7 @@ type UpdateStudentInput struct {
 	Gender    *int       `json:"gender"`
 	Birthday  *time.Time `json:"birthday"`
 	ClassID   *int64     `json:"classId"`
+	Year      *int       `json:"year"`
 }
 
 type UpdateTeacherInput struct {

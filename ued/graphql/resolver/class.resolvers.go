@@ -73,11 +73,31 @@ func (r *queryResolver) Classes(ctx context.Context, filter *model.ClassFilter) 
 		if filter.TeacherID != nil {
 			tx = tx.Where("teacher_id = ?", *filter.TeacherID)
 		}
+		if filter.Year != nil {
+			tx = tx.Where("year = ?", *filter.Year)
+		}
 	}
 	if err := tx.Model(model.Class{}).Count(&res.Total).Limit(limit).Offset(offset).Preload("Faculty").Preload("Teacher").Find(&res.Nodes).Error; err != nil {
 		return nil, err
 	}
 	return &res, nil
+}
+
+func (r *queryResolver) Years(ctx context.Context) ([]int, error) {
+	var res []int
+	rows, err := r.DB.Raw("SELECT DISTINCT(year) FROM classes ORDER BY year ASC").Rows()
+	if err != nil {
+		return nil, fmt.Errorf("an error: %s", err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var sc int
+		if err := rows.Scan(&sc); err != nil {
+			return nil, fmt.Errorf("scan error: %s", err.Error())
+		}
+		res = append(res, sc)
+	}
+	return res, nil
 }
 
 func (r *queryResolver) TeacherClasses(ctx context.Context) ([]*model.Class, error) {

@@ -9,6 +9,7 @@ type Student implements Model{
 	lastName: String!
 	gender: Int!
 	birthday: DOB!
+	year: Int! @tag(gorm:"default:2018")
 	createdAt: Time!
 	updatedAt: Time!
 }
@@ -22,6 +23,7 @@ input StudentInput{
 	gender: Int!
 	birthday: DOB!
 	classId: ID!
+	year: Int!
 }
 
 input UpdateStudentInput{
@@ -33,6 +35,7 @@ input UpdateStudentInput{
 	gender: Int
 	birthday: DOB
 	classId: ID
+	year: Int
 }
 
 type StudentConnection{
@@ -44,6 +47,7 @@ input StudentFilter{
 	classId: ID
 	limit: Int
 	offset: Int
+	year: Int
 }
 extend type Query {
 	students(filter: StudentFilter): StudentConnection
