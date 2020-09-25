@@ -36,6 +36,16 @@ const ListStudentScores = () => {
       dataIndex: ["course", "title"],
     },
     {
+      title: "Học phần bắt buộc",
+      render: (text, record) => (
+        <div>{record.course.required ? "Bắt buộc" : "Tự chọn"}</div>
+      ),
+    },
+    {
+      title: "số tín chỉ",
+      dataIndex: ["course", "unit"],
+    },
+    {
       title: "Điểm hệ số 10",
       key: "score",
       dataIndex: "score",

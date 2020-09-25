@@ -27,6 +27,16 @@ const ListStudentOpenCourses = () => {
             key: "title",
         },
         {
+            title: "Học phần bắt buộc",
+            render: (text, record) => (
+                <div>{record.required ? "Bắt buộc" : "Tự chọn"}</div>
+            ),
+        },
+        {
+            title: "số tín chỉ",
+            dataIndex: "unit",
+        },
+        {
             title: "Giảng viên",
             dataIndex: "teacher",
             key: "teacher",
@@ -72,6 +82,7 @@ const ListStudentOpenCourses = () => {
     return (
         <div>
             <Table
+                scroll={{x: 1000}}
                 loading={loading}
                 rowKey={(record) => record.id}
                 pagination={{
