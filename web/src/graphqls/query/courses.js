@@ -27,6 +27,8 @@ export const GET_ALL_COURSES = gql`
           lastName
         }
         scoreConfigure
+        year
+        semester
       }
     }
   }

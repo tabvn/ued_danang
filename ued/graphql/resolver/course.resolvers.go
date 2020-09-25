@@ -37,6 +37,8 @@ func (r *mutationResolver) CreateCourse(ctx context.Context, input model.CourseI
 		return nil, fmt.Errorf("faculties not found %s", err.Error())
 	}
 	obj := model.Course{
+		Year:          input.Year,
+		Semester:      input.Semester,
 		Code:          input.Code,
 		Required:      input.Required,
 		Limit:         input.Limit,
@@ -119,6 +121,12 @@ func (r *mutationResolver) UpdateCourse(ctx context.Context, id int64, input mod
 	}
 	if input.Open != nil {
 		course.Open = *input.Open
+	}
+	if input.Year != nil {
+		course.Year = *input.Year
+	}
+	if input.Semester != nil {
+		course.Semester = *input.Semester
 	}
 	if err := tx.Save(&course).Error; err != nil {
 		tx.Rollback()
@@ -374,6 +382,23 @@ func (r *mutationResolver) UpdateScores(ctx context.Context, courseID int64, sco
 	return true, nil
 }
 
+func (r *queryResolver) CourseYears(ctx context.Context) ([]int, error) {
+	var res []int
+	rows, err := r.DB.Raw("SELECT DISTINCT(year) FROM courses ORDER BY year ASC").Rows()
+	if err != nil {
+		return res, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var n int
+		if err := rows.Scan(&n); err != nil {
+			return res, err
+		}
+		res = append(res, n)
+	}
+	return res, nil
+}
+
 func (r *queryResolver) Courses(ctx context.Context, filter *model.CourseFilter) (*model.CourseConnection, error) {
 	var (
 		res    model.CourseConnection
@@ -391,6 +416,12 @@ func (r *queryResolver) Courses(ctx context.Context, filter *model.CourseFilter)
 		if filter.Search != nil {
 			s := "%" + strings.ToLower(*filter.Search) + "%"
 			tx = tx.Where("code LIKE ? OR title LIKE ?", s, s)
+		}
+		if filter.Year != nil {
+			tx = tx.Where("year = ?", *filter.Year)
+		}
+		if filter.Semester != nil {
+			tx = tx.Where("semester = ?", *filter.Semester)
 		}
 	}
 	if err := tx.Count(&res.Total).Limit(limit).Offset(offset).

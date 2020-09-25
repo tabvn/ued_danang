@@ -79,6 +79,8 @@ type ClassInput struct {
 
 type Course struct {
 	ID             int64          `json:"id" gorm:"primaryKey"`
+	Year           int            `json:"year" gorm:"default:2018"`
+	Semester       int            `json:"semester" gorm:"default:1"`
 	Code           string         `json:"code"`
 	Required       bool           `json:"required"`
 	Limit          int            `json:"limit"`
@@ -107,12 +109,16 @@ type CourseConnection struct {
 }
 
 type CourseFilter struct {
-	Search *string `json:"search"`
-	Limit  *int    `json:"limit"`
-	Offset *int    `json:"offset"`
+	Year     *int    `json:"year"`
+	Semester *int    `json:"semester"`
+	Search   *string `json:"search"`
+	Limit    *int    `json:"limit"`
+	Offset   *int    `json:"offset"`
 }
 
 type CourseInput struct {
+	Year       int     `json:"year"`
+	Semester   int     `json:"semester"`
 	Code       string  `json:"code"`
 	Required   bool    `json:"required"`
 	TeacherID  int64   `json:"teacherId"`
@@ -348,6 +354,8 @@ type UpdateClassInput struct {
 }
 
 type UpdateCourseInput struct {
+	Year       *int    `json:"year"`
+	Semester   *int    `json:"semester"`
 	Code       *string `json:"code"`
 	Required   *bool   `json:"required"`
 	TeacherID  *int64  `json:"teacherId"`

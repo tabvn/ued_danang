@@ -79,11 +79,13 @@ type ComplexityRoot struct {
 		RegisterCount  func(childComplexity int) int
 		Required       func(childComplexity int) int
 		ScoreConfigure func(childComplexity int) int
+		Semester       func(childComplexity int) int
 		Teacher        func(childComplexity int) int
 		TeacherID      func(childComplexity int) int
 		Title          func(childComplexity int) int
 		Unit           func(childComplexity int) int
 		UpdatedAt      func(childComplexity int) int
+		Year           func(childComplexity int) int
 	}
 
 	CourseConnection struct {
@@ -182,6 +184,7 @@ type ComplexityRoot struct {
 	Query struct {
 		AdminUsers            func(childComplexity int, filter *model.AdminUserFilter) int
 		Classes               func(childComplexity int, filter *model.ClassFilter) int
+		CourseYears           func(childComplexity int) int
 		Courses               func(childComplexity int, filter *model.CourseFilter) int
 		Faculties             func(childComplexity int) int
 		GetCourseStudents     func(childComplexity int, courseID int64, filter model.CourseStudentFilter) int
@@ -308,6 +311,7 @@ type QueryResolver interface {
 	Classes(ctx context.Context, filter *model.ClassFilter) (*model.ClassConnection, error)
 	Years(ctx context.Context) ([]int, error)
 	TeacherClasses(ctx context.Context) ([]*model.Class, error)
+	CourseYears(ctx context.Context) ([]int, error)
 	Courses(ctx context.Context, filter *model.CourseFilter) (*model.CourseConnection, error)
 	StudentOpenCourses(ctx context.Context, filter *model.CourseFilter) (*model.CourseConnection, error)
 	GetCourseStudents(ctx context.Context, courseID int64, filter model.CourseStudentFilter) ([]*model.CourseStudent, error)
@@ -508,6 +512,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Course.ScoreConfigure(childComplexity), true
 
+	case "Course.semester":
+		if e.complexity.Course.Semester == nil {
+			break
+		}
+
+		return e.complexity.Course.Semester(childComplexity), true
+
 	case "Course.teacher":
 		if e.complexity.Course.Teacher == nil {
 			break
@@ -542,6 +553,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Course.UpdatedAt(childComplexity), true
+
+	case "Course.year":
+		if e.complexity.Course.Year == nil {
+			break
+		}
+
+		return e.complexity.Course.Year(childComplexity), true
 
 	case "CourseConnection.nodes":
 		if e.complexity.CourseConnection.Nodes == nil {
@@ -1159,6 +1177,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.Classes(childComplexity, args["filter"].(*model.ClassFilter)), true
+
+	case "Query.courseYears":
+		if e.complexity.Query.CourseYears == nil {
+			break
+		}
+
+		return e.complexity.Query.CourseYears(childComplexity), true
 
 	case "Query.courses":
 		if e.complexity.Query.Courses == nil {
@@ -1781,6 +1806,8 @@ extend type Mutation {
 }`, BuiltIn: false},
 	{Name: "graphql/schema/course.graphqls", Input: `type Course implements Model{
 	id: ID! @tag(gorm: "primaryKey")
+	year: Int! @tag(gorm:"default:2018")
+	semester: Int! @tag(gorm:"default:1")
 	code: String!
 	required: Boolean!
 	limit: Int!
@@ -1827,6 +1854,8 @@ input CourseStudentFilter{
 	offset: Int
 }
 input CourseInput{
+	year: Int!
+	semester: Int!
 	code: String!
 	required: Boolean!
 	teacherId: ID!
@@ -1840,6 +1869,8 @@ input CourseInput{
 	open:Boolean!
 }
 input UpdateCourseInput{
+	year: Int
+	semester: Int
 	code: String
 	required: Boolean
 	teacherId: ID
@@ -1857,6 +1888,8 @@ type CourseConnection{
 	nodes: [Course!]
 }
 input CourseFilter{
+	year: Int
+	semester: Int
 	search: String
 	limit: Int
 	offset: Int
@@ -1879,6 +1912,7 @@ input ScoreInput{
 	score4:Float
 }
 extend type Query {
+	courseYears: [Int!]
 	courses(filter: CourseFilter): CourseConnection!
 	studentOpenCourses(filter: CourseFilter): CourseConnection!
 	getCourseStudents(courseId:ID!, filter: CourseStudentFilter!): [CourseStudent!]
@@ -3417,6 +3451,122 @@ func (ec *executionContext) _Course_id(ctx context.Context, field graphql.Collec
 	res := resTmp.(int64)
 	fc.Result = res
 	return ec.marshalNID2int64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Course_year(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Course",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Year, nil
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			gorm, err := ec.unmarshalOString2ᚖstring(ctx, "default:2018")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Tag == nil {
+				return nil, errors.New("directive tag is not implemented")
+			}
+			return ec.directives.Tag(ctx, obj, directive0, gorm)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(int); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be int`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Course_semester(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Course",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return obj.Semester, nil
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			gorm, err := ec.unmarshalOString2ᚖstring(ctx, "default:1")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.Tag == nil {
+				return nil, errors.New("directive tag is not implemented")
+			}
+			return ec.directives.Tag(ctx, obj, directive0, gorm)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, err
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(int); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be int`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Course_code(ctx context.Context, field graphql.CollectedField, obj *model.Course) (ret graphql.Marshaler) {
@@ -6928,6 +7078,37 @@ func (ec *executionContext) _Query_teacherClasses(ctx context.Context, field gra
 	res := resTmp.([]*model.Class)
 	fc.Result = res
 	return ec.marshalOClass2ᚕᚖgithubᚗcomᚋtabvnᚋuedᚋmodelᚐClassᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Query_courseYears(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:   "Query",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().CourseYears(rctx)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]int)
+	fc.Result = res
+	return ec.marshalOInt2ᚕintᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Query_courses(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
@@ -10668,6 +10849,22 @@ func (ec *executionContext) unmarshalInputCourseFilter(ctx context.Context, obj 
 
 	for k, v := range asMap {
 		switch k {
+		case "year":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("year"))
+			it.Year, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "semester":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("semester"))
+			it.Semester, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "search":
 			var err error
 
@@ -10704,6 +10901,22 @@ func (ec *executionContext) unmarshalInputCourseInput(ctx context.Context, obj i
 
 	for k, v := range asMap {
 		switch k {
+		case "year":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("year"))
+			it.Year, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "semester":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("semester"))
+			it.Semester, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "code":
 			var err error
 
@@ -11332,6 +11545,22 @@ func (ec *executionContext) unmarshalInputUpdateCourseInput(ctx context.Context,
 
 	for k, v := range asMap {
 		switch k {
+		case "year":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("year"))
+			it.Year, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "semester":
+			var err error
+
+			ctx := graphql.WithFieldInputContext(ctx, graphql.NewFieldInputWithField("semester"))
+			it.Semester, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "code":
 			var err error
 
@@ -11810,6 +12039,16 @@ func (ec *executionContext) _Course(ctx context.Context, sel ast.SelectionSet, o
 			out.Values[i] = graphql.MarshalString("Course")
 		case "id":
 			out.Values[i] = ec._Course_id(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "year":
+			out.Values[i] = ec._Course_year(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "semester":
+			out.Values[i] = ec._Course_semester(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -12429,6 +12668,17 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 					}
 				}()
 				res = ec._Query_teacherClasses(ctx, field)
+				return res
+			})
+		case "courseYears":
+			field := field
+			out.Concurrently(i, func() (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_courseYears(ctx, field)
 				return res
 			})
 		case "courses":

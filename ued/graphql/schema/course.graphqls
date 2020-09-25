@@ -1,5 +1,7 @@
 type Course implements Model{
 	id: ID! @tag(gorm: "primaryKey")
+	year: Int! @tag(gorm:"default:2018")
+	semester: Int! @tag(gorm:"default:1")
 	code: String!
 	required: Boolean!
 	limit: Int!
@@ -46,6 +48,8 @@ input CourseStudentFilter{
 	offset: Int
 }
 input CourseInput{
+	year: Int!
+	semester: Int!
 	code: String!
 	required: Boolean!
 	teacherId: ID!
@@ -59,6 +63,8 @@ input CourseInput{
 	open:Boolean!
 }
 input UpdateCourseInput{
+	year: Int
+	semester: Int
 	code: String
 	required: Boolean
 	teacherId: ID
@@ -76,6 +82,8 @@ type CourseConnection{
 	nodes: [Course!]
 }
 input CourseFilter{
+	year: Int
+	semester: Int
 	search: String
 	limit: Int
 	offset: Int
@@ -98,6 +106,7 @@ input ScoreInput{
 	score4:Float
 }
 extend type Query {
+	courseYears: [Int!]
 	courses(filter: CourseFilter): CourseConnection!
 	studentOpenCourses(filter: CourseFilter): CourseConnection!
 	getCourseStudents(courseId:ID!, filter: CourseStudentFilter!): [CourseStudent!]

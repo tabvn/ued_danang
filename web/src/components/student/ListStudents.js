@@ -171,7 +171,9 @@ const ListStudents = () => {
                     classId: editStudent.classId,
                     year: editStudent.year,
                   }
-                : null
+                : {
+                    year: 2018,
+                  }
             }
             layout={"vertical"}
             onFinish={(values) => {
@@ -264,7 +266,11 @@ const ListStudents = () => {
             >
               <Input />
             </Form.Item>
-            <Form.Item label={"Khoá"} name={"year"}>
+            <Form.Item
+              label={"Khoá"}
+              name={"year"}
+              rules={[{ required: true, message: "Khoá là bắt buộc" }]}
+            >
               <InputNumber min={1990} />
             </Form.Item>
             <Form.Item

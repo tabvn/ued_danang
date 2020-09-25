@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import {
   Button,
+  Card,
   Col,
   Drawer,
   Form,
@@ -16,6 +17,10 @@ import {
 import { GET_ALL_COURSES } from "../../graphqls/query/courses";
 import FacultySelection from "../facultty/FacultySelection";
 import TeacherSelection from "../teacher/TeacherSelection";
+import SemesterSelection from "./SemesterSelection";
+import styled from "styled-components";
+import CourseYears from "./CourseYears";
+import { Link } from "react-router-dom";
 
 const createCourseMutation = gql`
   mutation createCourse($input: CourseInput!) {
@@ -35,6 +40,25 @@ const updateCourseMutation = gql`
     }
   }
 `;
+
+const Container = styled.div`
+  .filter {
+    @media (min-width: 991px) {
+      .ant-col {
+        display: flex;
+        align-items: center;
+        div.label {
+          margin-right: 10px;
+        }
+      }
+    }
+    @media (max-width: 768px) {
+      .ant-select {
+        width: 100%;
+      }
+    }
+  }
+`;
 const ListCourses = () => {
   const [visible, setVisible] = useState(false);
   const [isLoading, setLoading] = useState(false);
@@ -42,6 +66,8 @@ const ListCourses = () => {
   const [createCourse] = useMutation(createCourseMutation);
   const [updateCourse] = useMutation(updateCourseMutation);
   const [filter, setFilter] = useState({
+    year: null,
+    semester: null,
     limit: 50,
     offset: 0,
   });
@@ -97,7 +123,11 @@ const ListCourses = () => {
       title: "Đăng ký",
       key: "total",
       render: (text, record) => (
-        <div>{`${record.registerCount}/${record.limit}`}</div>
+        <div>
+          <Link to={`/admin/courses/students?courseId=${record.id}`}>
+            {`${record.registerCount}/${record.limit}`}
+          </Link>
+        </div>
       ),
     },
     {
@@ -120,15 +150,55 @@ const ListCourses = () => {
   ];
 
   return (
-    <div>
-      <Button
-        onClick={() => {
-          setEditCourse(null);
-          setVisible(true);
-        }}
-      >
-        Mở học phần mới
-      </Button>
+    <Container>
+      <div className={"filter"}>
+        <Card
+          size={"small"}
+          title={"Tuỳ chọn"}
+          extra={
+            <Button
+              onClick={() => {
+                setEditCourse(null);
+                setVisible(true);
+              }}
+            >
+              Mở học phần mới
+            </Button>
+          }
+        >
+          <Row gutter={30}>
+            <Col>
+              <div className={"label"}>Năm học</div>
+              <CourseYears
+                onChange={(v) => {
+                  setFilter((prevState) => {
+                    return {
+                      ...prevState,
+                      year: v,
+                    };
+                  });
+                }}
+                style={{ minWidth: 200 }}
+              />
+            </Col>
+            <Col>
+              <div className={"label"}>Học kì</div>
+              <SemesterSelection
+                onChange={(v) => {
+                  setFilter((prevState) => {
+                    return {
+                      ...prevState,
+                      semester: v,
+                    };
+                  });
+                }}
+                style={{ minWidth: 200 }}
+              />
+            </Col>
+          </Row>
+        </Card>
+      </div>
+
       <Table
         scroll={{ x: 1200 }}
         loading={loading}
@@ -157,6 +227,8 @@ const ListCourses = () => {
             initialValues={
               editCourse
                 ? {
+                    year: editCourse.year,
+                    semester: editCourse.semester,
                     code: editCourse.code,
                     title: editCourse.title,
                     required: editCourse.required,
@@ -204,6 +276,9 @@ const ListCourses = () => {
                     refetch();
                     setVisible(false);
                     setLoading(false);
+                    notification.success({
+                      message: `Cập nhật thành công học phần: ${editCourse.title}`,
+                    });
                   })
                   .catch((e) => {
                     setLoading(false);
@@ -214,6 +289,26 @@ const ListCourses = () => {
               }
             }}
           >
+            <Row gutter={30}>
+              <Col>
+                <Form.Item
+                  rules={[{ required: true, message: "Nhập năm học" }]}
+                  label={"Năm học"}
+                  name={"year"}
+                >
+                  <InputNumber min={2018} />
+                </Form.Item>
+              </Col>
+              <Col>
+                <Form.Item
+                  rules={[{ required: true, message: "Chọn học kì" }]}
+                  label={"Học kỳ"}
+                  name={"semester"}
+                >
+                  <SemesterSelection style={{ minWidth: 200 }} />
+                </Form.Item>
+              </Col>
+            </Row>
             <Form.Item
               label={"Mã học phần"}
               name={"code"}
@@ -324,7 +419,7 @@ const ListCourses = () => {
           </Form>
         </Drawer>
       )}
-    </div>
+    </Container>
   );
 };
 
