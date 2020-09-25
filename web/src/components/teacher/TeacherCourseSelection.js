@@ -1,15 +1,15 @@
 import React, { forwardRef, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { Select, Skeleton } from "antd";
+import { Select } from "antd";
 import { TEACHER_COURSES } from "../../graphqls/query/teacherCourses";
 
 const TeacherCourseSelection = forwardRef((props, ref) => {
   const [value, setValue] = useState(props.value ? props.value : null);
   const { loading, error, data, refetch } = useQuery(TEACHER_COURSES);
-  if (loading) return <Skeleton />;
   const nodes = data ? data.teacherCourses : [];
   return (
     <Select
+      loading={loading}
       value={value}
       mode={props.mode}
       onChange={(v) => {
@@ -30,4 +30,4 @@ const TeacherCourseSelection = forwardRef((props, ref) => {
   );
 });
 
-export default TeacherCourseSelection
+export default TeacherCourseSelection;

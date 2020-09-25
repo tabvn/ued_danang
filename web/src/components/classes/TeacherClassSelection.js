@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect, useState } from "react";
 import { useQuery } from "@apollo/client";
-import { Select, Skeleton } from "antd";
+import { Select } from "antd";
 import { TEACHER_CLASSES } from "../../graphqls/query/classes";
 
 const TeacherClassSelection = forwardRef((props, ref) => {
@@ -12,10 +12,10 @@ const TeacherClassSelection = forwardRef((props, ref) => {
       setValue(data.teacherClasses[0].id);
     }
   }, [data]);
-  if (loading) return <Skeleton />;
   const nodes = data ? data.teacherClasses : [];
   return (
     <Select
+      loading={loading}
       value={value}
       onChange={(v) => {
         setValue(v);

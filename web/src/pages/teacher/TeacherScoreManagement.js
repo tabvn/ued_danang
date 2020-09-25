@@ -51,7 +51,7 @@ const TeacherScoreManagement = () => {
   return (
     <Container>
       <PageHeader title={"Quản lý điểm"} />
-      <Card title={"Thông tin học phần"}>
+      <Card size={"small"} title={"Thông tin học phần"}>
         <div className={"filter"}>
           <div style={{ marginRight: 10 }}>Chọn học phần:</div>
           <TeacherCourseSelection
