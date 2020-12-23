@@ -12,6 +12,7 @@ const ClassSelection = forwardRef((props, ref) => {
         teacherId: props.teacherId ? props.teacherId : null,
       },
     },
+    fetchPolicy: "network-only"
   });
 
   const [value, setValue] = useState(props.value);

@@ -9,6 +9,7 @@ const FacultySelection = forwardRef((props, ref) => {
     variables: {
       filter: { limit: 1000, offset: 0 },
     },
+    fetchPolicy: "network-only"
   });
   if (loading) return <Skeleton />;
   const faculties = data ? data.faculties : [];

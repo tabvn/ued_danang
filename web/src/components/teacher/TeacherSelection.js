@@ -6,7 +6,9 @@ import { GET_ALL_TEACHERS } from "../../graphqls/query/teachers";
 const TeacherSelection = forwardRef((props, ref) => {
   const [value, setValue] = useState(props.value);
   useEffect(() => {}, [props.value]);
-  const { loading, error, data, refetch } = useQuery(GET_ALL_TEACHERS);
+  const { loading, error, data, refetch } = useQuery(GET_ALL_TEACHERS, {
+    fetchPolicy: "network-only"
+  });
   if (loading) return <Skeleton />;
   const nodes = data ? data.teachers.nodes : [];
   return (
