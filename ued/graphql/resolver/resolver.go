@@ -8,6 +8,7 @@ import (
 	"github.com/tabvn/ued/model"
 	"github.com/tabvn/ued/validate"
 	"gorm.io/gorm"
+	"strings"
 )
 
 type Resolver struct {
@@ -66,6 +67,21 @@ func (r *Resolver) GetStudentFromContext(ctx context.Context) *model.Student {
 	return &s
 }
 
+func (r *Resolver) GetTeacherFromContext(ctx context.Context) *model.Teacher {
+	user := r.GetCurrentUser(ctx)
+	if user == nil {
+		return nil
+	}
+	if user.Role != model.RoleTeacher.String() {
+		return nil
+	}
+	var t model.Teacher
+	if err := r.DB.Where("user_id = ?", user.ID).Take(&t).Error; err != nil {
+		return nil
+	}
+	return &t
+}
+
 func (r *Resolver) CreateUser(tx *gorm.DB, role string, first, last, email, password string) (*model.User, error) {
 	if !validate.Email(email) {
 		return nil, errors.New("invalid email address")
@@ -74,8 +90,8 @@ func (r *Resolver) CreateUser(tx *gorm.DB, role string, first, last, email, pass
 		return nil, errors.New("invalid password")
 	}
 	obj := model.User{
-		FirstName: first,
-		LastName:  last,
+		FirstName: strings.TrimSpace(first),
+		LastName:  strings.TrimSpace(last),
 		Email:     email,
 		Role:      role,
 		Password:  model.EncodePassword(password),

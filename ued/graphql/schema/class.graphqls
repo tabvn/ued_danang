@@ -21,12 +21,23 @@ type ClassConnection{
 }
 input ClassFilter{
 	search: String
+	teacherId: ID
 	limit: Int
 	offset: Int
+	year: Int
+}
+input UpdateClassInput{
+	name: String
+	facultyId: ID
+	teacherId: ID
+	year: Int
 }
 extend type Query {
 	classes(filter:ClassFilter): ClassConnection!
+	years: [Int!]
+	teacherClasses: [Class!]
 }
 extend type Mutation {
 	createClass(input: ClassInput!): Class!
+	updateClass(id: ID!, input: UpdateClassInput!): Class!
 }

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ued
+  labels:
+    app: ued
+spec:
+  replicas: 5
+  template:
+    metadata:
+      name: ued
+      labels:
+        app: ued
+    spec:
+      containers:
+        - name: ued
+          image: gcr.io/danang-288409/ued@sha256:646b13c4e4a357bf591e581e5446f220f1c9127921f5eaa36fac9837afd40b92
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: JWT_SECRET
+              value: "hkD7lRPQSTP9VNs1ACI2y8UWaT1fa8LTS2pvnNWSRS6sQw4Wvt"
+            - name: POSTGRESQL_URL
+              value: "host=danang-288409:us-central1:ued user=ued dbname=ued password=ued2020 sslmode=disable"
+            - name: DRIVER
+              value: "cloudsqlpostgres"
+            - name: PORT
+              value: "8080"
+          ports:
+            - containerPort: 8080
+      restartPolicy: Always
+  selector:
+    matchLabels:
+      app: ued
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ued-loadbalancer-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: ued
+  ports:
+    - port: 80
+      targetPort: 8080

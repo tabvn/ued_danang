@@ -1,4 +1,4 @@
-import {gql} from "apollo-boost";
+import {gql} from "@apollo/client";
 
 export const GET_STUDENT_OPEN_COURSES = gql`
 	query studentOpenCourses($filter: CourseFilter){
@@ -14,6 +14,9 @@ export const GET_STUDENT_OPEN_COURSES = gql`
 				lessonTo
 				registerCount
 				isRegistered
+				open
+				required
+				unit
 				teacher{
 					id
 					firstName

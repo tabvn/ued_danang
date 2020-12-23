@@ -36,6 +36,12 @@ type Model interface {
 	IsModel()
 }
 
+type AdminUserFilter struct {
+	Search *string `json:"search"`
+	Limit  *int    `json:"limit"`
+	Offset *int    `json:"offset"`
+}
+
 type Class struct {
 	ID        int64          `json:"id" gorm:"primaryKey"`
 	Name      string         `json:"name" gorm:"uniqueIndex"`
@@ -57,9 +63,11 @@ type ClassConnection struct {
 }
 
 type ClassFilter struct {
-	Search *string `json:"search"`
-	Limit  *int    `json:"limit"`
-	Offset *int    `json:"offset"`
+	Search    *string `json:"search"`
+	TeacherID *int64  `json:"teacherId"`
+	Limit     *int    `json:"limit"`
+	Offset    *int    `json:"offset"`
+	Year      *int    `json:"year"`
 }
 
 type ClassInput struct {
@@ -70,24 +78,27 @@ type ClassInput struct {
 }
 
 type Course struct {
-	ID            int64          `json:"id" gorm:"primaryKey"`
-	Code          string         `json:"code"`
-	Required      bool           `json:"required"`
-	Limit         int            `json:"limit"`
-	TeacherID     int64          `json:"teacherId"`
-	Teacher       *Teacher       `json:"teacher"`
-	Faculties     []*Faculty     `json:"faculties" gorm:"many2many:course_faculty"`
-	Title         string         `json:"title"`
-	LessonDay     int            `json:"lessonDay"`
-	LessonFrom    int            `json:"lessonFrom"`
-	LessonTo      int            `json:"lessonTo"`
-	Unit          int            `json:"unit"`
-	Open          bool           `json:"open" gorm:"default:true"`
-	RegisterCount int            `json:"registerCount" gorm:"-"`
-	IsRegistered  bool           `json:"isRegistered" gorm:"-"`
-	UpdatedAt     time.Time      `json:"updatedAt"`
-	CreatedAt     time.Time      `json:"createdAt"`
-	DeleteAt      gorm.DeletedAt `gorm:"index"`
+	ID             int64          `json:"id" gorm:"primaryKey"`
+	Year           int            `json:"year" gorm:"default:2018"`
+	Semester       int            `json:"semester" gorm:"default:1"`
+	Code           string         `json:"code"`
+	Required       bool           `json:"required"`
+	Limit          int            `json:"limit"`
+	TeacherID      int64          `json:"teacherId"`
+	Teacher        *Teacher       `json:"teacher"`
+	Faculties      []*Faculty     `json:"faculties" gorm:"many2many:course_faculty"`
+	Title          string         `json:"title"`
+	LessonDay      int            `json:"lessonDay"`
+	LessonFrom     int            `json:"lessonFrom"`
+	LessonTo       int            `json:"lessonTo"`
+	Unit           int            `json:"unit"`
+	Open           bool           `json:"open" gorm:"default:true"`
+	ScoreConfigure datatypes.JSON `json:"scoreConfigure"`
+	RegisterCount  int            `json:"registerCount" gorm:"-"`
+	IsRegistered   bool           `json:"isRegistered" gorm:"-"`
+	UpdatedAt      time.Time      `json:"updatedAt"`
+	CreatedAt      time.Time      `json:"createdAt"`
+	DeleteAt       gorm.DeletedAt `gorm:"index"`
 }
 
 func (Course) IsModel() {}
@@ -98,12 +109,16 @@ type CourseConnection struct {
 }
 
 type CourseFilter struct {
-	Search *string `json:"search"`
-	Limit  *int    `json:"limit"`
-	Offset *int    `json:"offset"`
+	Year     *int    `json:"year"`
+	Semester *int    `json:"semester"`
+	Search   *string `json:"search"`
+	Limit    *int    `json:"limit"`
+	Offset   *int    `json:"offset"`
 }
 
 type CourseInput struct {
+	Year       int     `json:"year"`
+	Semester   int     `json:"semester"`
 	Code       string  `json:"code"`
 	Required   bool    `json:"required"`
 	TeacherID  int64   `json:"teacherId"`
@@ -118,14 +133,20 @@ type CourseInput struct {
 }
 
 type CourseStudent struct {
-	ID        int64          `json:"id" gorm:"primaryKey"`
-	StudentID int64          `json:"studentId"`
-	Student   *Student       `json:"student" gorm:"foreignKey:StudentID"`
-	CourseID  int64          `json:"courseId"`
-	Course    *Course        `json:"course" gorm:"foreignKey:CourseID"`
-	CreatedAt time.Time      `json:"createdAt"`
-	UpdatedAt time.Time      `json:"updatedAt"`
-	DeleteAt  gorm.DeletedAt `gorm:"index"`
+	ID          int64          `json:"id" gorm:"primaryKey"`
+	StudentID   int64          `json:"studentId"`
+	Student     *Student       `json:"student" gorm:"foreignKey:StudentID"`
+	CourseID    int64          `json:"courseId"`
+	Course      *Course        `json:"course" gorm:"foreignKey:CourseID"`
+	Score1      *float64       `json:"score1"`
+	Score2      *float64       `json:"score2"`
+	Score3      *float64       `json:"score3"`
+	Score4      *float64       `json:"score4"`
+	Score       *float64       `json:"score"`
+	TeacherNote *string        `json:"teacherNote"`
+	CreatedAt   time.Time      `json:"createdAt"`
+	UpdatedAt   time.Time      `json:"updatedAt"`
+	DeleteAt    gorm.DeletedAt `gorm:"index"`
 }
 
 func (CourseStudent) IsModel() {}
@@ -204,8 +225,35 @@ type LoggerFilter struct {
 }
 
 type NewUser struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
+	Email     string `json:"email"`
+	Password  string `json:"password"`
+}
+
+type Score struct {
+	ID      int64    `json:"id"`
+	Student *Student `json:"student"`
+	Course  *Course  `json:"course"`
+	Score1  *float64 `json:"score1"`
+	Score2  *float64 `json:"score2"`
+	Score3  *float64 `json:"score3"`
+	Score4  *float64 `json:"score4"`
+	Score   *float64 `json:"score"`
+}
+
+type ScoreConfigureItem struct {
+	Name   string  `json:"name"`
+	Value  float64 `json:"value"`
+	Status bool    `json:"status"`
+}
+
+type ScoreInput struct {
+	StudentID int64    `json:"studentId"`
+	Score1    *float64 `json:"score1"`
+	Score2    *float64 `json:"score2"`
+	Score3    *float64 `json:"score3"`
+	Score4    *float64 `json:"score4"`
 }
 
 type Sort struct {
@@ -224,6 +272,7 @@ type Student struct {
 	LastName  string         `json:"lastName"`
 	Gender    int            `json:"gender"`
 	Birthday  time.Time      `json:"birthday"`
+	Year      int            `json:"year" gorm:"default:2018"`
 	CreatedAt time.Time      `json:"createdAt"`
 	UpdatedAt time.Time      `json:"updatedAt"`
 	DeleteAt  gorm.DeletedAt `gorm:"index"`
@@ -241,6 +290,7 @@ type StudentFilter struct {
 	ClassID *int64  `json:"classId"`
 	Limit   *int    `json:"limit"`
 	Offset  *int    `json:"offset"`
+	Year    *int    `json:"year"`
 }
 
 type StudentInput struct {
@@ -252,6 +302,7 @@ type StudentInput struct {
 	Gender    int       `json:"gender"`
 	Birthday  time.Time `json:"birthday"`
 	ClassID   int64     `json:"classId"`
+	Year      int       `json:"year"`
 }
 
 type Teacher struct {
@@ -295,7 +346,16 @@ type Token struct {
 	User      *User     `json:"user"`
 }
 
+type UpdateClassInput struct {
+	Name      *string `json:"name"`
+	FacultyID *int64  `json:"facultyId"`
+	TeacherID *int64  `json:"teacherId"`
+	Year      *int    `json:"year"`
+}
+
 type UpdateCourseInput struct {
+	Year       *int    `json:"year"`
+	Semester   *int    `json:"semester"`
 	Code       *string `json:"code"`
 	Required   *bool   `json:"required"`
 	TeacherID  *int64  `json:"teacherId"`
@@ -309,12 +369,32 @@ type UpdateCourseInput struct {
 	Open       *bool   `json:"open"`
 }
 
+type UpdateStudentInput struct {
+	Email     *string    `json:"email"`
+	Code      *string    `json:"code"`
+	FirstName *string    `json:"firstName"`
+	LastName  *string    `json:"lastName"`
+	Password  *string    `json:"password"`
+	Gender    *int       `json:"gender"`
+	Birthday  *time.Time `json:"birthday"`
+	ClassID   *int64     `json:"classId"`
+	Year      *int       `json:"year"`
+}
+
 type UpdateTeacherInput struct {
 	Email     string  `json:"email"`
 	FirstName string  `json:"firstName"`
 	LastName  string  `json:"lastName"`
 	Phone     string  `json:"phone"`
+	Password  *string `json:"password"`
 	WorkPlace *string `json:"workPlace"`
+}
+
+type UpdateUserInput struct {
+	FirstName *string `json:"firstName"`
+	LastName  *string `json:"lastName"`
+	Password  *string `json:"password"`
+	Email     *string `json:"email"`
 }
 
 type User struct {
@@ -330,6 +410,11 @@ type User struct {
 }
 
 func (User) IsModel() {}
+
+type UserConnection struct {
+	Total int64   `json:"total"`
+	Nodes []*User `json:"nodes"`
+}
 
 type Viewer struct {
 	User    *User    `json:"user"`

@@ -7,11 +7,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/sessions"
 	"github.com/tabvn/ued/auth"
 	"github.com/tabvn/ued/model"
+	"github.com/tabvn/ued/util"
 )
 
 func (r *mutationResolver) Login(ctx context.Context, email string, password string) (*model.Token, error) {
@@ -37,6 +39,75 @@ func (r *mutationResolver) Login(ctx context.Context, email string, password str
 	}, nil
 }
 
+func (r *mutationResolver) ChangePassword(ctx context.Context, newPassword string) (bool, error) {
+	var user = r.GetCurrentUser(ctx)
+	if user == nil {
+		return false, errors.New("access denied")
+	}
+	user.Password = model.EncodePassword(newPassword)
+	if err := r.DB.Save(user).Error; err != nil {
+		return false, fmt.Errorf("could not change password due an error: %s", err.Error())
+	}
+	return true, nil
+}
+
+func (r *mutationResolver) CreateAdminUser(ctx context.Context, input model.NewUser) (*model.User, error) {
+	obj := model.User{
+		FirstName: strings.TrimSpace(input.FirstName),
+		LastName:  strings.TrimSpace(input.LastName),
+		Email:     strings.TrimSpace(input.Email),
+		Password:  model.EncodePassword(input.Password),
+		Role:      model.RoleAdministrator.String(),
+	}
+	if err := r.DB.Create(&obj).Error; err != nil {
+		return nil, fmt.Errorf("could not create user due an error: %s", err.Error())
+	}
+	return &obj, nil
+}
+
+func (r *mutationResolver) UpdateUser(ctx context.Context, id int64, input model.UpdateUserInput) (*model.User, error) {
+	currentUser := r.GetCurrentUser(ctx)
+	if currentUser == nil {
+		return nil, errors.New("access denied")
+	}
+	if !currentUser.IsAdministrator() {
+		return nil, errors.New("access denied")
+	}
+	var user model.User
+	if err := r.DB.Where("id =?", id).Take(&user).Error; err != nil {
+		return nil, fmt.Errorf("user not found: %s", err.Error())
+	}
+	user.FirstName = strings.TrimSpace(util.GetString(input.FirstName, user.FirstName))
+	user.LastName = strings.TrimSpace(util.GetString(input.LastName, user.LastName))
+	user.Email = strings.TrimSpace(util.GetString(input.Email, user.Email))
+	if input.Password != nil {
+		user.Password = model.EncodePassword(*input.Password)
+	}
+	if err := r.DB.Save(&user).Error; err != nil {
+		return nil, fmt.Errorf("could not save user: %s", err.Error())
+	}
+	return &user, nil
+}
+
+func (r *mutationResolver) DeleteUser(ctx context.Context, id int64) (bool, error) {
+	currentUser := r.GetCurrentUser(ctx)
+	if currentUser == nil {
+		return false, errors.New("access denied")
+	}
+	if !currentUser.IsAdministrator() {
+		return false, errors.New("access denied")
+	}
+	var count int64
+	r.DB.Model(&model.User{}).Where("role = ?", model.RoleAdministrator.String()).Count(&count)
+	if count == 1 {
+		return false, errors.New("there is only one administrator you could not delete it")
+	}
+	if err := r.DB.Exec("DELETE FROM users WHERE id = ?", id).Error; err != nil {
+		return false, fmt.Errorf("could not delete user %s", err.Error())
+	}
+	return true, nil
+}
+
 func (r *mutationResolver) Logout(ctx context.Context) (bool, error) {
 	a := r.GetAuth(ctx)
 	if a != nil {
@@ -60,5 +131,37 @@ func (r *queryResolver) Viewer(ctx context.Context) (*model.Viewer, error) {
 		res model.Viewer
 	)
 	res.User = r.GetCurrentUser(ctx)
+	return &res, nil
+}
+
+func (r *queryResolver) AdminUsers(ctx context.Context, filter *model.AdminUserFilter) (*model.UserConnection, error) {
+	user := r.GetCurrentUser(ctx)
+	if user == nil {
+		return nil, errors.New("access denied")
+	}
+	if !user.IsAdministrator() {
+		return nil, errors.New("access denied")
+	}
+	var (
+		res    model.UserConnection
+		limit  = 50
+		offset = 0
+	)
+	tx := r.DB.Model(&model.User{})
+	if filter != nil {
+		if filter.Limit != nil {
+			limit = *filter.Limit
+		}
+		if filter.Offset != nil {
+			offset = *filter.Offset
+		}
+		if filter.Search != nil {
+			s := "%" + strings.ToLower(*filter.Search) + "%"
+			tx = tx.Where("LOWER(first_name) LIKE ? OR LOWER(last_name) LIKE ? OR LOWER(email) LIKE ?", s, s, s)
+		}
+	}
+	if err := tx.Where("role = ?", model.RoleAdministrator.String()).Count(&res.Total).Limit(limit).Offset(offset).Find(&res.Nodes).Error; err != nil {
+		return nil, fmt.Errorf("could not find users due an error: %s", err.Error())
+	}
 	return &res, nil
 }

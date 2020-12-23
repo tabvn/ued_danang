@@ -25,19 +25,41 @@ type Token {
 	user: User!
 }
 input NewUser{
+	firstName: String!
+	lastName: String!
 	email: String!
 	password: String!
+}
+input AdminUserFilter{
+	search: String
+	limit: Int
+	offset: Int
+}
+type UserConnection{
+	total: Int64!
+	nodes: [User!]
 }
 type Viewer{
 	user: User
 	teacher: Teacher
 	student: Student
 }
+input UpdateUserInput{
+	firstName: String
+	lastName: String
+	password: String
+	email: String
+}
 extend type Mutation {
 	login(email: String!, password: String!): Token!
+	changePassword(newPassword: String!): Boolean!
+	createAdminUser(input: NewUser!): User!
+	updateUser(id: ID!, input: UpdateUserInput!): User!
+	deleteUser(id: ID!): Boolean!
 	logout: Boolean!
 }
 extend type Query {
 	user(id: ID!): User!
 	viewer: Viewer
+	adminUsers(filter: AdminUserFilter): UserConnection
 }

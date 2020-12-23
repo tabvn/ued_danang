@@ -1,5 +1,7 @@
 type Course implements Model{
 	id: ID! @tag(gorm: "primaryKey")
+	year: Int! @tag(gorm:"default:2018")
+	semester: Int! @tag(gorm:"default:1")
 	code: String!
 	required: Boolean!
 	limit: Int!
@@ -12,18 +14,30 @@ type Course implements Model{
 	lessonTo: Int!3
 	unit: Int!
 	open: Boolean! @tag(gorm:"default:true")
+	scoreConfigure: Json
 	registerCount: Int! @tag(gorm:"-")
 	isRegistered: Boolean! @tag(gorm:"-")
 	updatedAt: Time!
 	createdAt: Time!
 }
 
+input ScoreConfigureItem{
+	name: String!
+	value: Float!
+	status: Boolean!
+}
 type CourseStudent implements Model{
 	id: ID! @tag(gorm:"primaryKey")
 	studentId: ID!
 	student: Student! @tag(gorm:"foreignKey:StudentID")
 	courseId: ID!
 	course:Course! @tag(gorm:"foreignKey:CourseID")
+	score1: Float
+	score2: Float
+	score3:Float
+	score4:Float
+	score: Float
+	teacherNote: String
 	createdAt: Time!
 	updatedAt: Time!
 }
@@ -34,6 +48,8 @@ input CourseStudentFilter{
 	offset: Int
 }
 input CourseInput{
+	year: Int!
+	semester: Int!
 	code: String!
 	required: Boolean!
 	teacherId: ID!
@@ -47,6 +63,8 @@ input CourseInput{
 	open:Boolean!
 }
 input UpdateCourseInput{
+	year: Int
+	semester: Int
 	code: String
 	required: Boolean
 	teacherId: ID
@@ -64,14 +82,37 @@ type CourseConnection{
 	nodes: [Course!]
 }
 input CourseFilter{
+	year: Int
+	semester: Int
 	search: String
 	limit: Int
 	offset: Int
 }
+type Score {
+	id: ID!
+	student: Student
+	course: Course
+	score1: Float
+	score2: Float
+	score3: Float
+	score4:Float
+	score: Float
+}
+input ScoreInput{
+	studentId: ID!
+	score1: Float
+	score2: Float
+	score3: Float
+	score4:Float
+}
 extend type Query {
+	courseYears: [Int!]
 	courses(filter: CourseFilter): CourseConnection!
 	studentOpenCourses(filter: CourseFilter): CourseConnection!
 	getCourseStudents(courseId:ID!, filter: CourseStudentFilter!): [CourseStudent!]
+	teacherCourses: [Course!]
+	scores(courseId: ID!): [Score!]
+	studentScores: [Score!]
 }
 extend type Mutation {
 	createCourse(input: CourseInput!): Course!
@@ -79,4 +120,8 @@ extend type Mutation {
 	registerCourse(courseId: ID!): CourseStudent!
 	unregisterCourse(courseId: ID!): Boolean!
 	exportCourseStudents(courseId: ID!): String
+	updateTeacherNote(courseId: ID!, studentId: ID!, note: String!): Boolean!
+	adminUnregisterCourse(courseId: ID!, studentId: ID!):Boolean!
+	updateCourseScoreConfigure(courseId: ID!, configure: [ScoreConfigureItem!]!): Boolean!
+	updateScores(courseId: ID!, scores: [ScoreInput!]!): Boolean!
 }

@@ -1,4 +1,4 @@
-import {gql} from "apollo-boost";
+import {gql} from "@apollo/client";
 
 export const GET_ALL_COURSE_STUDENTS = gql`
 	query getCourseStudents($courseId: ID!, $filter: CourseStudentFilter!){
@@ -8,18 +8,23 @@ export const GET_ALL_COURSE_STUDENTS = gql`
 			studentId
 			student{
 				id
+				user{
+					id
+					email
+				}
+				class{
+					id
+					name
+				}
 				firstName
 				lastName
 				code
 				birthday
-				user{
-					email
-				}
-				class{
-					name
-				}
+				gender
+				classId
 			}
-          createdAt
+			createdAt
+			teacherNote
 
 		}
 	}
