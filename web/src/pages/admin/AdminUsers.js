@@ -143,7 +143,7 @@ const AdminUsers = () => {
                                         });
                                     } else {
                                         notification.error({
-                                            message: có lỗi xảy ra: ${e.toString()},
+                                            message: 'có lỗi xảy ra: ${e.toString()}',
                                         });
                                     }
                                 });
@@ -181,7 +181,7 @@ const AdminUsers = () => {
                     current: page,
                     total: data ? data.adminUsers.total : 0,
                     pageSize: filter.limit,
-                    showTotal: (total, range) => ${range}of ${total},
+                    showTotal: (total, range) => '${range}of ${total}',
                     onChange: (page, pageSize) => {
                         setPage(page);
                         setFilter({ ...filter, offset: (page - 1) * pageSize });
@@ -230,11 +230,11 @@ const AdminUsers = () => {
                                         setIsLoading(false);
                                         if (e.toString().includes("idx_users_email")) {
                                             notification.error({
-                                                message: Có lỗi xảy ra: Địa chỉ email đã được dùng,
+                                                message: 'Có lỗi xảy ra: Địa chỉ email đã được dùng',
                                             });
                                         } else {
                                             notification.error({
-                                                message: Có lỗi xảy ra: ${e.toString()},
+                                                message: 'Có lỗi xảy ra: ${e.toString()}',
                                             });
                                         }
                                     });
@@ -257,11 +257,11 @@ const AdminUsers = () => {
                                         setIsLoading(false);
                                         if (e.toString().includes("idx_users_email")) {
                                             notification.error({
-                                                message: Có lỗi xảy ra: Địa chỉ email đã được dùng,
+                                                message: 'Có lỗi xảy ra: Địa chỉ email đã được dùng',
                                             });
                                         } else {
                                             notification.error({
-                                                message: Có lỗi xảy ra: ${e.toString()},
+                                                message: 'Có lỗi xảy ra: ${e.toString()}',
                                             });
                                         }
                                     });
