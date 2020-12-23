@@ -9,7 +9,7 @@ type Course implements Model{
 	title: String!
 	lessonDay: Int!
 	lessonFrom: Int!
-	lessonTo: Int!
+	lessonTo: Int!3
 	unit: Int!
 	open: Boolean! @tag(gorm:"default:true")
 	registerCount: Int! @tag(gorm:"-")
