@@ -96,14 +96,64 @@ Nhập điểm cho sinh viên, và lưu kết quả học tập.
 
 ![Screenshot](./screenshots/20.png)
 
+## 4 Giảng viên
 
-## Cài đặt lên Google Cloud platform
+Xem danh sách sinh viên theo từng học phần mà mình giảng dạy.
+
+![Screenshot](./screenshots/21.png)
+
+Ghi chú lại những sinh viên trong quá trình học (vd: đi học đều, có sáng tạo tốt...)
+
+![Screenshot](./screenshots/22.png)
+
+Xem danh sách sinh viên mà giảng viên đó chủ nhiệm.
+
+![Screenshot](./screenshots/23.png)
+
+Giảng viên cũng có thể quản lý và cấu hình điểm cho môn học mình giảng dạy (Như quyền quản trị viên, tuy nhiên chỉ cho phép với môn học mà giảng viên đó giảng dạy)
+
+Ưu điểm: quá trình thay đổi cấu hình hệ số bảng điểm không làm mất đi kết quả học tập đã nhập trước đó!
+
+![Screenshot](./screenshots/24.png)
+
+Tiến hành nhập kết quả học tập cho sinh viên
+
+![Screenshot](./screenshots/25.png)
+
+## 5 Sinh viên
+
+Đăng nhập vào hệ thống
+
+![Screenshot](./screenshots/27.png)
+
+Xem học phần đang mở và đăng ký
+
+ưu điểm:
+* Hệ thống có báo trùng lịch 
+* Hệ thống có báo lỗi nếu số lượng đăng ký vượt tối đa cho phép.
+* Sẽ không được huỷ đăng ký nếu đã bị khoá thông qua quản trị viên.
+
+![Screenshot](./screenshots/26.png)
+
+Xem kết quả học tập
+
+![Screenshot](./screenshots/28.png)
+
+Xem chi tiết kết quả điểm các cột bộ phận
+
+![Screenshot](./screenshots/29.png)
+
+
+
+
+
+## 5 Cài đặt lên Google Cloud platform
 Đăng nhập vào trang quản lý của google cloud platform theo đường dẫn sau
 https://console.cloud.google.com/compute/instances
 chọn tên dự án và tiến hành tạo 1 cloud computer instance (đây chính là khái niệm tạo mới 1 server ảo trên google cloud computer)
 
 ![Screenshot](./screenshots/1.png)
-### Tạo Server
+### 5.1 Tạo Server
 Tiến hành tạo coputer instance với thông số cần thiết, như cấu hình CPU,RAM.
 Lưu ý chon khu vực computer là rất quan trọng, Nên chọn khu vực gần với lượng users nhiều nhất, ví dụ ở Vietnam thì mình nên chọn asia-southeast1 server này sẽ nằm ở Singapore.
 ![screenshot](./screenshots/2.png)
@@ -111,20 +161,20 @@ Sau khi tạo xong thì sẽ có thông tin của server như API. và ta có th
 ![screenshot](./screenshots/3.png)
 ta có thể trỏ luôn tên miền về server này
 
-### Login Vào server dùng SSH 
+### 5.2 Login Vào server dùng SSH 
 
 ```
 gcloud beta compute ssh --zone "asia-southeast1-b" "instance-1" --project "danang-288409"
 ```
 
-### Cài Docker cho server 
+### 5.3 Cài Docker cho server 
 
 ```
 curl -fsSL https://get.docker.com -o get-docker.sh
 sudo sh get-docker.sh
 ```
 
-### Deploy API service
+### 5.4 Deploy API service
 
 Vào thự mục ued thay đổi cấu hình thông tin phù hợp với server của bạn trong file ./deploy.sh
 
@@ -134,7 +184,7 @@ Vào thự mục ued thay đổi cấu hình thông tin phù hợp với server 
 
 ![screenshot](./screenshots/4.png)
 
-## Deploy Web App
+## 6 Deploy Web App
 
 vào thư mục web (Buidl và deploy)
 
