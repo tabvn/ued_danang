@@ -218,7 +218,7 @@ const ListCourses = () => {
       {visible && (
         <Drawer
           onClose={() => setVisible(false)}
-          title={"Mở học phần mới"}
+          title={editCourse ? 'Cập nhật học phần' : 'Mở học phần mới'}
           placement="right"
           width={window.innerWidth < 520 ? window.innerWidth : 520}
           visible={visible}
