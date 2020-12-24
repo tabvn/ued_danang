@@ -67,28 +67,33 @@ const AdminScoreManagement = () => {
                         return { ...prevState, scoreConfigure: values };
                       });
                       // write cache to client
-                      const cache = apolloClient.readQuery({
-                        query: GET_ALL_COURSES,
-                      });
-                      if (cache) {
-                        apolloClient.writeQuery({
+                      try {
+                        const cache = apolloClient.readQuery({
                           query: GET_ALL_COURSES,
-                          data: {
-                              courses: {
-                                  ...cache.courses,
-                                  nodes: cache.courses.nodes.map((v) => {
-                                      if (v.id === courseId) {
-                                          return {
-                                              ...v,
-                                              scoreConfigure: values,
-                                          };
-                                      }
-                                      return v;
-                                  }),
-                              }
-                          },
                         });
+                        if (cache) {
+                          apolloClient.writeQuery({
+                            query: GET_ALL_COURSES,
+                            data: {
+                              courses: {
+                                ...cache.courses,
+                                nodes: cache.courses.nodes.map((v) => {
+                                  if (v.id === courseId) {
+                                    return {
+                                      ...v,
+                                      scoreConfigure: values,
+                                    };
+                                  }
+                                  return v;
+                                }),
+                              }
+                            },
+                          });
+                        }
+                      }catch (e){
+                        console.log(e)
                       }
+
                     }}
                     course={info}
                 />
